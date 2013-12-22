@@ -10,12 +10,15 @@ public:
 	
 	int init();
 	
+	int bind();
+	int listen();
+	
+	int connect();
+	
 	int send_buf();
 	int recv_buf();
 	
-
-
-
+	int close();
 };
 
 #endif /*TCP_SOCKET_H_*/
