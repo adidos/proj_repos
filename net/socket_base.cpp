@@ -8,6 +8,7 @@
 int SocketBase::set_noblock(bool bNoBlock)
 {
 	
+	
 	return 0;
 }
 
@@ -18,7 +19,7 @@ int SocketBase::set_noblock(bool bNoBlock)
 int SocketBase::set_nodelay()
 {
 
-
+	return 0;
 }
 
 /*
