@@ -10,9 +10,9 @@ public:
 	{
 	}
 	
-	int set_fd(SOCKET fd)
+	int set_fd(int fd)
 	{
-		if(INVALID_SOCKE == fd)
+		if(INVALID_SOCKET == fd)
 			return -1;
 		
 		fd_ = fd;
@@ -23,12 +23,13 @@ public:
 	
 	int set_noblock(bool bNoBlock);
 	int set_nodelay();
-	int set_KeepAlive(int interval_sec);
+	int set_KeepAlive();
 	int set_send_buf(int buf_size);
 	int set_recv_buf(int buf_size);
-
+    int set_send_timeout(int time_out);
+    int set_recv_timeout(int time_out);
 private:
-	SOCKET fd_;
+	int fd_;
 
 };
 #endif /*SOCKET_BASE_H_*/
