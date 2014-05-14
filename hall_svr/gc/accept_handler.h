@@ -13,19 +13,20 @@
 #define ACCEPT_HANDLER_H
 
 #include "event_handler.h"
+#include "session_manager.h"
 
 class AcceptHandler : public IEventHandler
 {
 public:
-	AcceptHandler();
-	~AcceptHandler();
+	AcceptHandler(SessionManager* sess_mgr_ptr);
+	~AcceptHandler(){};
 
 	virtual void handle(int fd, int event);
 	
 	virtual void handleError(int fd);
 
-
-
+private:
+	SessionManager* session_manager_;
 
 };
 
