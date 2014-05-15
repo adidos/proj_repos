@@ -11,9 +11,8 @@
 
 #include "session_manager.h"
 
-int SessionManager::cur_seq_ = 1;
-
 SessionManager::SessionManager()
+	:cur_seq_(1)
 {
 	idle_array_.clear();
 	session_array_.clear();
@@ -37,7 +36,6 @@ SessionManager::~SessionManager()
 		ptr = NULL;
 	}
 	session_array_.clear();
-
 }
 
 /**
@@ -56,7 +54,8 @@ SessionBase* SessionManager::getIdleSession()
 	}
 	else
 	{
-		ptr = new SessionBase(SessID());
+		ptr = new SessionBase();
+		ptr->setSeqno(cur_seq_++);
 	}
 	
 	return ptr;
@@ -81,32 +80,33 @@ void SessionManager::pushBack(SessionBase* pSession)
 /**
 * brief:
 *
-* @param fd
+* @param seqno
 *
 * @returns   
 */
-SessionBase* SessionManager::getSession8Fd(int fd)
+SessionBase* SessionManager::getSession(int seqno)
 {
-	if(INVALID_FD == fd)
-	{
-		return NULL;
-	}
-
-	map<int, SessionBase*>::iterator iter = session_array_.find(fd);
+	Iterator iter = session_array_.find(seqno);
 	if(iter == session_array_.end())
 		return NULL;
 
 	return iter->second;
 }
 
-bool SessionManager::addSession(int fd, SessionBase* pSession)
+/**
+* brief:
+*
+* @param pSession
+*
+* @returns   
+*/
+bool SessionManager::addSession(SessionBase* pSession)
 {
-	typedef map<int, SessionBase*>::iterator Iterator;
-
 	if(NULL == pSession)
 		return false;
 	
-	pair<Iterator, bool> result = session_array_.insert(make_pair(fd, pSession));
+	int seqno = pSession->getSeqno();
+	pair<Iterator, bool> result = session_array_.insert(make_pair(seqno, pSession));
 	
 	return result.second;	
 }

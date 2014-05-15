@@ -11,9 +11,30 @@
 
 #include "session.h"
 
-SessionBase::SessionBase(const SessID& sid)
-	:sid_(sid)
+SessionBase::SessionBase()
+	:fd_(-1), seq_no_(-1)
 {
+
+}
+
+SessionBase::SessionBase(int fd, int seqno)
+	:fd_(fd), seq_no_(seqno)
+{
+}
+
+int SessionBase::recv()
+{
+	return 0;
+}
+
+int SessionBase::send()
+{
+
+}
+
+int SessionBase::close()
+{
+
 }
 
 /**

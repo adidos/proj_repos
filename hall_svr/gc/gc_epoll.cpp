@@ -67,10 +67,10 @@ int GCEpoll::create(int max_connections)
 * @param event
 * @param op
 */
-void GCEpoll::ctrl(int fd, void* data, uint32_t event, int op)
+void GCEpoll::ctrl(int fd, uint32_t data, uint32_t event, int op)
 {
 	struct epoll_event ev;
-	ev.data.ptr = data;
+	ev.data.u32 = data;
 
 	if(et_)
 		ev.events = event | EPOLLET;
@@ -90,7 +90,7 @@ void GCEpoll::ctrl(int fd, void* data, uint32_t event, int op)
 *
 * @returns   
 */
-int GCEpoll::add(int fd, void* data, uint32_t event)
+int GCEpoll::add(int fd, uint32_t data, uint32_t event)
 {
 	ctrl(fd, data, event, EPOLL_CTL_ADD); 
 	return 0;
@@ -105,7 +105,7 @@ int GCEpoll::add(int fd, void* data, uint32_t event)
 *
 * @returns   
 */
-int GCEpoll::mod(int fd, void* data, uint32_t event)
+int GCEpoll::mod(int fd, uint32_t data, uint32_t event)
 {
 	ctrl(fd, data, event, EPOLL_CTL_MOD); 
 
@@ -121,7 +121,7 @@ int GCEpoll::mod(int fd, void* data, uint32_t event)
 *
 * @returns   
 */
-int GCEpoll::del(int fd, void* data, uint32_t event)
+int GCEpoll::del(int fd, uint32_t data, uint32_t event)
 {
 	ctrl(fd, data, event, EPOLL_CTL_DEL); 
 
@@ -140,13 +140,4 @@ int GCEpoll::wait(int millsecond)
 	int ret = epoll_wait(epoll_fd_, event_array_, max_connections_, millsecond);
 	return ret;
 }
-
-
-
-
-
-
-
-
-
 

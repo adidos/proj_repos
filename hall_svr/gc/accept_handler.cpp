@@ -22,41 +22,36 @@ AcceptHandler::AcceptHandler(SessionManager* sess_mgr_ptr)
 * @param fd
 * @param event
 */
-void AcceptHandler::handle(int fd, int event)
+void AcceptHandler::handle(EventInfo event_info)
 {
+	int fd = event_info.event_fd;
+
 	sockaddr_in addr;
 	socklen_t len;
 	int client_fd = ::accept(fd, (sockaddr*)&addr, &len, 0);
+	if(client_fd < 0)
+	{
+		if(EINTR == errno)
+			continue;
+
+		return;
+	}
 	//TODO set the client fd to no-block
 	
-	//whether the fd is reuse
-	SessionBase* session = session_manager_->getSession8Fd(client_fd);
-	if(NULL != session)
+	SessionBase* session = session_manager_->getIdleSession();
+	if(NULL == session)
 	{
-		//reuse ,notify application layer, close old session
-		//get ident by fd or sessid, offline
+		return;
 	} 
-	else
-	{
-		session = session_manager_->getIdleSession();
-	}
-	assert(NULL != session);
-
-	SessID sid ;
-	sid.fd = client_fd;
-	sid.seqno = SessionManager::newSeqNo();
-
-	session->setSessId(sid);
-	session_manager_->addSession(client_fd, session);	
-}
-
-/**
-* brief: if this function called, whether means the process can exit
-*
-* @param fd
-*/
-void AcceptHandler::handleError(int fd)
-{
 	
+	session->setFd(client_fd);
+	session_manager_->addSession(session);	
 
+	//add event handler
+	int seqno = session->getSeqno();
+
+	struct epoll_event event;
+	event.data.u64 = client_fd << 32 | seqno;
+	event.events = EPOLLIN | EPOLLET;
 }
+

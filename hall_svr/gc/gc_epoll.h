@@ -27,11 +27,11 @@ public:
 
 	int create(int max_connections);
 
-	int add(int fd, void* data, uint32_t event);
+	int add(int fd, uint32_t data, uint32_t event);
 	
-	int mod(int fd, void* data, uint32_t event);
+	int mod(int fd, uint32_t data, uint32_t event);
 
-	int del(int fd, void* data, uint32_t event);
+	int del(int fd, uint32_t data, uint32_t event);
 
 	int wait(int millsecond);
 
@@ -42,7 +42,7 @@ public:
 	}
 
 private:
-	void ctrl(int fd, void* data, uint32_t event, int op);
+	void ctrl(int fd, uint32_t data, uint32_t event, int op);
 
 private:
 	int epoll_fd_;

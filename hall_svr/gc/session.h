@@ -23,53 +23,26 @@ using namespace std;
 
 class Command;
 
-struct SessID
-{
-	int fd;
-	int seqno;
-	
-	SessID()
-	{
-		fd = INVALID_FD;
-		seqno = SEQNO_INIT;
-	}
-
-	SessID(const SessID& other)
-	{
-		this->fd = other.fd;
-		this->seqno = other.seqno;
-	}
-
-	SessID& operator=(const SessID& other)
-	{
-		this->fd = other.fd;
-		this->seqno = other.seqno;
-		return *this;
-	}
-
-	bool operator < (const SessID& other)const
-	{
-		if(fd < other.fd)
-			return true;
-		else if(fd == other.fd)
-			return seqno < other.seqno;
-		
-		return false;
-	}
-};
-
 class SessionBase
 {
 public:
-	SessionBase(const SessID& sid);
+	SessionBase();
+	SessionBase(int fd, int seqno);
 	~SessionBase();
-	
-	void setSessId(const SessID& id)
+
+	int getFd(){return fd_;}
+
+	int getSeqno(){return seq_no_;}
+
+	void setFd(int fd)
 	{
-		sid_ = id;	
+		fd_ = fd;
 	}
 
-	void reset();
+	void setSeqno(int seqno)
+	{
+		seq_no_ = seqno;
+	}
 
 	int recv();
 	int send();
@@ -85,7 +58,8 @@ public:
 	//Command* getCommand() = 0;
 
 protected:
-	SessID sid_;
+	int fd_;
+	int seq_no_;
 
 	string send_buff_;
 	string recv_buff_;

@@ -12,23 +12,28 @@
 #ifndef EVENT_HANDLER_H
 #define EVENT_HANDLER_H
 
-class GCReactor;
+class EpollServer;
+
+struct EventInfo
+{
+	int event_fd;
+	int event_type;
+	int event_data;
+};
 
 class IEventHandler
 {
 public:
-	virtual void handle(int fd, int event) = 0;
+	virtual void handle(EventInfo event_info) = 0;
 
-	virtual void handleError(int fd) = 0;
-
-	void regReactor(GCReactor* ptr)
+	void regEpollSvr(EpollServer* ptr)
 	{
 		assert(NULL != ptr);
-		reactor_ptr_ = ptr;
+		epoll_svr_ptr_ = ptr;
 	}
 
 protected:
-	GCReactor* reactor_ptr_;
+	EpollServer* epoll_svr_ptr_;
 };
 
 #endif /*EVENT_HANDLER_H*/

@@ -30,21 +30,17 @@ public:
 	SessionBase* getIdleSession();
 	void pushBack(SessionBase* pSession);
 
-	SessionBase* getSession8Fd(int fd);
-	bool addSession(int, SessionBase* pSession);
+	SessionBase* getSession(int seqno);
+	bool addSession(SessionBase* pSession);
 	
-public:
-	static int newSeqNo()
-	{
-		return cur_seq_++;
-	}
-	
+	typedef map<int, SessionBase*>::iterator Iterator;
 private:
+	int cur_seq_;
+
 	list<SessionBase*> idle_array_; //session使用完后进行回收再利用
 	
 	map<int, SessionBase*> session_array_;	//当前所有的有效session
 
-	static int cur_seq_;
 };
 
 #endif /*SESSION_MANAGER_H*/

@@ -21,9 +21,7 @@ public:
 	AcceptHandler(SessionManager* sess_mgr_ptr);
 	~AcceptHandler(){};
 
-	virtual void handle(int fd, int event);
-	
-	virtual void handleError(int fd);
+	virtual void handle(EventInfo event_info);
 
 private:
 	SessionManager* session_manager_;
