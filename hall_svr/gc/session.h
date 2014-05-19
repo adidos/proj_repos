@@ -12,16 +12,14 @@
 #ifndef SESSION_BASE_H
 #define SESSION_BASE_H
 
-#define MAX_BUF_LEN 8192
-
 #include <string>
+#include "thread_sync.h"
 
-#define INVALID_FD -1
-#define SEQNO_INIT 0
+#define SOCKET_CLOSE	-10
+#define SOCKET_RECV_OVER -11
+#define SOCKET_ERR	-12
 
 using namespace std;
-
-class Command;
 
 class SessionBase
 {
@@ -63,6 +61,9 @@ protected:
 
 	string send_buff_;
 	string recv_buff_;
+
+	CMutex recv_mutex_;
+	CMutex send_mutex_;
 };
 
 #endif /*SESSION_BASE_H*/

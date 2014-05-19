@@ -12,6 +12,10 @@
 #include "gc_logger.h"
 
 #include <assert.h>
+#include <string.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 CMutex::CMutex()
 {
@@ -35,19 +39,19 @@ int CMutex::Init()
 {
 	if (pthread_mutexattr_init(&m_attr) != 0)
 	{
-	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutexattr_init err: " << strerr(errno));
+	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutexattr_init err: " << strerror(errno));
 		return -1;
 	}
 
 	if (pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_RECURSIVE) != 0)
 	{
-	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutexattr_settype err: " << strerr(errno));
+	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutexattr_settype err: " << strerror(errno));
 		return -1;
 	}
 
 	if (pthread_mutex_init(&m_mutex, &m_attr) != 0)
 	{
-	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutex_init err: " << strerr(errno));
+	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutex_init err: " << strerror(errno));
 		return -1;
 	}
 
@@ -63,7 +67,7 @@ int CMutex::Lock()
 {
 	if (0 != pthread_mutex_lock(&m_mutex))
 	{
-	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutex_lock err: " << strerr(errno));
+	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutex_lock err: " << strerror(errno));
 		return -1;
 	}
 
@@ -79,7 +83,7 @@ int CMutex::TryLock()
 {
 	if (0 != pthread_mutex_trylock(&m_mutex))
 	{
-	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutex_trylock err: " << strerr(errno));
+	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutex_trylock err: " << strerror(errno));
 		return -1;
 	}
 
@@ -95,7 +99,7 @@ int CMutex::Unlock()
 {
 	if (0 != pthread_mutex_unlock(&m_mutex))
 	{
-	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutex_unlock err: " << strerr(errno));
+	    LOG4CPLUS_ERROR(GCLogger::ROOT, "pthread_mutex_unlock err: " << strerror(errno));
 		return -1;
 	}
 

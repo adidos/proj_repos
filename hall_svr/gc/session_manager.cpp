@@ -10,6 +10,7 @@
 * ======================================================*/
 
 #include "session_manager.h"
+#include "gc_logger.h"
 
 SessionManager::SessionManager()
 	:cur_seq_(1)
@@ -49,20 +50,25 @@ SessionBase* SessionManager::getIdleSession()
 
 	if(idle_array_.size() > 0)
 	{
+		CScopeGuard guard(idle_mutex_);
 		ptr = idle_array_.front();
 		idle_array_.pop_front();
+		LOG4CPLUS_TRACE(GCLogger::ROOT, "get a session from idle array, seqno = " 
+			<< ptr->getSeqno());
 	}
 	else
 	{
 		ptr = new SessionBase();
 		ptr->setSeqno(cur_seq_++);
+		LOG4CPLUS_TRACE(GCLogger::ROOT, "idle array is empty, create a new session, "
+				<< "seqno = " << ptr->getSeqno());
 	}
 	
 	return ptr;
 }
 
 /**
-* brief: after using, put session back
+* brief: after using, put session back to idle session array
 *
 * @param pSession
 */
@@ -70,10 +76,11 @@ void SessionManager::pushBack(SessionBase* pSession)
 {
 	if(NULL == pSession)
 	{
+		LOG4CPLUS_ERROR(GCLogger::ROOT, "INVALID paramer...");
 		return;
 	}
-	//pSession->reset();
-	
+
+	CScopeGuard guard(idle_mutex_);	
 	idle_array_.push_back(pSession);
 }
 
@@ -103,10 +110,29 @@ SessionBase* SessionManager::getSession(int seqno)
 bool SessionManager::addSession(SessionBase* pSession)
 {
 	if(NULL == pSession)
+	{
+		LOG4CPLUS_ERROR(GCLogger::ROOT, "INVALID paramer...");
 		return false;
+	}
 	
 	int seqno = pSession->getSeqno();
+
+	CScopeGuard guard(session_mutex_);	
 	pair<Iterator, bool> result = session_array_.insert(make_pair(seqno, pSession));
 	
 	return result.second;	
+}
+
+
+/**
+* brief:
+*
+* @param seqno
+*
+* @returns   
+*/
+void SessionManager::delSession(int seqno)
+{
+	CScopeGuard guard(session_mutex_);
+	session_array_.erase(seqno);
 }

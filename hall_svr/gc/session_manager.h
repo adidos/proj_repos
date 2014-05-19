@@ -20,6 +20,7 @@
 using namespace std;
 
 #include "session.h"
+#include "thread_sync.h"
 
 class SessionManager
 {
@@ -32,14 +33,17 @@ public:
 
 	SessionBase* getSession(int seqno);
 	bool addSession(SessionBase* pSession);
+	void delSession(int seqno);
 	
 	typedef map<int, SessionBase*>::iterator Iterator;
 private:
 	int cur_seq_;
 
 	list<SessionBase*> idle_array_; //session使用完后进行回收再利用
+	CMutex idle_mutex_;
 	
 	map<int, SessionBase*> session_array_;	//当前所有的有效session
+	CMutex session_mutex_;
 
 };
 

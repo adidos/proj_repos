@@ -10,7 +10,8 @@
 * ======================================================*/
 
 #include "epoll_server.h"
-#include "hall_common.h"
+#include "gc_logger.h"
+#include "session_manager.h"
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -19,7 +20,6 @@
 #include <utility>
 
 using namespace std;
-
 
 EpollServer::EpollServer(SessionManager* pSessionMgr)
  :session_mgr_ptr_(pSessionMgr)
@@ -40,14 +40,10 @@ int EpollServer::init(int size)
 	return 0;
 }
 
-int EpollServer::notify(int fd, int type)
+int EpollServer::notify(int fd)
 {
-	if(NOTIFY_DEL == type)
-	{
-		epoll_.
-	}
 	SessionBase* pSession = session_mgr_ptr_->getIdleSession();
-	if(NULL == session)
+	if(NULL == pSession)
 	{
 		return -1;
 	}
@@ -56,8 +52,11 @@ int EpollServer::notify(int fd, int type)
 	session_mgr_ptr_->addSession(pSession);
 
 	int seqno = pSession->getSeqno();	
+	int64_t data = (uint64_t)fd << 32 | seqno;
 	
-	
+	epoll_.add(fd, data, EPOLLIN);	
+	LOG4CPLUS_DEBUG(GCLogger::ROOT, "add a Session, fd = " << fd
+			<< ", seqno = " << seqno);
 
 	return 0;
 }
@@ -71,39 +70,109 @@ void EpollServer::doIt()
 {
 	while(!teminate_)
 	{
-		int ret = epoll_wait(epoll_fd_, events_, EPOLL_MAX_SIZE, -1);
+		//block until event occure
+		int ret = epoll_.wait(-1);
 		if(ret < 0)
 		{
 			if(errno == EINTR)
 				continue;
+
+			LOG4CPLUS_ERROR(GCLogger::ROOT, "epoll server error, exit run loop...");
 			break;
 		}
 		
-		IEventHandler* pHandler = NULL;
 		for(int i = 0; i < ret; ++i)
 		{
-			int fd = events_[i].data.u64 >> 32;
+			struct epoll_event ev = epoll_->get(i);
 
-			pHandler = handler_array_[fd];
-			if(NULL == pHandler)
+			if(ev.events & (EPOLLHUP | EPOLLERR))
 			{
-				//TODO log
-			}
+				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll error, fd = " << FD(ev.data.u64)
+					<< ", seqno = " << SEQ(ev.data.u64));
 
-			if(events_[i].events & (EPOLLHUP | EPOLLERR))
-			{
-				this->delEvent(fd);
-				handler_array_.erase(fd);
+				handlerError(ev.data.u64);
 			}
-			else if(events_[i].events & EPOLLIN)
+			else if(ev.events & EPOLLIN)
 			{
+				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll readable, fd = " << FD(ev.data.u64)
+					<< ", seqno = " << SEQ(ev.data.u64));
+				handlerRead(ev.data.u64);
 			}
-			else if(events_[i].events & EPOLLOUT)
+			else if(ev.events & EPOLLOUT)
 			{
+				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll writeable, fd = " << FD(ev.data.u64)
+					<< ", seqno = " << SEQ(ev.data.u64));
+				handlerWrite(ev.data.u64);
 			}
-			pHandler->handle();
 		}
 	}
 
+}
+
+/**
+* brief:
+*
+* @param event
+*
+* @returns   
+*/
+int EpollServer::handlerError(uint64_t data)
+{	
+	int seqno = SEQ(data);
+	int fd = FD(data);
+
+	epoll_.del(fd, data, 0);
+
+}
+
+/**
+* brief:
+*
+* @returns   
+*/
+int EpollServer::handlerRead(uint64_t data)
+{
+	int seqno = SEQ(data);
+	int fd = FD(data);
+	SessionBase* pSession = session_mgr_ptr_->getSession(seqno);
+	assert(NULL != pSession)
+	
+	int ret = pSession->recv();
+	if(SOCKET_CLOSE == ret ||
+		SOCKET_ERR == ret) //client close the socket
+	{
+		//handle in up layer， if handle earlier , the session will recycle,
+		//the up layer will can't find the session
+		//pSession->setFd(-1);
+		//session_mgr_ptr_->delSession(seqno);
+		//session_mgr_ptr_->pushBack(pSession);
+		
+		epoll_.del(fd, data, 0);
+
+		//TODO event notify
+	}
+	else if(ret > 0)
+	{
+		
+	}
+	
+	//TODO event info notify
+}
+
+/**
+* brief:
+*
+* @returns   
+*/
+int EpollServer::handlerWrite(uint64_t data)
+{	
+	int seqno = SEQ(data);
+	int fd = FD(data);
+
+	//modify event to EPOLLIN
+	epoll_.mod(fd, data, EPOLLIN);
+
+	//notify send thread write event
+	
 }
 
