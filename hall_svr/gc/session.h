@@ -16,8 +16,7 @@
 #include "thread_sync.h"
 
 #define SOCKET_CLOSE	-10
-#define SOCKET_RECV_OVER -11
-#define SOCKET_ERR	-12
+#define SOCKET_ERR	-11
 
 using namespace std;
 

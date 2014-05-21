@@ -13,10 +13,11 @@
 
 #include "gc_epoll.h"
 #include "gc_thread.h"
+#include "notify_handler.h"
 
-#define U64(fd, seq) ((uint64_t)fd << 32 | seq )
-#define FD(data) ((uint64_t)data >> 32)
-#define SEQ(data) (int)((uint64_t)data & 0xFFFFFFFF)
+#define U64(high, low) ((uint64_t)high << 32 | low)
+#define H32(data) (int)((uint64_t)data >> 32)
+#define L32(data) (int)((uint64_t)data & 0xFFFFFFFF)
 
 class SessionManager;
 
@@ -30,16 +31,22 @@ public:
 
 	int notify(int fd);
 
+	int regHandler(NotifyHandler* pHandler)
+	{
+		assert(NULL != pHandler);
+		notify_handler_ptr_ = pHandler;
+	}
+
 protected:
 	virtual void doIt();
 
 private:
-	int handlerError(uint64_t data);
 	int handlerRead(uint64_t data);
 	int handlerWrite(uint64_t data);
 
 private:
 	SessionManager* session_mgr_ptr_;
+	NotifyHandler* notify_handler_ptr_;
 	
 	GCEpoll epoll_;
 };

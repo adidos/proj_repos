@@ -52,7 +52,7 @@ int EpollServer::notify(int fd)
 	session_mgr_ptr_->addSession(pSession);
 
 	int seqno = pSession->getSeqno();	
-	int64_t data = (uint64_t)fd << 32 | seqno;
+	int64_t data = U64(seqno, fd);
 	
 	epoll_.add(fd, data, EPOLLIN);	
 	LOG4CPLUS_DEBUG(GCLogger::ROOT, "add a Session, fd = " << fd
@@ -81,27 +81,35 @@ void EpollServer::doIt()
 			break;
 		}
 		
+		LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll wait return value " << ret);
 		for(int i = 0; i < ret; ++i)
 		{
 			struct epoll_event ev = epoll_->get(i);
 
+			NotifyInfo notify;
 			if(ev.events & (EPOLLHUP | EPOLLERR))
 			{
-				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll error, fd = " << FD(ev.data.u64)
-					<< ", seqno = " << SEQ(ev.data.u64));
+				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll error, fd = " << ev.data.fd
+					<< ", seqno = " << H32(ev.data.u64));
+				
+				epoll_.del(fd, ev.data.u64, 0);
 
-				handlerError(ev.data.u64);
+				notify.type = NT_CLOSE;
+				notify.seqno = H32(ev.data.u64);
+				notify_handler_ptr_->handle(notify);	
 			}
 			else if(ev.events & EPOLLIN)
 			{
-				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll readable, fd = " << FD(ev.data.u64)
-					<< ", seqno = " << SEQ(ev.data.u64));
+				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll readable, fd = " << ev.data.fd
+					<< ", seqno = " << H32(ev.data.u64));
+
 				handlerRead(ev.data.u64);
 			}
 			else if(ev.events & EPOLLOUT)
 			{
-				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll writeable, fd = " << FD(ev.data.u64)
-					<< ", seqno = " << SEQ(ev.data.u64));
+				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll writeable, fd = " << ev.data.fd
+					<< ", seqno = " << H32(ev.data.u64));
+
 				handlerWrite(ev.data.u64);
 			}
 		}
@@ -112,51 +120,35 @@ void EpollServer::doIt()
 /**
 * brief:
 *
-* @param event
-*
-* @returns   
-*/
-int EpollServer::handlerError(uint64_t data)
-{	
-	int seqno = SEQ(data);
-	int fd = FD(data);
-
-	epoll_.del(fd, data, 0);
-
-}
-
-/**
-* brief:
-*
 * @returns   
 */
 int EpollServer::handlerRead(uint64_t data)
-{
-	int seqno = SEQ(data);
-	int fd = FD(data);
+{	
+	int seqno = H32(data);
+
+	NotifyInfo notify;
+	notify.seqno = seqno;
+
 	SessionBase* pSession = session_mgr_ptr_->getSession(seqno);
-	assert(NULL != pSession)
+	if(NULL == pSession)
+	{
+		LOG4CPLUS_WARN(GCLogger::ROOT, "session is null, seqno = " << seqno);
+		return -1;
+	}
 	
 	int ret = pSession->recv();
-	if(SOCKET_CLOSE == ret ||
-		SOCKET_ERR == ret) //client close the socket
+	if(SOCKET_CLOSE == ret || SOCKET_ERR == ret) 
 	{
-		//handle in up layer， if handle earlier , the session will recycle,
-		//the up layer will can't find the session
-		//pSession->setFd(-1);
-		//session_mgr_ptr_->delSession(seqno);
-		//session_mgr_ptr_->pushBack(pSession);
-		
-		epoll_.del(fd, data, 0);
-
-		//TODO event notify
+		epoll_.del(L32(data), data, 0);
+		notify.type = NT_CLOSE;
 	}
 	else if(ret > 0)
 	{
-		
+		notify.type = NT_READ;	
 	}
-	
-	//TODO event info notify
+
+	notify_handler_ptr_->handle(notify);	
+	return 0;
 }
 
 /**
@@ -166,13 +158,13 @@ int EpollServer::handlerRead(uint64_t data)
 */
 int EpollServer::handlerWrite(uint64_t data)
 {	
-	int seqno = SEQ(data);
-	int fd = FD(data);
+	epoll_.mod(L32(data), data, EPOLLIN);
 
-	//modify event to EPOLLIN
-	epoll_.mod(fd, data, EPOLLIN);
+	NotifyInfo notify;
+	notify.seqno = U32(data);
+	notify.type = NT_WRITE;	
 
-	//notify send thread write event
-	
+	notify_handler_ptr_->handle(notify);
+	return 0;
 }
 

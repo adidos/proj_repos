@@ -41,7 +41,10 @@ int SessionBase::recv()
 		if(recv_len < 0)
 		{
 			if(EAGAIN == errno || EWOULDBLOCK == errno)
-				return SOCKET_RECV_OVER;
+			{
+				LOG4CPLUS_TRACE(GCLogger::ROOT, fd << " will recv EAGAIN");
+				break;
+			}
 			else if(EINTR == errno)
 				continue;
 
@@ -74,7 +77,18 @@ int SessionBase::send()
 
 int SessionBase::close()
 {
+	close(fd_);
+	fd_ = -1;
+	
+	{
+		CScopeGuard guard(recv_mutex_);
+		recv_buff_.clear();
+	}
 
+	{
+		CScopeGuard guard(send_mutex_);
+		send_buff_.clear();
+	}
 }
 
 /**
