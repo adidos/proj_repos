@@ -95,7 +95,10 @@ SessionBase* SessionManager::getSession(int seqno)
 {
 	Iterator iter = session_array_.find(seqno);
 	if(iter == session_array_.end())
+	{
+		LOG4CPLUS_ERROR(GCLogger::ROOT, "session[" << seqno << "] is not exist!");
 		return NULL;
+	}
 
 	return iter->second;
 }

@@ -47,6 +47,8 @@ public:
 
 	int write2Send(const string& buffer_send);	
 	
+	int recvCommand(DataXCmd* pCmd);
+	
 	/**
 	* brief: get a complete command from recv_buff
 	*

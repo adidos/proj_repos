@@ -29,7 +29,11 @@ void CmdCollector::doIt()
 	}
 }
 
-
+/**
+* brief:
+*
+* @param notify
+*/
 void CmdCollector::handleNotify(NotifyInfo& notify)
 {
 	if(!notify.isValid())	
@@ -42,7 +46,6 @@ void CmdCollector::handleNotify(NotifyInfo& notify)
 	SessionBase* pSession = session_mgr_ptr_->getSession(notify.seqno);	
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_WARN(GCLogger::ROOT, "session[" << notify.seqno << "] is NULL!");
 		return ;
 	}
 	
@@ -64,4 +67,16 @@ void CmdCollector::handleNotify(NotifyInfo& notify)
 	{
 		LOG4CPLUS_ERROR(GCLogger::ROOT, "error type: " << notify.type);
 	}
+}
+
+
+void CmdCollector::handleRead(int seqno)
+{
+	SessionBase* pSession = session_mgr_ptr_->getSession(seqno);	
+	if(NULL == pSession)
+		return NULL;
+
+	
+
+
 }

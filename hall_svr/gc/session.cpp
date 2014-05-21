@@ -104,3 +104,39 @@ int SessionBase::write2Send(const string& buffer_send)
 	return 0;
 }
 
+int SessionBase::recvCommand(DataXCmd* pCmd)
+{
+	if(NULL == pCmd)
+		return -1;
+	
+	CScopeGuard gaurd(recv_mutex_);
+	int header = pCmd->header_length();
+	if(recv_buff_.length() < header)
+	{
+		LOG4CPLUS_DEBUG(GCLogger::ROOT, "recv buffer length is " << recv_buff_.length()
+			<< ", is less then header require length " << header);
+		return 0;
+	}
+	
+	bool ret = pCmd->decode_header((byte*)recv_buff_.c_str(), header);	
+	if(!ret)
+		return -1;
+
+	int body = pCmd->body_length();
+	if(recv_buff_.length() < body + header)
+	{
+		LOG4CPLUS_DEBUG(GCLogger::ROOT, "recv buffer length is " << recv_buff_.length()
+			<<", is less then a complete command package length " << body + header);
+		return 0;
+	}
+	
+	byte* pBody = (byte*)(recv_buff_.c_str() + header);
+	ret = pCmd->decode_parameters(pBody, body);
+	if(!ret)
+		return -1;
+
+	//delete the decode buffer from recv buffer
+	recv_buff_.erase(0, body + header);
+
+	return pCmd;
+}

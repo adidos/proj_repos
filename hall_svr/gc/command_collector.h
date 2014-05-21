@@ -28,6 +28,8 @@ protected:
 
 private:
 	void handleNotify(NotifyInfo& notify);
+	
+	void handleRead(int seqno);
 
 private:
 	SessionManager* session_mgr_ptr_;
