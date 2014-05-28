@@ -3,3 +3,9 @@
 
 tags
 *.tar*
+
+*.doc
+
+*.txt
+
+*.log

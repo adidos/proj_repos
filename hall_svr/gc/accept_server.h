@@ -15,7 +15,7 @@
 
 class EpollServer;
 
-class AcceptServer
+class AcceptServer : public CThread
 {
 public:
 	AcceptServer(EpollServer* pEpollSvr);

@@ -11,9 +11,9 @@
 #ifndef EPOLL_SERVER_H
 #define EPOLL_SERVER_H 
 
-#include "gc_epoll.h"
-#include "gc_thread.h"
-#include "notify_handler.h"
+#include "epoll.h"
+#include "thread.h"
+#include "servant.h"
 
 #define U64(high, low) ((uint64_t)high << 32 | low)
 #define H32(data) (int)((uint64_t)data >> 32)
@@ -29,26 +29,32 @@ public:
 
 	int init(int size);
 
-	int notify(int fd);
+	int addNewSession(int fd);
 
-	int regHandler(NotifyHandler* pHandler)
+	int regServant(Servant* pServant)
 	{
-		assert(NULL != pHandler);
-		notify_handler_ptr_ = pHandler;
+		assert(NULL != pServant);
+		_servant_ptr = pServant;
+	}
+
+	Servant* getServant()
+	{
+		return _servant_ptr;
 	}
 
 protected:
 	virtual void doIt();
 
 private:
-	int handlerRead(uint64_t data);
-	int handlerWrite(uint64_t data);
+	int processError(uint64_t data);
+	int processRead(uint64_t data);
+	int processWrite(uint64_t data);
 
 private:
-	SessionManager* session_mgr_ptr_;
-	NotifyHandler* notify_handler_ptr_;
+	SessionManager* _session_mgr_ptr;
+	Servant* _servant_ptr;
 	
-	GCEpoll epoll_;
+	CEpoll _epoll;
 };
 
 #endif /*EPOLL_SERVER_H*/

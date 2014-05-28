@@ -10,7 +10,7 @@
 * ======================================================*/
 
 #include "session_manager.h"
-#include "gc_logger.h"
+#include "logger.h"
 
 SessionManager::SessionManager()
 	:cur_seq_(1)
@@ -53,14 +53,14 @@ SessionBase* SessionManager::getIdleSession()
 		CScopeGuard guard(idle_mutex_);
 		ptr = idle_array_.front();
 		idle_array_.pop_front();
-		LOG4CPLUS_TRACE(GCLogger::ROOT, "get a session from idle array, seqno = " 
+		LOG4CPLUS_TRACE(CLogger::logger, "get a session from idle array, seqno = " 
 			<< ptr->getSeqno());
 	}
 	else
 	{
 		ptr = new SessionBase();
 		ptr->setSeqno(cur_seq_++);
-		LOG4CPLUS_TRACE(GCLogger::ROOT, "idle array is empty, create a new session, "
+		LOG4CPLUS_TRACE(CLogger::logger, "idle array is empty, create a new session, "
 				<< "seqno = " << ptr->getSeqno());
 	}
 	
@@ -72,13 +72,20 @@ SessionBase* SessionManager::getIdleSession()
 *
 * @param pSession
 */
-void SessionManager::pushBack(SessionBase* pSession)
+void SessionManager::freeSession(SessionBase* pSession)
 {
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_ERROR(GCLogger::ROOT, "INVALID paramer...");
+		LOG4CPLUS_ERROR(CLogger::logger, "INVALID paramer...");
 		return;
 	}
+
+	{
+		CScopeGuard guard(session_mutex_);
+		session_array_.erase(pSession->getSeqno());
+	}
+
+	pSession->setFd(-1);
 
 	CScopeGuard guard(idle_mutex_);	
 	idle_array_.push_back(pSession);
@@ -96,7 +103,7 @@ SessionBase* SessionManager::getSession(int seqno)
 	Iterator iter = session_array_.find(seqno);
 	if(iter == session_array_.end())
 	{
-		LOG4CPLUS_ERROR(GCLogger::ROOT, "session[" << seqno << "] is not exist!");
+		LOG4CPLUS_ERROR(CLogger::logger, "session[" << seqno << "] is not exist!");
 		return NULL;
 	}
 
@@ -114,7 +121,7 @@ bool SessionManager::addSession(SessionBase* pSession)
 {
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_ERROR(GCLogger::ROOT, "INVALID paramer...");
+		LOG4CPLUS_ERROR(CLogger::logger, "INVALID paramer...");
 		return false;
 	}
 	
@@ -130,7 +137,7 @@ bool SessionManager::addSession(SessionBase* pSession)
 /**
 * brief:
 *
-* @param seqno
+* @param seqno delete session from session map
 *
 * @returns   
 */

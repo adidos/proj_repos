@@ -10,7 +10,7 @@
 * ======================================================*/
 
 #include "session.h"
-#include "gc_logger.h"
+#include "logger.h"
 
 SessionBase::SessionBase()
 	:fd_(-1), seq_no_(-1)
@@ -27,7 +27,7 @@ int SessionBase::recv()
 {
 	if(-1 == fd_)
 	{
-		LOG4CPLUS_ERROR(GCLogger::ROOT, "socket is invalide, close it!");
+		LOG4CPLUS_ERROR(CLogger::logger, "socket is invalide, close it!");
 		return SOCKET_CLOSE;
 	}
 
@@ -42,19 +42,19 @@ int SessionBase::recv()
 		{
 			if(EAGAIN == errno || EWOULDBLOCK == errno)
 			{
-				LOG4CPLUS_TRACE(GCLogger::ROOT, fd << " will recv EAGAIN");
+				LOG4CPLUS_TRACE(CLogger::logger, fd << " will recv EAGAIN");
 				break;
 			}
 			else if(EINTR == errno)
 				continue;
 
-			LOG4CPLUS_ERROR(GCLogger::ROOT, fd << " recv error, msg: " << strerror(errno));
+			LOG4CPLUS_ERROR(CLogger::logger, fd << " recv error, msg: " << strerror(errno));
 			
 			return SOCKET_ERR;
 		}
 		else if(recv_len == 0)
 		{
-			LOG4CPLUS_DEBUG(GCLogger::ROOT, fd << " close by client!");
+			LOG4CPLUS_DEBUG(CLogger::logger, fd << " close by client!");
 			return SOCKET_CLOSE;
 		}
 		else
@@ -66,7 +66,7 @@ int SessionBase::recv()
 		}
 	}
 
-	LOG4CPLUS_TRACE(GCLogger::ROOT, fd << " recieve " << total_len << " bytes buffer!");
+	LOG4CPLUS_TRACE(CLogger::logger, fd << " recieve " << total_len << " bytes buffer!");
 	return total_len;
 }
 
@@ -104,39 +104,50 @@ int SessionBase::write2Send(const string& buffer_send)
 	return 0;
 }
 
-int SessionBase::recvCommand(DataXCmd* pCmd)
+int SessionBase::parseProtocol(DataXCmd* pCmd)
 {
-	if(NULL == pCmd)
-		return -1;
-	
+	DataXCmd* ptr;
 	CScopeGuard gaurd(recv_mutex_);
-	int header = pCmd->header_length();
+	int header = ptr->header_length();
 	if(recv_buff_.length() < header)
 	{
-		LOG4CPLUS_DEBUG(GCLogger::ROOT, "recv buffer length is " << recv_buff_.length()
+		LOG4CPLUS_DEBUG(CLogger::logger, "recv buffer length is " << recv_buff_.length()
 			<< ", is less then header require length " << header);
-		return 0;
+		cmdRelease(ptr);
+
+		return -1;
 	}
 	
 	bool ret = pCmd->decode_header((byte*)recv_buff_.c_str(), header);	
 	if(!ret)
+	{
+		cmdRelease(ptr);
+		
 		return -1;
+	}
 
 	int body = pCmd->body_length();
 	if(recv_buff_.length() < body + header)
 	{
-		LOG4CPLUS_DEBUG(GCLogger::ROOT, "recv buffer length is " << recv_buff_.length()
+		LOG4CPLUS_DEBUG(CLogger::logger, "recv buffer length is " << recv_buff_.length()
 			<<", is less then a complete command package length " << body + header);
-		return 0;
+
+		cmdRelease(ptr);
+
+		return -1;
 	}
 	
 	byte* pBody = (byte*)(recv_buff_.c_str() + header);
 	ret = pCmd->decode_parameters(pBody, body);
 	if(!ret)
+	{
+		cmdRelease(ptr);
 		return -1;
+	}
 
+	pCmd = ptr;
 	//delete the decode buffer from recv buffer
 	recv_buff_.erase(0, body + header);
 
-	return pCmd;
+	return 0;
 }

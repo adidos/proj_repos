@@ -1,7 +1,7 @@
 
 /* ======================================================
 * 
-* file:		epoll_server.cpp
+* file:		_epollserver.cpp
 * brief:	
 * author:	80070525(chenjian)
 * version:	1.0.0
@@ -9,8 +9,8 @@
 * 
 * ======================================================*/
 
-#include "epoll_server.h"
-#include "gc_logger.h"
+#include "_epollserver.h"
+#include "logger.h"
 #include "session_manager.h"
 
 #include <unistd.h>
@@ -22,7 +22,7 @@
 using namespace std;
 
 EpollServer::EpollServer(SessionManager* pSessionMgr)
- :session_mgr_ptr_(pSessionMgr)
+ :_session_mgr_ptr(pSessionMgr)
 {
 }
 
@@ -35,27 +35,27 @@ EpollServer::EpollServer(SessionManager* pSessionMgr)
 */
 int EpollServer::init(int size)
 {
-	epoll_.create(size);
+	_epoll.create(size);
 
 	return 0;
 }
 
-int EpollServer::notify(int fd)
+int EpollServer::addNewSession(int fd)
 {
-	SessionBase* pSession = session_mgr_ptr_->getIdleSession();
+	SessionBase* pSession = _session_mgr_ptr->getIdleSession();
 	if(NULL == pSession)
 	{
 		return -1;
 	}
 
 	pSession->setFd(fd);
-	session_mgr_ptr_->addSession(pSession);
+	_session_mgr_ptr->addSession(pSession);
 
 	int seqno = pSession->getSeqno();	
 	int64_t data = U64(seqno, fd);
 	
-	epoll_.add(fd, data, EPOLLIN);	
-	LOG4CPLUS_DEBUG(GCLogger::ROOT, "add a Session, fd = " << fd
+	_epoll.add(fd, data, EPOLLIN | EPOLLET);	
+	LOG4CPLUS_DEBUG(CLogger::logger, "add a Session, fd = " << fd
 			<< ", seqno = " << seqno);
 
 	return 0;
@@ -71,46 +71,42 @@ void EpollServer::doIt()
 	while(!teminate_)
 	{
 		//block until event occure
-		int ret = epoll_.wait(-1);
+		int ret = _epoll.wait(-1);
 		if(ret < 0)
 		{
 			if(errno == EINTR)
 				continue;
 
-			LOG4CPLUS_ERROR(GCLogger::ROOT, "epoll server error, exit run loop...");
+			LOG4CPLUS_ERROR(CLogger::logger, "epoll server error, exit run loop...");
 			break;
 		}
 		
-		LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll wait return value " << ret);
+		LOG4CPLUS_TRACE(CLogger::logger, "epoll wait return value " << ret);
 		for(int i = 0; i < ret; ++i)
 		{
-			struct epoll_event ev = epoll_->get(i);
+			struct _epollevent ev = _epoll->get(i);
 
 			NotifyInfo notify;
 			if(ev.events & (EPOLLHUP | EPOLLERR))
 			{
-				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll error, fd = " << ev.data.fd
+				LOG4CPLUS_TRACE(CLogger::logger, "epoll error, fd = " << ev.data.fd
 					<< ", seqno = " << H32(ev.data.u64));
 				
-				epoll_.del(fd, ev.data.u64, 0);
-
-				notify.type = NT_CLOSE;
-				notify.seqno = H32(ev.data.u64);
-				notify_handler_ptr_->handle(notify);	
+				processError(ev.data.u64);
 			}
 			else if(ev.events & EPOLLIN)
 			{
-				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll readable, fd = " << ev.data.fd
+				LOG4CPLUS_TRACE(CLogger::logger, "epoll readable, fd = " << ev.data.fd
 					<< ", seqno = " << H32(ev.data.u64));
 
-				handlerRead(ev.data.u64);
+				processRead(ev.data.u64);
 			}
 			else if(ev.events & EPOLLOUT)
 			{
-				LOG4CPLUS_TRACE(GCLogger::ROOT, "epoll writeable, fd = " << ev.data.fd
+				LOG4CPLUS_TRACE(CLogger::logger, "epoll writeable, fd = " << ev.data.fd
 					<< ", seqno = " << H32(ev.data.u64));
 
-				handlerWrite(ev.data.u64);
+				processWrite(ev.data.u64);
 			}
 		}
 	}
@@ -122,32 +118,43 @@ void EpollServer::doIt()
 *
 * @returns   
 */
-int EpollServer::handlerRead(uint64_t data)
+int EpollServer::processRead(uint64_t data)
 {	
 	int seqno = H32(data);
 
 	NotifyInfo notify;
 	notify.seqno = seqno;
 
-	SessionBase* pSession = session_mgr_ptr_->getSession(seqno);
+	SessionBase* pSession = _session_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_WARN(GCLogger::ROOT, "session is null, seqno = " << seqno);
+		LOG4CPLUS_WARN(CLogger::logger, "session is null, seqno = " << seqno);
 		return -1;
 	}
 	
 	int ret = pSession->recv();
 	if(SOCKET_CLOSE == ret || SOCKET_ERR == ret) 
 	{
-		epoll_.del(L32(data), data, 0);
-		notify.type = NT_CLOSE;
+		processError(data);
 	}
 	else if(ret > 0)
 	{
-		notify.type = NT_READ;	
+		
+		while(1)
+		{
+			DataXCmd* pCmd = NULL;
+			ret = pCmd->parseProtocol(pCmd);
+			if(ret != 0) break;
+		
+			bool bSucc = _servant_ptr->insertRecvQueue(pCmd);
+			if(!bSucc)
+			{
+				LOG4CPLUS_ERROR(CLogger::logger, "insert command to receive queue failed.");
+				return -1;
+			}
+		}
 	}
 
-	notify_handler_ptr_->handle(notify);	
 	return 0;
 }
 
@@ -156,15 +163,33 @@ int EpollServer::handlerRead(uint64_t data)
 *
 * @returns   
 */
-int EpollServer::handlerWrite(uint64_t data)
+int EpollServer::processWrite(uint64_t data)
 {	
-	epoll_.mod(L32(data), data, EPOLLIN);
-
-	NotifyInfo notify;
-	notify.seqno = U32(data);
-	notify.type = NT_WRITE;	
-
-	notify_handler_ptr_->handle(notify);
 	return 0;
+}
+
+/**
+* brief:
+*
+* @param data
+*
+* @returns   
+*/
+int EpollServer::processError(uint64_t data)
+{
+	int fd = L32(data);
+	int seqno = H32(data);
+
+	_epoll.del(fd, data, EPOLLOUT|EPOLLIN|EPOLLET);
+
+	SessionBase* pSession = _session_mgr_ptr->getSession(seqno);
+	if(NULL != pSession)
+	{
+		_session_mgr_ptr->freeSession(pSession);
+	}
+
+	//TODO NotifyUserDrop
+
+	return 0;	
 }
 

@@ -46,16 +46,19 @@ public:
 	int close();
 
 	int write2Send(const string& buffer_send);	
-	
-	int recvCommand(DataXCmd* pCmd);
-	
-	/**
-	* brief: get a complete command from recv_buff
-	*
-	* @returns  NULL or the command ptr 
-	*/
-	//Command* getCommand() = 0;
 
+	int parseProtocol(DataXCmd* pCmd);
+
+private:
+	void cmdRelease(DataXCmd* pCmd)
+	{
+		if(NULL != pCmd)
+		{
+			delete pCmd;
+			pCmd = NULL;
+		}
+	}
+	
 protected:
 	int fd_;
 	int seq_no_;

@@ -29,7 +29,7 @@ public:
 	~SessionManager();
 
 	SessionBase* getIdleSession();
-	void pushBack(SessionBase* pSession);
+	void freeSession(SessionBase* pSession);
 
 	SessionBase* getSession(int seqno);
 	bool addSession(SessionBase* pSession);
@@ -44,7 +44,6 @@ private:
 	
 	map<int, SessionBase*> session_array_;	//当前所有的有效session
 	CMutex session_mutex_;
-
 };
 
 #endif /*SESSION_MANAGER_H*/
