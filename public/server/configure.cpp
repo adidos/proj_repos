@@ -13,6 +13,7 @@
 
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "logger.h"
@@ -55,6 +56,103 @@ int Configure::loadFile(const string &file)
 	return this->parseConfig();
 }
 
+string Configure::getString(const string &key, const string &value)
+{
+	if(key.empty())
+	{
+		return value;
+	}
+
+	Iterator iter = _config_items.find(key);
+	if(iter == _config_items.end())
+	{
+		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "] is  not "
+			<< "exist, so use default value!");
+		return value;
+	}
+
+	return iter->second;
+}
+
+int Configure::getInt(const string &key, const int &value)
+{
+	if(key.empty())
+	{
+		return value;
+	}
+
+	Iterator iter = _config_items.find(key);
+	if(iter == _config_items.end())
+	{
+		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "] is  not "
+			<< "exist, so use default value!");
+		return value;
+	}
+
+	if(! isDigit(iter->second))
+	{
+		LOG4CPLUS_ERROR(CLogger::logger, "isDigit check failed for value "
+			<< iter->second);
+		return value;
+	}
+
+	return atoi(iter->second.c_str());
+}
+
+bool Configure::getBool(const string &key, const bool &value)
+{
+	if(key.empty())
+	{
+		return value;
+	}
+
+	Iterator iter = _config_items.find(key);
+	if(iter == _config_items.end())
+	{
+		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "] is  not "
+			<< "exist, so use default value!");
+		return value;
+	}
+
+	string ret = iter->second;
+	if(ret.empty())
+	{
+		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "]'s value is"
+			<< " NULL, so use default value!");
+		return value;
+	}
+
+	//TODO lowwer(ret),then compare true
+	if(ret.compare("true") == 0 ||	ret.compare("True") == 0)
+		return true;
+	
+	return false;
+}
+
+float Configure::getFloat(const string &key, const float &value)
+{
+	if(key.empty())
+	{
+		return value;
+	}
+
+	Iterator iter = _config_items.find(key);
+	if(iter == _config_items.end())
+	{
+		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "] is  not "
+			<< "exist, so use default value!");
+		return value;
+	}
+
+	if(! isDecimal(iter->second))
+	{
+		LOG4CPLUS_ERROR(CLogger::logger, "isDecimal check failed for value "
+			<< iter->second);
+		return value;
+	}
+
+	return (float)atof(iter->second.c_str());
+}
 int Configure::parseConfig()
 {
 	if(_ifs.fail())

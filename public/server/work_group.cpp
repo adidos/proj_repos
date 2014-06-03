@@ -10,34 +10,19 @@
 * ======================================================*/
 
 #include "work_group.h"
-#include ""
 
-
-void CWorkerGroup::doIt()
+WorkerGroup::WorkerGroup(int worker_num)
+	:_worker_num(worker_num), _worker_array(worker_num),
+	_client_mgr_ptr(NULL)
 {
-	while(!_terminate)
+
+}
+
+void WorkerGroup::init()
+{
+	for(int i = 0; i < _worker_num; ++i)
 	{
-		DataXCmd* pCmd = NULL;	
-		bool bSucc = _servant_ptr->getRecvCommand(pCmd);
-		if(!bSucc)
-		{
-			LOG4CPLUS_ERROR(CLogger::logger, "get command from servant receive queue failed.");
-			continue;
-		}
-
-		uint64_t uid = pCmd->get_userid();
-
+		
 	}
-
 }
 
-/**
-* brief:
-*
-* @param seqno
-*/
-void CWorkerGroup::notifyUserDrop(int seqno)
-{
-
-
-}

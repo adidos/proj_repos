@@ -86,6 +86,7 @@ void SessionManager::freeSession(SessionBase* pSession)
 	}
 
 	pSession->setFd(-1);
+	pSession->clearBuffer();
 
 	CScopeGuard guard(idle_mutex_);	
 	idle_array_.push_back(pSession);

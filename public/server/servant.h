@@ -12,7 +12,9 @@
 #ifndef GC_SERVANT_H
 #define GC_SERVANT_H
 
-class Servant
+#include "application.h"
+
+class Servant : public CThread
 {
 public:
 	Servant(SessionManager* pSessMgr);
@@ -22,22 +24,24 @@ public:
 
 	int startService();
 
-	bool insertRecvQueue(DataXCmd* pCmd);
-	bool insertSendQueue(DataXCmd* pCmd);
+	EpollServer* getEpollServer()
+	{
+		return _epoll_svr_ptr;
+	}
 
-	bool getRecvCommand(DataXCmd* pCmd);
-	bool getSendCommand(DataXCmd* pCmd);
+protected:
+	virtual void doIt();
 
 private:
-	//application
+	int initAcceptor();
+
+	int newConnection(int client);
+
+private:
+	int _acceptor;
+	EpollServer* _epoll_svr_ptr;
 	SessionManager* _session_mgr_ptr;
-	AcceptServer* _accept_server_ptr;
-	EpollServer* _epoll_server_ptr;
-	//CmdSendThread
-
-	GCQueue _recv_queue;
-	GCQueue _send_queue;
-
+	
 };
 
 #endif //GC_SERVANT_H

@@ -41,6 +41,8 @@ public:
 		seq_no_ = seqno;
 	}
 
+	void clearBuffer();
+
 	int recv();
 	int send();
 	int close();

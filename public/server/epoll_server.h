@@ -21,7 +21,7 @@
 
 class SessionManager;
 
-class EpollServer : public GCThread
+class EpollServer : public CThread
 {
 public:
 	EpollServer();
@@ -31,11 +31,17 @@ public:
 
 	int notify(int fd, uint64_t data, int iEvent);
 
+	int regProcessor(EventProcessor* pProcessor)
+	{
+		_event_processor_ptr = pProcessor;
+	}
+
 protected:
 	virtual void doIt();
 
 private:
 	CEpoll _epoll;
+	EventProcessor* _event_processor_ptr;
 };
 
 #endif /*EPOLL_SERVER_H*/

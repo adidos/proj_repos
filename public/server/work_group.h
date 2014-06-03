@@ -12,28 +12,25 @@
 #ifndef WORK_GROUP_H
 #define WORK_GROUP_H
 
-#include "servant.h"
+class CmdWorker;
 
-class CmdHandler;
-
-class CWorkerGroup : public CThread
+class WorkerGroup
 {
 public:
-	CWorkerGroup();
-	~CWorkerGroup();
-	
-	void notifyUserDrop(int seqno);
+	WorkerGroup(int worker_num);
+	~WorkerGroup();
 
-protected:
-	virtual void doIt();
+	void init();
+
+	bool addTask(DataXCmd* pCmd);
+
 
 private:
-	Servant* _servant_ptr;
-	bool _terminate;
-
-	UserSession* _user_session;
-
-	map<string, CmdHandler*> _handler_array;
+	int _worker_num;
+	
+	vector<CmdWorker*> _worker_array;
+	
+	ClientManager* _client_mgr_ptr;
 };
 
 #endif //WORK_GROUP_H

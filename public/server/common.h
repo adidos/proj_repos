@@ -14,10 +14,17 @@
 #include <string.h>
 #include <string>
 
+#include <fcntl.h>
+#include <unistd.h>
+
 using namespace std;
 
 string trim_left_blank(const string &str);
 string trim_right_blank(const string &str);
+
+bool isDigit(const string& str);
+
+int setNoBlock(int fd);
 
 
 #endif //GC_COMMON_H

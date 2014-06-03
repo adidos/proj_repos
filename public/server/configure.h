@@ -39,6 +39,7 @@ private:
 	int parseConfig();
 
 private:
+	typedef map<string, string>::iterator Iterator;
 	map<string, string> _config_items;
 	ifstream _ifs;
 };

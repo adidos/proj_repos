@@ -23,10 +23,14 @@
 class EventProcessor : public CThread
 {
 public:
-	EventProcessor(SessionManager* pSessMgr, 
-			EpollServer* pEpollSvr);
+	EventProcessor(SessionManager* pSessMgr);
 
 	~EventProcessor();
+
+	void regEventServer(EpollServer* pEpollSvr)
+	{
+		_epoll_svr_ptr = pEpollSvr;
+	}
 
 	bool addEvent(CEvent event);
 
@@ -39,6 +43,8 @@ private:
 	void processRead(CEvent& event);
 	void processWrite(CEvent& event);
 	void processClose(CEvent& event);
+
+	void userDrop(int seqno);
 
 private:
 	SessionManager* _sess_mgr_ptr;

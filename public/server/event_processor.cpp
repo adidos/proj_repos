@@ -10,16 +10,18 @@
 * ======================================================*/
 
 #include "event_processor.h"
+#include "configure.h"
 
-EventProcessor::EventProcessor(SessionManager* pSessMgr, 
-	EpollServer* pEpollSvr) : _sess_mgr_ptr(pSessMgr), 
-	_epoll_svr_ptr(pSessMgr), _event_queue(QUEUE_SIZE),
-	_event_queue(QUEUE_SIZE)
+extern Configure* g_pConfig;
+
+EventProcessor::EventProcessor(SessionManager* pSessMgr)
+	: _sess_mgr_ptr(pSessMgr), _epoll_svr_ptr(NULL),
+	_event_queue(QUEUE_SIZE), _event_queue(QUEUE_SIZE)
 {
 
 }
 
-~EventProcessor()
+EventProcessor::~EventProcessor()
 {
 }
 
@@ -44,7 +46,7 @@ bool EventProcessor::addEvent(CEvent event)
 */
 bool EventProcessor::getCommand(DataXCmd* pCmd)
 {
-	return _cmd_queue.pop(pCmd, QUEUE_WAIT_MS);
+	return _cmd_queue.pop(pCmd, QUEUE_WAIT_MS * 100);
 }
 
 /**
@@ -55,7 +57,7 @@ void EventProcessor::doIt()
 	while(true)
 	{
 		CEvent event;
-		bool bSucc = _event_queue.pop(evente, 100*QUEUE_WAIT_MS);
+		bool bSucc = _event_queue.pop(event, 100*QUEUE_WAIT_MS);
 		if(!bSucc)
 		{
 			LOG4CPLUS_DEBUG(CLogger::logger, "event queue is empty!");
@@ -88,7 +90,7 @@ void EventProcessor::processRead(CEvent& event)
 {
 	int seqno = event.uid;
 
-	SessionBase* pSession = _session_mgr_ptr->getSession(seqno);
+	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
 	{
 		LOG4CPLUS_WARN(CLogger::logger, "session is null, seqno = "<<seqno);
@@ -110,7 +112,7 @@ void EventProcessor::processRead(CEvent& event)
 			ret = pSession->parseProtocol(pCmd);
 			if(ret != 0) break;
 		
-			bool bSucc = _cmd_queue->push(pCmd);
+			bool bSucc = _cmd_queue->push(pCmd, QUEUE_WAIT_MS);
 			if(!bSucc)
 			{
 				LOG4CPLUS_ERROR(CLogger::logger, "insert command to receive"
@@ -131,7 +133,7 @@ void EventProcessor::processWrite(CEvent& event)
 	assert(event.uid > 0);
 
 	int seqno = event.uid;
-	SessionBase* pSession = _session_mgr_ptr->getSession(seqno);
+	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
 	{
 		LOG4CPLUS_WARN(CLogger::logger, "session is null, seqno = "<<seqno);
@@ -154,7 +156,7 @@ void EventProcessor::processClose(CEvent& event)
 	assert(event.uid > 0);
 
 	int seqno = event.uid;
-	SessionBase* pSession = _session_mgr_ptr->getSession(seqno);
+	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
 	{
 		LOG4CPLUS_WARN(CLogger::logger, "session is null, seqno = "<<seqno);
@@ -165,9 +167,16 @@ void EventProcessor::processClose(CEvent& event)
 	int64_t data = U64(seqno, fd);
 	_epoll_svr_ptr->notify(fd, data, EVENT_CLOSE);
 
-	_session_mgr_ptr->freeSession(pSession);
+	_sess_mgr_ptr->freeSession(pSession);
 
-	//TODO NotifyUserDrop
-	//TODO remove the relation between userid and seqno
+	userDrop(seqno);
+}
+
+void EventProcessor::userDrop(int seqno)
+{
+	DataXCmd* pCmd = new DataXCmd("UserDrop");
+	pCmd->set_userid(seqno);
+
+	_cmd_queue->push(pCmd, QUEUE_WAIT_MS);
 }
 

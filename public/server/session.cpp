@@ -23,6 +23,18 @@ SessionBase::SessionBase(int fd, int seqno)
 {
 }
 
+void SessionBase::clearBuffer()
+{
+	{
+		CScopeGuard guard(recv_mutex_);
+		recv_buff_.clear();
+	}
+
+	{
+		CScopeGuard guard(send_mutex_);
+		send_buff_.clear();
+	}
+}
 int SessionBase::recv()
 {
 	if(-1 == fd_)
