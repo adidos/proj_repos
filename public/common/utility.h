@@ -1,7 +1,7 @@
 
 /* ======================================================
 * 
-* file:		common.h
+* file:		utility.h
 * brief:	
 * author:	80070525(chenjian)
 * version:	1.0.0
@@ -23,6 +23,7 @@ string trim_left_blank(const string &str);
 string trim_right_blank(const string &str);
 
 bool isDigit(const string& str);
+bool isDecimal(const string &str);
 
 int setNoBlock(int fd);
 

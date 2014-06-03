@@ -1,5 +1,4 @@
 #include "DataXCmd.h"
-#include "common.h"
 #include "FixedBuffer.h"
 #include "MyTea.h"
 #include "mymd5.h"

@@ -2,8 +2,6 @@
 #define DIRSVRCMD_H
 
 #include "Command.h"
-#include "common.h"
-//#include "SDZip.h"
 #include <string>
 #include <map>
 #include "IDataX.h"
@@ -96,7 +94,7 @@ protected:
     _u32 m_encrypt_len;
     _u32 m_body_len;
     
-    _u64 m_user_id;
+    uint64_t m_user_id;
     std::string m_cmd_name;
     IDataX* m_dx_ptr;
 

@@ -53,17 +53,17 @@ bool FixedBuffer::put_int(int x)
 	return true;
 }
 
-bool FixedBuffer::put_int64(_u64 x)
+bool FixedBuffer::put_int64(uint64_t x)
 {
-	if(remain_len() < (int)sizeof(_u64))
+	if(remain_len() < (int)sizeof(uint64_t))
 	{
 		char buffer[256];
 		sprintf(buffer, "remain buffer length(%d) not enough in put_int64()", remain_len());
 			
 	}
 
-	copy_bytes((byte*)(m_buffer+m_offset), (byte*)&x, sizeof(_u64));
-	m_offset += sizeof(_u64);
+	copy_bytes((byte*)(m_buffer+m_offset), (byte*)&x, sizeof(uint64_t));
+	m_offset += sizeof(uint64_t);
 	if(m_limit < m_offset)
 		m_limit = m_offset;
 
@@ -211,16 +211,16 @@ int FixedBuffer::get_int()
 	return x;
 }
 
-_u64 FixedBuffer::get_int64()
+uint64_t FixedBuffer::get_int64()
 {
-	_u64 x;
-	if(remain_len() < (int)sizeof(_u64))
+	uint64_t x;
+	if(remain_len() < (int)sizeof(uint64_t))
 	{
 		
 	}   
 
-	copy_bytes((byte*)&x, (byte*)(m_buffer+m_offset), sizeof(_u64));
-	m_offset += sizeof(_u64);
+	copy_bytes((byte*)&x, (byte*)(m_buffer+m_offset), sizeof(uint64_t));
+	m_offset += sizeof(uint64_t);
 
 	if(m_limit < m_offset)
 		m_limit = m_offset;

@@ -9,7 +9,6 @@
 #define  __COMMAND_H_20070929_15
 
 #include <string>
-#include "common.h"
 #include "FixedBuffer.h"
 
 

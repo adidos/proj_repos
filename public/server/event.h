@@ -14,6 +14,8 @@
 
 #include <stream>
 
+#include "DataXCmd.h"
+
 enum EVENT_TYPE
 {
 	EVENT_ERROR,
@@ -23,7 +25,7 @@ enum EVENT_TYPE
 	EVENT_CLOSE
 };
 
-struct CEvent
+struct event_t
 {
 	int id;				//event source identify
 	int type;
@@ -37,5 +39,12 @@ struct CEvent
 		return oss.str();
 	}
 };
+
+struct cmd_task_t
+{
+	int idx;
+	int64_t timestamp; //ms
+	DataXCmd* pCmd;
+}
 
 #endif //GC_EVENT_H

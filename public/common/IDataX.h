@@ -1,7 +1,6 @@
 #ifndef __XL_IDATAX_HEADER_20090328_
 #define __XL_IDATAX_HEADER_20090328_
 
-#include "common.h"
 #include <string>
 
 #ifndef WIN32

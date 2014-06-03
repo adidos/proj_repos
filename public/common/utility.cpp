@@ -1,7 +1,7 @@
 
 /* ======================================================
 * 
-* file:		common.cpp
+* file:		utility.cpp
 * brief:	
 * author:	80070525(chenjian)
 * version:	1.0.0
@@ -9,7 +9,7 @@
 * 
 * ======================================================*/
 
-#include "common.h"
+#include "utility.h"
 
 /**
 * brief:
@@ -58,6 +58,13 @@ string trim_right_blank(const string &str)
 }
 
 
+/**
+* brief:
+*
+* @param str
+*
+* @returns   
+*/
 bool isDigit(const string &str)
 {
 	if(str.empty()) return false;
@@ -72,6 +79,13 @@ bool isDigit(const string &str)
 	return true;
 }
 
+/**
+* brief:
+*
+* @param str
+*
+* @returns   
+*/
 bool isDecimal(const string &str)
 {
 	if(str.empty()) return false;
@@ -94,6 +108,13 @@ bool isDecimal(const string &str)
 	return true;
 }
 
+/**
+* brief:
+*
+* @param fd
+*
+* @returns   
+*/
 int setNoBlock(int fd)
 {
 	int val = fcntl(fd, F_GETFL);

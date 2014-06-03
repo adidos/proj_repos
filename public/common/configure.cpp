@@ -15,7 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "common.h"
+#include "utility.h"
 #include "logger.h"
 
 Configure::Configure()

@@ -19,7 +19,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include "common.h"
+#include "utility.h"
 
 #inlcude <iostream>
 
@@ -42,6 +42,11 @@ Servant::~Servant()
 	}
 }
 
+/**
+* brief:
+*
+* @returns   
+*/
 int	 Servant::init()
 {
 	int max_connection = g_pConfig->getInt("max.connection", 65535);
@@ -52,6 +57,11 @@ int	 Servant::init()
 	initAcceptor();
 }
 
+/**
+* brief:
+*
+* @returns   
+*/
 int  Servant::startService()
 {
 	_epoll_svr_ptr->start();
@@ -61,6 +71,9 @@ int  Servant::startService()
 	this->waitForStop();
 }
 
+/**
+* brief:
+*/
 void Servant::doIt()
 {
 	sockaddr_in addr;
@@ -85,6 +98,11 @@ void Servant::doIt()
 	}
 }
 
+/**
+* brief:
+*
+* @returns   
+*/
 int Servant::initAcceptor()
 {
 	int port = g_pConfig->getInt("servant.port");
@@ -123,6 +141,13 @@ int Servant::initAcceptor()
 	return 0;
 }
 
+/**
+* brief:
+*
+* @param client
+*
+* @returns   
+*/
 int Servant::newConnection(int client)
 {
 	SessionBase* pSession = _session_mgr_ptr->getIdleSession();

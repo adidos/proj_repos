@@ -8,7 +8,6 @@
 #ifndef __FIXED_BUFFER_H_20061108_26
 #define  __FIXED_BUFFER_H_20061108_26
 
-#include "common.h"
 #include <string>
 
 using std::string;
@@ -42,7 +41,7 @@ public:
 	}
 
 	bool put_int(int x);
-	bool put_int64(_u64 x);
+	bool put_int64(uint64_t x);
 	bool put_short(short x);
 	bool put_byte(byte x);
 	bool put_bytesV2(const byte * buf, unsigned int len);
@@ -52,7 +51,7 @@ public:
 	bool skip(int offset);
 
 	int get_int();
-	_u64 get_int64();
+	uint64_t get_int64();
 	short get_short();
 	byte get_byte();
 	string get_string();

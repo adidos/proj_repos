@@ -2,7 +2,6 @@
 #ifndef __MYTEA_H_20080220__
 #define __MYTEA_H_20080220__
 #include "tea.h"
-#include "common.h"
 
 class mytea
 {

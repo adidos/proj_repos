@@ -11,7 +11,6 @@
 #else
 #include <arpa/inet.h>
 #endif
-#include "common.h"
 
 class TEA {
     //保持32/64位系统兼容
