@@ -15,7 +15,7 @@
 class Servant
 {
 public:
-	Servant();
+	Servant(SessionManager* pSessMgr);
 	~Servant();
 	
 	int init();

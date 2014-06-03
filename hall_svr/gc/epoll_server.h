@@ -24,36 +24,17 @@ class SessionManager;
 class EpollServer : public GCThread
 {
 public:
-	EpollServer(SessionManager* pSessionMgr);
+	EpollServer();
 	~EpollServer(){};
 
 	int init(int size);
 
-	int addNewSession(int fd);
-
-	int regServant(Servant* pServant)
-	{
-		assert(NULL != pServant);
-		_servant_ptr = pServant;
-	}
-
-	Servant* getServant()
-	{
-		return _servant_ptr;
-	}
+	int notify(int fd, uint64_t data, int iEvent);
 
 protected:
 	virtual void doIt();
 
 private:
-	int processError(uint64_t data);
-	int processRead(uint64_t data);
-	int processWrite(uint64_t data);
-
-private:
-	SessionManager* _session_mgr_ptr;
-	Servant* _servant_ptr;
-	
 	CEpoll _epoll;
 };
 

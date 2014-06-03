@@ -19,14 +19,9 @@ class CmdHandler;
 class CWorkerGroup : public CThread
 {
 public:
-	CWorkerGroup(Servant* pServant);
+	CWorkerGroup();
 	~CWorkerGroup();
 	
-	void regCmdHandler(const string& name, CmdHandler* pHandler)
-	{
-		_handler_array[name] = pHandler;
-	}
-
 	void notifyUserDrop(int seqno);
 
 protected:

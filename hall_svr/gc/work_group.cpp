@@ -12,12 +12,6 @@
 #include "work_group.h"
 #include ""
 
-void CWorkerGroup::notifyUserDrop(int seqno)
-{
-
-
-}
-
 
 void CWorkerGroup::doIt()
 {
@@ -34,5 +28,16 @@ void CWorkerGroup::doIt()
 		uint64_t uid = pCmd->get_userid();
 
 	}
+
+}
+
+/**
+* brief:
+*
+* @param seqno
+*/
+void CWorkerGroup::notifyUserDrop(int seqno)
+{
+
 
 }

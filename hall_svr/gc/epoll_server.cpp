@@ -21,8 +21,7 @@
 
 using namespace std;
 
-EpollServer::EpollServer(SessionManager* pSessionMgr)
- :_session_mgr_ptr(pSessionMgr)
+EpollServer::EpollServer()
 {
 }
 
@@ -40,25 +39,30 @@ int EpollServer::init(int size)
 	return 0;
 }
 
-int EpollServer::addNewSession(int fd)
+int EpollServer::notify(int fd, uint64_t data, int iEvent)
 {
-	SessionBase* pSession = _session_mgr_ptr->getIdleSession();
-	if(NULL == pSession)
+	switch(iEvent)
 	{
-		return -1;
+		case EVENT_NEW:
+			_epoll.add(fd, data, EPOLLET | EPOLLIN);	
+			break;
+
+		case EVENT_READ:
+			_epoll.mod(fd, data, EPOLLET | EPOLLIN);
+			break;
+
+		case EVENT_WRITE:
+			_epoll.mod(fd, data, EPOLLET | EPOLLOUT);
+			break;
+
+		case EVENT_CLOSE:
+		case EVENT_ERROR:
+			_epoll.del(fd, data, EPOLLET | EPOLLIN | EPOLLOUT);
+			break;
+
+		default:
+			LOG4CPLUS_ERROR(CLogger::logger, "notify unknow event, " << iEvent);
 	}
-
-	pSession->setFd(fd);
-	_session_mgr_ptr->addSession(pSession);
-
-	int seqno = pSession->getSeqno();	
-	int64_t data = U64(seqno, fd);
-	
-	_epoll.add(fd, data, EPOLLIN | EPOLLET);	
-	LOG4CPLUS_DEBUG(CLogger::logger, "add a Session, fd = " << fd
-			<< ", seqno = " << seqno);
-
-	return 0;
 }
 
 /**
@@ -86,7 +90,9 @@ void EpollServer::doIt()
 		{
 			struct _epollevent ev = _epoll->get(i);
 
-			NotifyInfo notify;
+			CEvent event;
+			event.id = H32(ev.data.u64)
+			event.timestamp = Utilities::
 			if(ev.events & (EPOLLHUP | EPOLLERR))
 			{
 				LOG4CPLUS_TRACE(CLogger::logger, "epoll error, fd = " << ev.data.fd
@@ -122,8 +128,6 @@ int EpollServer::processRead(uint64_t data)
 {	
 	int seqno = H32(data);
 
-	NotifyInfo notify;
-	notify.seqno = seqno;
 
 	SessionBase* pSession = _session_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
