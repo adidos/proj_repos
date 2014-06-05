@@ -11,11 +11,13 @@
 
 #include "event_processor.h"
 #include "configure.h"
+#include "index.h"
 
 extern Configure* g_pConfig;
 
-EventProcessor::EventProcessor(SessionManager* pSessMgr)
-	: _sess_mgr_ptr(pSessMgr), _epoll_svr_ptr(NULL),
+EventProcessor::EventProcessor(SessionManager* pSessMgr£¬
+	WorkerGroup* pWorkGroup): _sess_mgr_ptr(pSessMgr),
+	_epoll_svr_ptr(NULL),_work_group_ptr(pWorkGroup)
 	_event_queue(QUEUE_SIZE), _event_queue(QUEUE_SIZE)
 {
 
@@ -32,7 +34,7 @@ EventProcessor::~EventProcessor()
 *
 * @returns   
 */
-bool EventProcessor::addEvent(CEvent event)
+bool EventProcessor::addEvent(Event event)
 {
 	return _event_queue.push(event, QUEUE_WAIT_MS);	
 }
@@ -56,8 +58,8 @@ void EventProcessor::doIt()
 {
 	while(true)
 	{
-		CEvent event;
-		bool bSucc = _event_queue.pop(event, 100*QUEUE_WAIT_MS);
+		Event event;
+		bool bSucc = _event_queue.pop(event, 60*1000);
 		if(!bSucc)
 		{
 			LOG4CPLUS_DEBUG(CLogger::logger, "event queue is empty!");
@@ -86,7 +88,7 @@ void EventProcessor::doIt()
 *
 * @param event
 */
-void EventProcessor::processRead(CEvent& event)
+void EventProcessor::processRead(Event& event)
 {
 	int seqno = event.uid;
 
@@ -105,14 +107,21 @@ void EventProcessor::processRead(CEvent& event)
 	}
 	else if(ret > 0)
 	{
-		
 		while(1) //may be receive buffer contain two or more commands
 		{
 			DataXCmd* pCmd = NULL;
 			ret = pSession->parseProtocol(pCmd);
 			if(ret != 0) break;
-		
-			bool bSucc = _cmd_queue->push(pCmd, QUEUE_WAIT_MS);
+
+			CmdTask task;
+			task.idx = Index::get();
+			task.pCmd = pCmd;
+			task.timestamp = current_time_usec();
+
+			LOG4CPLUS_DEBUG(CDebugLogger::logger, "TimeTrace: event->task spend time " 
+				<< task.timestamp - event.timestamp);
+			
+			bool bSucc = _work_group_ptr->dispatch(task, QUEUE_WAIT_MS);
 			if(!bSucc)
 			{
 				LOG4CPLUS_ERROR(CLogger::logger, "insert command to receive"
@@ -128,7 +137,7 @@ void EventProcessor::processRead(CEvent& event)
 *
 * @param event
 */
-void EventProcessor::processWrite(CEvent& event)
+void EventProcessor::processWrite(Event& event)
 {
 	assert(event.uid > 0);
 
@@ -151,7 +160,7 @@ void EventProcessor::processWrite(CEvent& event)
 *
 * @param event
 */
-void EventProcessor::processClose(CEvent& event)
+void EventProcessor::processClose(Event& event)
 {
 	assert(event.uid > 0);
 
@@ -169,14 +178,19 @@ void EventProcessor::processClose(CEvent& event)
 
 	_sess_mgr_ptr->freeSession(pSession);
 
-	userDrop(seqno);
+	notifyUserDrop(seqno);
 }
 
-void EventProcessor::userDrop(int seqno)
+void EventProcessor::notifyUserDrop(int seqno)
 {
 	DataXCmd* pCmd = new DataXCmd("UserDrop");
 	pCmd->set_userid(seqno);
 
-	_cmd_queue->push(pCmd, QUEUE_WAIT_MS);
+	CmdTask task;
+	task.idx = Index::get();
+	task.pCmd = pCmd;
+	task.timestamp = current_time_ms();
+
+	_work_group_ptr->dispatch(task, QUEUE_WAIT_MS);
 }
 

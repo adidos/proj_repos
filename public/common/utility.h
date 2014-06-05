@@ -12,10 +12,12 @@
 #define GC_COMMON_H
 
 #include <string.h>
-#include <string>
+#include <stdint.h>
 
 #include <fcntl.h>
 #include <unistd.h>
+
+#include <string>
 
 using namespace std;
 
@@ -24,6 +26,10 @@ string trim_right_blank(const string &str);
 
 bool isDigit(const string& str);
 bool isDecimal(const string &str);
+
+int64_t current_time_sec();
+int64_t current_time_ms();
+int64_t current_time_usec();
 
 int setNoBlock(int fd);
 

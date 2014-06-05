@@ -13,14 +13,32 @@
 
 #include <stdint.h>
 
+#include <map>
+
+#include "thread_sync.h"
+
 class ClientManager
 {
 public:
-	
+	ClientManager(){};
+	~ClientManager()
+	{
+		_client_session_array.clear();
+	}
+
+	int addClient(int64_t uid, int seqno);
+
+	int getSessID(int64_t uid);
+
+	int resetClient(int64_t uid, int seqno);
+
+	int freeClient(int64_t uid);
 
 private:
-	map<int64_t, int>
+	typedef std::map<int64_t, int>::iterator Iterator;
+	std::map<int64_t, int> _client_session_array;
 
+	CMutex _mutex;
 
 };
 

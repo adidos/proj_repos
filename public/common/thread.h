@@ -16,7 +16,13 @@
 class CThread
 {
 public:
-	CThread(){};
+	CThread()
+	{
+		ostringstream oss;
+		oss << showbase << hex << pthread_self();
+		_id = oss.str();
+	};
+	
 	~CThread(){};
 
 	int start();
@@ -25,6 +31,9 @@ public:
 
 protected:
 	virtual void doIt() = 0;
+
+protected:
+	string _id;
 
 private:
 	static void* threadEntry(void* pParam);

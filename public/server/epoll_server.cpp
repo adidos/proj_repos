@@ -93,7 +93,7 @@ void EpollServer::doIt()
 
 			CEvent event;
 			event.id = H32(ev.data.u64)
-			event.timestamp = Utilities::
+			event.timestamp = current_time_usec();
 			if(ev.events & (EPOLLHUP | EPOLLERR))
 			{
 				LOG4CPLUS_TRACE(CLogger::logger, "epoll error, fd = " << ev.data.fd

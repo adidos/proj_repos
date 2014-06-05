@@ -12,6 +12,8 @@
 #ifndef WORK_GROUP_H
 #define WORK_GROUP_H
 
+#include "event.h"
+
 class CmdWorker;
 
 class WorkerGroup
@@ -22,8 +24,11 @@ public:
 
 	void init();
 
-	bool addTask(DataXCmd* pCmd);
+	int startWork();
 
+	int waitForStop();
+
+	bool dispatch(CmdTask task);
 
 private:
 	int _worker_num;

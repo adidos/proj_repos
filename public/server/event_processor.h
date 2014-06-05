@@ -23,7 +23,7 @@
 class EventProcessor : public CThread
 {
 public:
-	EventProcessor(SessionManager* pSessMgr);
+	EventProcessor(SessionManager* pSessMgr, WorkerGroup* pWorkGroup);
 
 	~EventProcessor();
 
@@ -32,7 +32,7 @@ public:
 		_epoll_svr_ptr = pEpollSvr;
 	}
 
-	bool addEvent(CEvent event);
+	bool addEvent(Event event);
 
 	bool getCommand(DataXCmd* pCmd);
 
@@ -40,18 +40,18 @@ protected:
 	virtual void doIt();
 
 private:
-	void processRead(CEvent& event);
-	void processWrite(CEvent& event);
-	void processClose(CEvent& event);
+	void processRead(Event& event);
+	void processWrite(Event& event);
+	void processClose(Event& event);
 
-	void userDrop(int seqno);
+	void notifyUserDrop(int seqno);
 
 private:
 	SessionManager* _sess_mgr_ptr;
 	EpollServer* _epoll_svr_ptr;
+	WorkerGroup* _work_group_ptr;
 
-	Queue<CEvent> _event_queue;
-	Queue<DataXCmd*> _cmd_queue;
+	Queue<Event> _event_queue;
 
 };
 

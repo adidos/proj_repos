@@ -25,7 +25,7 @@ enum EVENT_TYPE
 	EVENT_CLOSE
 };
 
-struct event_t
+typedef struct event_t
 {
 	int id;				//event source identify
 	int type;
@@ -38,13 +38,14 @@ struct event_t
 		oss << "{ id: " << id << ", type: " << type << "}";
 		return oss.str();
 	}
-};
+}Event;
 
-struct cmd_task_t
+typedef struct cmd_task_t
 {
 	int idx;
+	uint32_t seqno;
 	int64_t timestamp; //ms
 	DataXCmd* pCmd;
-}
+}CmdTask;
 
 #endif //GC_EVENT_H

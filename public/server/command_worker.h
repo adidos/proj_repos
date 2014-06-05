@@ -13,18 +13,21 @@
 #define COMMAND_WORKER_H
 
 #include "thread.h"
+#include "event.h"
 
-class CmdWorker
+class CmdWorker : public CThread
 {
 public:
 	CmdWorker(int size);
 	~CmdWorker();
 
+	bool addTask(CmdTask task);
+
 protected:
 	virtual void doIt();
 
 private:
-	Queue<DataXCmd*> _cmd_queue;
+	Queue<CmdTask> _task_queue;
 
 };
 

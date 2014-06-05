@@ -10,6 +10,7 @@
 * ======================================================*/
 
 #include "utility.h"
+#include <sys/time.h>
 
 /**
 * brief:
@@ -106,6 +107,34 @@ bool isDecimal(const string &str)
 	}
 
 	return true;
+}
+
+int64_t current_time_sec()
+{
+	timeval val;
+	gettimeofday(&val, NULL);
+
+	return val.tv_sec;
+}
+
+int64_t current_time_ms()
+{
+	timeval val;
+	gettimeofday(&val, NULL);
+
+	int64_t value = val.tv_sec * 1000 + val.tv_usec / 1000;
+
+	return value;
+}
+
+int64_t current_time_usec()
+{
+	timeval val;
+	gettimeofday(&val, NULL);
+
+	int64_t value = val.tv_sec * 1000000 + val.tv_usec;
+
+	return value;
 }
 
 /**
