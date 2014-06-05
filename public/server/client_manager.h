@@ -14,6 +14,7 @@
 #include <stdint.h>
 
 #include <map>
+#include <vector>
 
 #include "thread_sync.h"
 
@@ -27,10 +28,10 @@ public:
 	}
 
 	int addClient(int64_t uid, int seqno);
+	int resetClient(int64_t uid, int seqno);
 
 	int getSessID(int64_t uid);
-
-	int resetClient(int64_t uid, int seqno);
+	int64_t getUid8Sid(int seqno);
 
 	int freeClient(int64_t uid);
 

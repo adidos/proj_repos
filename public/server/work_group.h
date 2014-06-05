@@ -19,23 +19,27 @@ class CmdWorker;
 class WorkerGroup
 {
 public:
-	WorkerGroup(int worker_num);
+	WorkerGroup();
 	~WorkerGroup();
 
-	void init();
+	void init(int work_num);
 
-	int startWork();
+	int startWorker();
 
 	int waitForStop();
 
-	bool dispatch(CmdTask task);
+	bool dispatch(CmdTask& task);
+
+private:
+	int getIndex();
 
 private:
 	int _worker_num;
 	
 	vector<CmdWorker*> _worker_array;
+
 	
-	ClientManager* _client_mgr_ptr;
+
 };
 
 #endif //WORK_GROUP_H

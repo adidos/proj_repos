@@ -27,7 +27,7 @@ enum EVENT_TYPE
 
 typedef struct event_t
 {
-	int id;				//event source identify
+	int seqno;				//event source identify
 	int type;
 
 	int64_t timestamp; //ms

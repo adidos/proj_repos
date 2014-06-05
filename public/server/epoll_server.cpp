@@ -92,7 +92,7 @@ void EpollServer::doIt()
 			struct _epollevent ev = _epoll->get(i);
 
 			CEvent event;
-			event.id = H32(ev.data.u64)
+			event.seqno = H32(ev.data.u64)
 			event.timestamp = current_time_usec();
 			if(ev.events & (EPOLLHUP | EPOLLERR))
 			{

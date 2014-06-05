@@ -65,8 +65,11 @@ int	 Servant::init()
 int  Servant::startService()
 {
 	_epoll_svr_ptr->start();
-	this->start();
+	this->start();	
+}
 
+int Servant::waitForStop()
+{
 	_epoll_svr_ptr->waitForStop();
 	this->waitForStop();
 }
@@ -150,14 +153,24 @@ int Servant::initAcceptor()
 */
 int Servant::newConnection(int client)
 {
+	int seqno =	_session_mgr_ptr->getSeqno8Fd(client);
+	if(-1 != seqno) //fd被重复使用了，说明前一个连接已经断开，需要释放掉session
+	{
+		LOG4CPLUS_DEBUG(CLogger::logger, "socket " << client " reused, find the old session free it!");
+		SessionBase* ptr = _session_mgr_ptr->getSession(seqno);
+		_session_mgr_ptr->freeSession(ptr);
+	}
+
 	SessionBase* pSession = _session_mgr_ptr->getIdleSession();
 	if(NULL == pSession)
 	{
 		LOG4CPLUS_ERROR(CLogger::logger, "get idle session failed!");
 	}
+
 	setNoBlock(client);
-	pSession->setFd(client);	
-	
+	pSession->setFd(client);
+
+	_session_mgr_ptr->addFd(client, seqno);
 	bool bret = _session_mgr_ptr->addSession(pSession);
 	if(!bret)
 	{
@@ -167,7 +180,7 @@ int Servant::newConnection(int client)
 		return -1;
 	}
 
-	int seqno = pSession->getSeqno();
+	seqno = pSession->getSeqno();
 	uint64_t data = U64(seqno, client);
 
 	_epoll_svr_ptr->notify(client, data, EVENT_NEW);

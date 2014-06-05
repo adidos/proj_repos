@@ -24,6 +24,8 @@ public:
 
 	int startService();
 
+	int waitForStop();
+
 	EpollServer* getEpollServer()
 	{
 		return _epoll_svr_ptr;

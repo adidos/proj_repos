@@ -12,8 +12,8 @@
 #include "command_worker.h"
 #include "logger.h"
 
-CmdWorker::CmdWorker()
-	:_task_queue(10240)
+CmdWorker::CmdWorker(int size)
+	:_task_queue(size)
 {
 
 }
@@ -67,6 +67,5 @@ void CmdWorker::doIt()
 		LOG4CPLUS_DEBUG(CDebugLogger::logger, _id << "TimeTrace: task->handle spend time "
 				<< current_time_usec() - task.timestamp);
 	}
-
 
 }

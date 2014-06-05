@@ -17,6 +17,8 @@
 #include "thread.h"
 #include "DataXCmd.h"
 
+#include "client_manager.h"
+
 #define QUEUE_SIZE 1024000
 #define QUEUE_WAIT_MS 100
 
@@ -34,8 +36,6 @@ public:
 
 	bool addEvent(Event event);
 
-	bool getCommand(DataXCmd* pCmd);
-
 protected:
 	virtual void doIt();
 
@@ -44,12 +44,16 @@ private:
 	void processWrite(Event& event);
 	void processClose(Event& event);
 
-	void notifyUserDrop(int seqno);
+	void handleClient(uint64_t uid, int seqno);
+
+	void notifyUserDrop(int64_t uid);
+	void notifyUserRelogin(int64_t uid, int seqno);
 
 private:
 	SessionManager* _sess_mgr_ptr;
 	EpollServer* _epoll_svr_ptr;
 	WorkerGroup* _work_group_ptr;
+	ClientManager* _client_mgr_ptr;
 
 	Queue<Event> _event_queue;
 

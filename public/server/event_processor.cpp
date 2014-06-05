@@ -17,10 +17,10 @@ extern Configure* g_pConfig;
 
 EventProcessor::EventProcessor(SessionManager* pSessMgr£¬
 	WorkerGroup* pWorkGroup): _sess_mgr_ptr(pSessMgr),
-	_epoll_svr_ptr(NULL),_work_group_ptr(pWorkGroup)
+	_epoll_svr_ptr(NULL),_work_group_ptr(pWorkGroup),
 	_event_queue(QUEUE_SIZE), _event_queue(QUEUE_SIZE)
 {
-
+	_client_mgr_ptr = new ClientManager();
 }
 
 EventProcessor::~EventProcessor()
@@ -37,18 +37,6 @@ EventProcessor::~EventProcessor()
 bool EventProcessor::addEvent(Event event)
 {
 	return _event_queue.push(event, QUEUE_WAIT_MS);	
-}
-
-/**
-* brief:
-*
-* @param pCmd
-*
-* @returns   
-*/
-bool EventProcessor::getCommand(DataXCmd* pCmd)
-{
-	return _cmd_queue.pop(pCmd, QUEUE_WAIT_MS * 100);
 }
 
 /**
@@ -90,7 +78,7 @@ void EventProcessor::doIt()
 */
 void EventProcessor::processRead(Event& event)
 {
-	int seqno = event.uid;
+	int seqno = event.seqno;
 
 	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
@@ -113,9 +101,13 @@ void EventProcessor::processRead(Event& event)
 			ret = pSession->parseProtocol(pCmd);
 			if(ret != 0) break;
 
+			int64_t uid = pCmd->get_userid();
+			handleClient(uid, seqno);
+
 			CmdTask task;
 			task.idx = Index::get();
 			task.pCmd = pCmd;
+			task.seqno = seqno;
 			task.timestamp = current_time_usec();
 
 			LOG4CPLUS_DEBUG(CDebugLogger::logger, "TimeTrace: event->task spend time " 
@@ -139,9 +131,7 @@ void EventProcessor::processRead(Event& event)
 */
 void EventProcessor::processWrite(Event& event)
 {
-	assert(event.uid > 0);
-
-	int seqno = event.uid;
+	int seqno = event.seqno;
 	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
 	{
@@ -162,8 +152,12 @@ void EventProcessor::processWrite(Event& event)
 */
 void EventProcessor::processClose(Event& event)
 {
-	assert(event.uid > 0);
+	uint64_t uid = _client_mgr_ptr->getUid8Sid(event.seqno);
 
+	//notify drop first, fd will be reuse after fd close
+	notifyUserDrop(uid);
+	_client_mgr_ptr->freeClient(uid);
+	
 	int seqno = event.uid;
 	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
@@ -173,24 +167,55 @@ void EventProcessor::processClose(Event& event)
 	}
 
 	int fd = pSession->getFd();
-	int64_t data = U64(seqno, fd);
+	int64_t data = U64(event.seqno, fd);
 	_epoll_svr_ptr->notify(fd, data, EVENT_CLOSE);
 
 	_sess_mgr_ptr->freeSession(pSession);
-
-	notifyUserDrop(seqno);
+	
 }
 
-void EventProcessor::notifyUserDrop(int seqno)
+void EventProcessor::handleClient(uint64_t uid, int seqno)
 {
+	int old_sid = _client_mgr_ptr->getSessID(uid);
+	if(-1 == old_sid ) //new client
+	{
+		_client_mgr_ptr->addClient(uid, seqno);
+	}
+	else
+	{
+		if(old_sid != seqno) //login in two or more place
+		{
+			_client_mgr_ptr->resetClient(uid, seqno)
+			notifyUserRelogin(uid, old_sid);
+		}
+	}
+}
+
+void EventProcessor::notifyUserDrop(int64_t uid)
+{	
 	DataXCmd* pCmd = new DataXCmd("UserDrop");
-	pCmd->set_userid(seqno);
+	pCmd->set_userid(uid);
 
 	CmdTask task;
 	task.idx = Index::get();
 	task.pCmd = pCmd;
-	task.timestamp = current_time_ms();
+	task.timestamp = current_time_usec();
 
-	_work_group_ptr->dispatch(task, QUEUE_WAIT_MS);
+	_work_group_ptr->dispatch(task);
+}
+
+void EventProcessor::notifyUserRelogin(int64_t uid, int seqno)
+{
+	DataXCmd* pCmd = new DataXCmd("UserRelogin");
+	pCmd->set_userid(uid);
+
+	CmdTask task;
+	task.idx = Index::get();
+	task.pCmd = pCmd;
+	task.seqno = seqno;
+	task.timestamp = current_time_usec();
+
+	_work_group_ptr->dispatch(task);
+
 }
 

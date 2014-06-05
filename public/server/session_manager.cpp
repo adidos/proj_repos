@@ -11,9 +11,9 @@
 
 #include "session_manager.h"
 #include "logger.h"
+#include "index.h"
 
 SessionManager::SessionManager()
-	:cur_seq_(1)
 {
 	idle_array_.clear();
 	session_array_.clear();
@@ -39,6 +39,26 @@ SessionManager::~SessionManager()
 	session_array_.clear();
 }
 
+int SessionManager::addFd(int fd, int seqno)
+{
+	typedef map<int,int>::iterator Iteratro;
+	pair<Iterator, bool> ret = _fd_array.insert(make_pair<fd, seqno>);
+
+	return ret->second ? 0 : -1;
+}
+
+int SessionManager::getSeqno8Fd(int fd)
+{
+	CScopeGuard gaurd(_fd_mutex);
+	map<int, int>::iterator iter = _fd_array.find(fd);
+	if(iter != _fd_array.end())
+	{
+		return iter->second;
+	}
+
+	return -1;
+}
+
 /**
 * brief: get a idle session 
 *
@@ -59,7 +79,7 @@ SessionBase* SessionManager::getIdleSession()
 	else
 	{
 		ptr = new SessionBase();
-		ptr->setSeqno(cur_seq_++);
+		ptr->setSeqno(Index::get());
 		LOG4CPLUS_TRACE(CLogger::logger, "idle array is empty, create a new session, "
 				<< "seqno = " << ptr->getSeqno());
 	}

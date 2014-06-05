@@ -31,6 +31,8 @@ private:
 	Servant* _servant_ptr;
 
 	EventProcessor* _in_processor_ptr;
+
+	WorkerGroup* _worker_group_ptr;
 	
 };
 
