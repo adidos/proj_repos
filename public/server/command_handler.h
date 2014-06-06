@@ -12,12 +12,9 @@
 #ifndef COMMAND_HANDLER_H
 #define COMMAND_HANDLER_H
 
-#include "Command.h"
-#include "IDataX.h"
 #include "SDLogger.h"
 #include "DataXCmd.h"
 #include "data_id_const.h"
-#include "game_room_config.h"
 
 class ICmdHandler
 {
@@ -32,13 +29,7 @@ protected:
 inline int ICmdHandler::checkCmd(DataXCmd* pCmd, const string& cmd_name)
 {
 	string name = pCmd->get_cmd_name();
-	if(name.empty() || name != cmd_name)
-	{
-		return -1;
-	}
-
-	int64_t user_id = pCmd->get_userid();
-	if(user_id < 0)
+	if(name != cmd_name)
 	{
 		return -1;
 	}

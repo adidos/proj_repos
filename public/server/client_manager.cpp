@@ -1,9 +1,10 @@
 #include "client_manager.h"
+#include "common/logger.h"
 
 int ClientManager::addClient(int64_t uid, int seqno)
 {
 	CScopeGuard guard(_mutex);
-	_client_session_array[uid] = (seqno);
+	_client_session_array[uid] = seqno;
 
 	return 0;
 }
@@ -20,7 +21,8 @@ int ClientManager::getSessID(int64_t uid)
 	Iterator iter = _client_session_array->find(uid);
 	if(iter == _client_session_array.end())
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "Cant't find user " << uid << " session id");
+		LOG4CPLUS_ERROR(CLogger::logger, "Cant't find user " 
+				<< uid << " session id");
 		return -1;
 	}
 

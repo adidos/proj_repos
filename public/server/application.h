@@ -3,8 +3,11 @@
 
 #include <string>
 
-#include "configure.h"
-
+#include "common/configure.h"
+#include "session_manager.h"
+#include "servant.h"
+#include "event_processor.h"
+#include "worker_group.h"
 
 using namespace std;
 

@@ -16,7 +16,7 @@
 #include <map>
 #include <vector>
 
-#include "thread_sync.h"
+#include "common/thread_sync.h"
 
 class ClientManager
 {
@@ -40,7 +40,6 @@ private:
 	std::map<int64_t, int> _client_session_array;
 
 	CMutex _mutex;
-
 };
 
 #endif //CLIENT_MANAGER_H
