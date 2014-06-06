@@ -9,3 +9,7 @@ tags
 *.txt
 
 *.log
+
+MyTea*
+tea*
+DataXCmd*
