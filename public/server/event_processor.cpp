@@ -68,7 +68,6 @@ void EventProcessor::doIt()
 			processWrite(event);
 		}
 	}
-
 }
 
 /**
@@ -95,7 +94,7 @@ void EventProcessor::processRead(Event& event)
 	}
 	else if(ret > 0)
 	{
-		while(1) //may be receive buffer contain two or more commands
+		while(1) //may be receive buffer contain not only one commands
 		{
 			DataXCmd* pCmd = NULL;
 			ret = pSession->parseProtocol(pCmd);
@@ -156,7 +155,7 @@ void EventProcessor::processClose(Event& event)
 
 	//notify drop first, fd will be reuse after fd close
 	notifyUserDrop(uid);
-	_client_mgr_ptr->freeClient(uid);
+	_client_mgr_ptr->freeClient(uid, seqno);
 	
 	int seqno = event.uid;
 	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
@@ -176,18 +175,25 @@ void EventProcessor::processClose(Event& event)
 
 void EventProcessor::handleClient(uint64_t uid, int seqno)
 {
-	int old_sid = _client_mgr_ptr->getSessID(uid);
-	if(-1 == old_sid ) //new client
+	vector<int> seqnos;
+	int ret = _client_mgr_ptr->getSessID(uid, seqnos);
+	if(-1 == ret) //new client
 	{
 		_client_mgr_ptr->addClient(uid, seqno);
 	}
 	else
 	{
-		if(old_sid != seqno) //login in two or more place
+		vector<int>::iterator iter = seqnos.find(seqno);
+		if(iter == seqnos.end()) //新的终端连接
 		{
-			_client_mgr_ptr->resetClient(uid, seqno)
-			notifyUserRelogin(uid, old_sid);
+			_client_mgr_ptr->addClient(uid, seqno);
+			iter = seqnos.begin();
+			for(; iter != seqno.end(); ++iter)
+			{
+				notifyUserRelogin(uid, *iter);//TODO是否需要通知重复登陆的数量
+			}
 		}
+		//else  已经记录过该连接
 	}
 }
 

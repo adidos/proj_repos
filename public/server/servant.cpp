@@ -66,12 +66,14 @@ int  Servant::startService()
 {
 	_epoll_svr_ptr->start();
 	this->start();	
+	return 0;
 }
 
 int Servant::waitForStop()
 {
 	_epoll_svr_ptr->waitForStop();
 	this->waitForStop();
+	return 0;
 }
 
 /**

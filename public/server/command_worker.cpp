@@ -23,6 +23,11 @@ CmdWorker::~CmdWorker()
 
 }
 
+/**
+* brief:
+*
+* @param task
+*/
 void CmdWorker::addTask(CmdTask task)
 {
 	bool bret = _task_queue.push(task, 100);
@@ -36,6 +41,9 @@ void CmdWorker::addTask(CmdTask task)
 	return bret;
 }
 
+/**
+* brief:
+*/
 void CmdWorker::doIt()
 {
 	while(true)
@@ -44,12 +52,13 @@ void CmdWorker::doIt()
 		bool bret = _task_queue.pop(task, 60*1000);
 		if(!bret)
 		{
-			LOG4CPLUS_DEBUG(CLogger::logger, "task queue is empty! wait continue...");
+			LOG4CPLUS_DEBUG(CLogger::logger, "task queue is empty! continue wait...");
 			continue;
 		}
 
-		LOG4CPLUS_DEBUG(CDebugLogger::logger, _id << "TimeTrace: task->out queue spend time " 
-				<< current_time_usec()- task.timestamp);
+		LOG4CPLUS_DEBUG(CDebugLogger::logger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
+				<< "] out queue spend time " << current_time_usec()- task.timestamp);
+
 		string name = task.pCmd->get_cmd_name();
 		ICmdHandler* pHandler = CmdRegistor::getCommand();
 		if(NULL == pHandler)
@@ -64,8 +73,7 @@ void CmdWorker::doIt()
 		
 		pHandler->handle(task);
 
-		LOG4CPLUS_DEBUG(CDebugLogger::logger, _id << "TimeTrace: task->handle spend time "
-				<< current_time_usec() - task.timestamp);
+		LOG4CPLUS_DEBUG(CDebugLogger::logger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
+				<< "] handle spend time " << current_time_usec() - task.timestamp);
 	}
-
 }

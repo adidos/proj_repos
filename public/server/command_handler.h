@@ -12,14 +12,13 @@
 #ifndef COMMAND_HANDLER_H
 #define COMMAND_HANDLER_H
 
-#include "SDLogger.h"
 #include "DataXCmd.h"
-#include "data_id_const.h"
+#include "event.h"
 
 class ICmdHandler
 {
 public:
-	virtual bool handle(DataXCmd *pMsg, vector<sd_job> & out_rsts) = 0;
+	virtual bool handle(CmdTask task) = 0;
 
 protected:
 	int checkCmd(DataXCmd* pCmd, const string& cmd_name);

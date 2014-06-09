@@ -30,7 +30,7 @@ typedef struct event_t
 	int seqno;				//event source identify
 	int type;
 
-	int64_t timestamp; //ms
+	int64_t timestamp; //us
 	
 	string dump()
 	{
@@ -44,7 +44,7 @@ typedef struct cmd_task_t
 {
 	int idx;
 	uint32_t seqno;
-	int64_t timestamp; //ms
+	int64_t timestamp; //us
 	DataXCmd* pCmd;
 }CmdTask;
 

@@ -28,16 +28,15 @@ public:
 	}
 
 	int addClient(int64_t uid, int seqno);
-	int resetClient(int64_t uid, int seqno);
 
-	int getSessID(int64_t uid);
+	int getSessID(int64_t uid, vector<int>& seqnos);
 	int64_t getUid8Sid(int seqno);
 
-	int freeClient(int64_t uid);
+	int freeClient(int64_t uid, int seqno);
 
 private:
-	typedef std::map<int64_t, int>::iterator Iterator;
-	std::map<int64_t, int> _client_session_array;
+	typedef std::multimap<int64_t, int>::iterator Iterator;
+	std::multimap<int64_t, int> _client_session_array;
 
 	CMutex _mutex;
 };
