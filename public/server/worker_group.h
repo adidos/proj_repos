@@ -14,6 +14,10 @@
 
 #include "event.h"
 
+#include <vector>
+
+using namespace std;
+
 class CmdWorker;
 
 class WorkerGroup

@@ -9,14 +9,13 @@
 * 
 * ======================================================*/
 
-#include "query_room_cmd_handler.h"
+#include "query_room_handler.h"
+#include "common/logger.h"
+#include "server/response_manager.h"
+
 #include <stdlib.h>
 
-
-
-IMPL_LOGGER(QueryRoomCmdHandler, logger);
-
-bool QueryRoomCmdHandler::handle(Command * pMsg, vector<sd_job> & out_rsts)
+bool QueryRoomHandler::handle(CmdTask& task)
 {
 	srand((int) time(0));
 	unsigned int tmp_user[4] = {0};
@@ -30,14 +29,14 @@ bool QueryRoomCmdHandler::handle(Command * pMsg, vector<sd_job> & out_rsts)
 	
 	if(NULL == pMsg)
 	{
-		LOG4CPLUS_WARN(logger, "the command to handle is NULL");
+		LOG4CPLUS_WARN(CLogger::logger, "the command to handle is NULL");
 		return false;
 	}
 
-	DataXCmd* pCmd = (DataXCmd*)pMsg;
+	DataXCmd* pCmd = task.pCmd;
 	if(NULL == pCmd)
 	{
-		LOG4CPLUS_ERROR(logger, "convert command to dataxcmd failed.");
+		LOG4CPLUS_ERROR(CLogger::logger, "convert command to dataxcmd failed.");
 
 		return false;
 	}
@@ -45,7 +44,7 @@ bool QueryRoomCmdHandler::handle(Command * pMsg, vector<sd_job> & out_rsts)
 	int rst = checkCmd(pCmd, string("GetDirReq")); 
 	if(0 != rst)
 	{
-		LOG4CPLUS_ERROR(logger, "ckeck command failed. user id = "
+		LOG4CPLUS_ERROR(CLogger::logger, "ckeck command failed. user id = "
 			<< pCmd->get_userid() << ", cmd_name = " << pCmd->get_cmd_name());
 
 		return false;
@@ -55,7 +54,7 @@ bool QueryRoomCmdHandler::handle(Command * pMsg, vector<sd_job> & out_rsts)
 	bool bSuccess = decodeParam(pCmd->get_datax(), game_id);
 	if(!bSuccess)	
 	{
-		LOG4CPLUS_ERROR(logger, "get game id from datax failed...");
+		LOG4CPLUS_ERROR(CLogger::logger, "get game id from datax failed...");
 		return false;
 	}
 
@@ -111,14 +110,18 @@ bool QueryRoomCmdHandler::handle(Command * pMsg, vector<sd_job> & out_rsts)
 
 	
 	//send pResp
-	message_position msg_pos;
-	sd_job rst_job(msg_pos, msg_pos, pResp);
-	out_rsts.push_back(rst_job);
+	CmdTask resp;
+	resp.idx = task.idx;
+	resp.seqno = task.seqno;
+	resp.pCmd = pResp;
+	resp.timestamp = task.timestamp;
+	ResponseManager::getInstance()->sendResponse(resp);
+
 	return true;
 }
 
 
-bool QueryRoomCmdHandler::decodeParam(IDataX* ptr, int& game_id)
+bool QueryRoomHandler::decodeParam(IDataX* ptr, int& game_id)
 {
 	if(NULL == ptr) return false;
 

@@ -13,6 +13,10 @@
 #define GC_SERVANT_H
 
 #include "application.h"
+#include "epoll_server.h"
+#include "session_manager.h"
+
+#include "common/thread.h"
 
 class Servant : public CThread
 {

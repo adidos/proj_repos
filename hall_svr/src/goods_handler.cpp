@@ -1,22 +1,18 @@
 #include "goods_handler.h"
 #include "shop_config.h"
+#include "common/logger.h"
+#include "server/response_manager.h"
 
-IMPL_LOGGER(goods_handler, logger);
+IMPL_LOGGER(goods_handler, CLogger::logger);
 
-bool goods_handler::handle(Command * pMsg, vector<sd_job> & out_rsts)
+bool goods_handler::handle(CmdTask& task)
 {
-	if(NULL == pMsg)
-	{
-		LOG4CPLUS_WARN(logger, "the command to handle is NULL");
-		return false;
-	}
-
-	DataXCmd* pCmd = (DataXCmd*)pMsg;	
+	DataXCmd* pCmd = task.pCmd;	
 
 	int rst = checkCmd(pCmd, string("GetStoreConfig")); 
 	if(0 != rst)
 	{
-		LOG4CPLUS_ERROR(logger, "ckeck command failed. user id = "
+		LOG4CPLUS_ERROR(CLogger::logger, "ckeck command failed. user id = "
 			<< pCmd->get_userid() << ", cmd_name = " << pCmd->get_cmd_name());
 
 		return false;
@@ -27,14 +23,14 @@ bool goods_handler::handle(Command * pMsg, vector<sd_job> & out_rsts)
 	bool bSuccess = decodeParam(pCmd->get_datax(), game_id, tooltype);
 	if(!bSuccess)	
 	{
-		LOG4CPLUS_ERROR(logger, "decodeParam failed...");
+		LOG4CPLUS_ERROR(CLogger::logger, "decodeParam failed...");
 		return false;
 	}
 
 	vector<goods_item> goods_set;
 
 	shop_config::instance()->get_goods_by_type(tooltype, goods_set);	
-	LOG4CPLUS_DEBUG(logger, "get_goods_by_type = " << goods_set.size());
+	LOG4CPLUS_DEBUG(CLogger::logger, "get_goods_by_type = " << goods_set.size());
 
 	int idx = 0;
 	int size = goods_set.size();
@@ -70,11 +66,14 @@ bool goods_handler::handle(Command * pMsg, vector<sd_job> & out_rsts)
 	DataXCmd * pResp = new DataXCmd("GetStoreConfigResp", pCmd->get_cipher_flag());
 	pResp->set_datax(pParam);
 	pResp->set_userid(pCmd->get_userid());
+
+	CmdTask resp;
+	resp.idx = task.idx;
+	resp.seqno = task.seqno;
+	resp.timestamp = task.timestamp;
+	resp.pCmd = pResp;
+	ResponseManager::getInstance()->sendResponse(resp);	
 	
-	//send pResp
-	message_position msg_pos;
-	sd_job rst_job(msg_pos, msg_pos, pResp);
-	out_rsts.push_back(rst_job);
 	return true;
 }
 
@@ -85,7 +84,7 @@ bool goods_handler::decodeParam(IDataX * ptr, int& game_id, int & tooltype)
 
 	bool rst = ptr->GetInt(DataID_GameId, game_id);
 	rst = ptr->GetInt(DataID_ToolType, tooltype);
-	LOG4CPLUS_DEBUG(logger, "decodeParam goods_handler game_id = "<< game_id << " tooltype = " << tooltype);
+	LOG4CPLUS_DEBUG(CLogger::logger, "decodeParam goods_handler game_id = "<< game_id << " tooltype = " << tooltype);
 	
 	return rst;
 }

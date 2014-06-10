@@ -10,7 +10,7 @@
 * ======================================================*/
 
 #include "command_worker.h"
-#include "logger.h"
+#include "common/logger.h"
 
 CmdWorker::CmdWorker(int size)
 	:_task_queue(size)
@@ -72,6 +72,8 @@ void CmdWorker::doIt()
 				<< name << "]");
 		
 		pHandler->handle(task);
+
+		task.releaseCmd();
 
 		LOG4CPLUS_DEBUG(CDebugLogger::logger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
 				<< "] handle spend time " << current_time_usec() - task.timestamp);

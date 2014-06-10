@@ -11,20 +11,17 @@
 #ifndef ROOM_CONFIG_CMD_HANDLER_H
 #define ROOM_CONFIG_CMD_HANDLER_H 
 
-#include "command_handler.h"
+#include "server/IDataX.h"
+#include "server/command_handler.h"
+#include "server/event.h"
 
-
-class QueryRoomCmdHandler : public CmdHandler
+class QueryRoomHandler : public ICmdHandler
 {
 public:
-	bool handle(Command * pMsg, vector<sd_job> & out_rsts);
+	bool handle(CmdTask& task);
 
 private:
 	bool decodeParam(IDataX* ptr, int& game_id);
-
-private:
-
-	DECL_LOGGER(logger);
 
 };
 

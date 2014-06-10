@@ -12,27 +12,32 @@
 #ifndef RESP_PROCESSOR_H
 #define RESP_PROCESSOR_H
 
-#include "queue.h"
-#include "thread.h"
+#include "common/queue.h"
+#include "common/thread.h"
 
-class RespProcessor
+#include "session_manager.h"
+#include "client_manager.h"
+#include "epoll_server.h"
+
+class RespProcessor : public CThread
 {
 public:
-	RespProcessor();
+	RespProcessor(SessionManager* pSessMgr, ClientManager* pClientMgr);
 	~RespProcessor();
-
-	int putResponse(CmdTask& resp);
+	
+	int regEventServer(EpollServer* pEpollSvr)
+	{
+		_epoll_svr_ptr = pEpollSvr;
+	}
 
 protected:
 	virtual void doIt();
 
 private:
+	SessionManager* _sess_mgr_prt;
+	ClientManager* _client_mgr_prt;
 	EpollServer* _epoll_svr_ptr;
-	Queue<CmdTask> _resp_array;
-	
 
-
-
-}
+};
 
 #endif //RESP_PROCESSOR_H

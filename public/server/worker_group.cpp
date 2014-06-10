@@ -10,6 +10,7 @@
 * ======================================================*/
 
 #include "work_group.h"
+#include "command_worker.h"
 
 WorkerGroup::WorkerGroup()
 	: _worker_num(1)

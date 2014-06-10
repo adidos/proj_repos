@@ -2,7 +2,7 @@
 #define RESPONSE_MANAGER_H
 
 #include "event.h"
-#include "queue.h"
+#include "common/queue.h"
 
 class ResponseManager
 {

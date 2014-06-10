@@ -120,7 +120,7 @@ private:
 private:
 	string file_name_;
 	
-	ConfigReader config_;
+	Configure config_;
 
 	vector<GameRoomInfo> room_list_;
 

@@ -12,8 +12,10 @@
 #define EPOLL_SERVER_H 
 
 #include "epoll.h"
-#include "thread.h"
 #include "servant.h"
+
+#include "common/thread.h"
+
 
 #define U64(high, low) ((uint64_t)high << 32 | low)
 #define H32(data) (int)((uint64_t)data >> 32)

@@ -4,7 +4,8 @@ Configure* g_pConfig = NULL;
 
 Application::Application()
 	: _config_ptr(NULL), _sess_mgr_ptr(NULL),
-	_servant_ptr(NULL), _in_processor_ptr(NULL)
+	_servant_ptr(NULL), _req_processor_ptr(NULL),
+	_resp_processor_ptr(NULL)
 {
 }
 
@@ -28,10 +29,16 @@ Application::~Application()
 		_servant_ptr = NULL;
 	}
 
-	if(NULL != _in_processor_ptr)
+	if(NULL != _req_processor_ptr)
 	{
-		delete _in_processor_ptr;
-		_in_processor_ptr = NULL;
+		delete _req_processor_ptr;
+		_req_processor_ptr = NULL;
+	}
+
+	if(NULL != _resp_processor_ptr)
+	{
+		delete _resp_processor_ptr;
+		_resp_processor_ptr = NULL;
 	}
 	
 }
@@ -63,20 +70,24 @@ void Application::initialize(const string & file)
 	_servant_ptr = new Servant(_sess_mgr_ptr);
 	_servant_ptr->init();
 	
-	_in_processor_ptr = new EventProcessor(_sess_mgr_ptr, _worker_group_ptr);
-	_in_processor_ptr.regEventServer(_servant_ptr->getEpollServer());
+	_req_processor_ptr = new EventProcessor(_sess_mgr_ptr, _worker_group_ptr);
+	_req_processor_ptr->regEventServer(_servant_ptr->getEpollServer());
 
-	_servant_ptr->getEpollServer()->regProcessor(_in_processor_ptr);
+	_resp_processor_ptr = new RespProcessor(_sess_mgr_ptr, _req_processor_ptr->getClientMgr());
+	_resp_processor_ptr->regEventServer(_servant_ptr->getEpollServer());
+	
+
+	_servant_ptr->getEpollServer()->regProcessor(_req_processor_ptr);
 }
 
 int Application::waitForShutdown()
 {
 	_worker_group_ptr->startWorker();
-	_in_processor_ptr->start();
+	_req_processor_ptr->start();
 	_servant_ptr->startService();
 
 	_servant_ptr->waitForStop();
-	_in_processor_ptr->waitForStop();
+	_req_processor_ptr->waitForStop();
 	_worker_group_ptr->waitForStop();
 	
 	return 0;

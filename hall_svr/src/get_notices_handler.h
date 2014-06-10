@@ -11,21 +11,17 @@
 #ifndef GET_NOTICES_HANDLER_H
 #define GET_NOTICES_HANDLER_H
 
-#include "command_handler.h"
-#include "SDLogger.h"
-#include "IDataX.h"
-#include "Command.h"
+#include "server/IDataX.h"
+#include "server/command_handler.h"
+#include "server/event.h"
 
-class GetNoticesHandler : public CmdHandler
+class GetNoticesHandler : public ICmdHandler
 {
 public:
-	virtual bool handle(Command * pMsg, vector<sd_job> & out_rsts);
+	virtual bool handle(CmdTask& task);
 
 private:
 	bool decodeParam(IDataX* pParam, int& game_id, string& channal, short& version);
-
-private:
-	DECL_LOGGER(logger);
 
 };
 

@@ -10,8 +10,8 @@
 * ======================================================*/
 
 #include "event_processor.h"
-#include "configure.h"
-#include "index.h"
+#include "common/configure.h"
+#include "common/index.h"
 
 extern Configure* g_pConfig;
 
@@ -25,6 +25,11 @@ EventProcessor::EventProcessor(SessionManager* pSessMgr£¬
 
 EventProcessor::~EventProcessor()
 {
+	if(NULL != _client_mgr_ptr)
+	{
+		delete _client_mgr_ptr;
+		_client_mgr_ptr = NULL;
+	}
 }
 
 /**

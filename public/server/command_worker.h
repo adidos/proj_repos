@@ -12,7 +12,7 @@
 #ifndef COMMAND_WORKER_H
 #define COMMAND_WORKER_H
 
-#include "thread.h"
+#include "common/thread.h"
 #include "event.h"
 
 class CmdWorker : public CThread

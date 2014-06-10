@@ -12,13 +12,13 @@
 #ifndef COMMAND_HANDLER_H
 #define COMMAND_HANDLER_H
 
-#include "DataXCmd.h"
+#include "common/DataXCmd.h"
 #include "event.h"
 
 class ICmdHandler
 {
 public:
-	virtual bool handle(CmdTask task) = 0;
+	virtual bool handle(CmdTask& task) = 0;
 
 protected:
 	int checkCmd(DataXCmd* pCmd, const string& cmd_name);
@@ -41,6 +41,5 @@ inline int ICmdHandler::checkCmd(DataXCmd* pCmd, const string& cmd_name)
 
 	return 0;
 }
-
 
 #endif /*COMMAND_HANDLER_H*/

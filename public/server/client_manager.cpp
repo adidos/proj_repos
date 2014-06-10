@@ -4,6 +4,8 @@
 int ClientManager::addClient(int64_t uid, int seqno)
 {
 	CScopeGuard guard(_mutex);
+	_seq2uid_array[seqno] = uid;
+	
 	Iterator iter = _client_session_array.find(uid);
 	if(iter != _client_session_array.end() &&
 		iter->second == seqno)
@@ -36,6 +38,8 @@ int ClientManager::getSessID(int64_t uid, vector<int>& seqnos)
 int ClientManager::freeClient(int64_t uid, int seqno)
 {
 	CScopeGuard guard(_mutex);
+	_seq2uid_array.erase(seqno);
+	
 	pair<Iterator, Iterator> ret = _client_session_array.eqaul_range(uid);
 	if(ret.first == ret.second)
 	{
@@ -57,10 +61,11 @@ int ClientManager::freeClient(int64_t uid, int seqno)
 int64_t ClientManager::getUid8Sid(int seqno)
 {
 	CScopeGuard guard(_mutex);
-	Iterator iter = _client_session_array.begin();
-	for( ; iter != _client_session_array.end(); ++iter)
+	std::map<int, int64_t>::iterator iter = _seq2uid_array.find(seqno);
+	if(iter == _seq2uid_array.end())
 	{
-		if(seqno == iter->second)
-			return iter->first;
+		LOG4CPLUS_WARN(CLogger::logger, "can't find user by seqno[" << seqno <<"].")
+		return -1;
 	}
+	return iter->second;
 }

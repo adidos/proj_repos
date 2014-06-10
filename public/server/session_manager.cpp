@@ -105,8 +105,7 @@ void SessionManager::freeSession(SessionBase* pSession)
 		session_array_.erase(pSession->getSeqno());
 	}
 
-	pSession->setFd(-1);
-	pSession->clearBuffer();
+	pSession->close();
 
 	CScopeGuard guard(idle_mutex_);	
 	idle_array_.push_back(pSession);
@@ -121,6 +120,7 @@ void SessionManager::freeSession(SessionBase* pSession)
 */
 SessionBase* SessionManager::getSession(int seqno)
 {
+	CScopeGuard guard(session_mutex_);	
 	Iterator iter = session_array_.find(seqno);
 	if(iter == session_array_.end())
 	{

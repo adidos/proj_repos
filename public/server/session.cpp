@@ -10,7 +10,10 @@
 * ======================================================*/
 
 #include "session.h"
-#include "logger.h"
+#include "common/logger.h"
+
+#include <sys/socket.h>
+#include <sys/types.h>
 
 SessionBase::SessionBase()
 	:fd_(-1), seq_no_(-1)
@@ -35,7 +38,7 @@ void SessionBase::clearBuffer()
 		send_buff_.clear();
 	}
 }
-int SessionBase::recv()
+int SessionBase::recvBuffer()
 {
 	if(-1 == fd_)
 	{
@@ -49,24 +52,24 @@ int SessionBase::recv()
 	while(1)
 	{
 		memset(buffer, '\0', 8192);
-		int recv_len = recv(fd_, buffer, 8192, 0);
+		int recv_len = ::recv(fd_, buffer, 8192, 0);
 		if(recv_len < 0)
 		{
 			if(EAGAIN == errno || EWOULDBLOCK == errno)
 			{
-				LOG4CPLUS_TRACE(CLogger::logger, fd << " will recv EAGAIN");
+				LOG4CPLUS_TRACE(CLogger::logger, fd_ << " will recv EAGAIN, error:" << strerror(errno));
 				break;
 			}
 			else if(EINTR == errno)
 				continue;
 
-			LOG4CPLUS_ERROR(CLogger::logger, fd << " recv error, msg: " << strerror(errno));
+			LOG4CPLUS_ERROR(CLogger::logger, fd_ << " recv error, msg: " << strerror(errno));
 			
 			return SOCKET_ERR;
 		}
 		else if(recv_len == 0)
 		{
-			LOG4CPLUS_DEBUG(CLogger::logger, fd << " close by client!");
+			LOG4CPLUS_DEBUG(CLogger::logger, fd_ << " close by client!");
 			return SOCKET_CLOSE;
 		}
 		else
@@ -82,9 +85,51 @@ int SessionBase::recv()
 	return total_len;
 }
 
-int SessionBase::send()
+int SessionBase::sendBuffer()
 {
+	int total_len = 0;
+	CScopeGuard gaurd(send_buff_);
+	
+	while(1)
+	{
+		if(-1 == fd_ ) 
+		{
+			LOG4CPLUS_ERROR(CLogger::logger, "socket fd = -1!");
+			return SOCKET_ERR;
+		}
+		
+		if(send_buff_.empty())return 0;
+		
+		int send_len = ::send(fd_, send_buff_.c_str() + total_len, send_buff_.size(), 0);
+		if(send_len < 0)
+		{
+			if(EWOULDBLOCK == errno || EAGAIN == errno)
+			{
+				LOG4CPLUS_WARN(CLogger::logger, fd_ << " will recv EAGAIN, error:" 
+						<< strerror(errno));
 
+				send_buff_.erase(0, total_len);
+				return SOCKET_EAGAIN;
+			}
+			else if(EINTR == errno)
+			{
+				continue;
+			}
+
+			LOG4CPLUS_ERROR(CLogger::logger, fd_ << " send error, msg: " << strerror(errno));
+
+			return SOCKET_ERR;
+		}
+		else if(send_len >= 0)
+		{
+			total_len += send_len;
+			if(total_len == send_buff_.size())
+				break;
+		}		
+	}
+	send_buff_.erase(0, total_len);
+
+	return total_len;	
 }
 
 int SessionBase::close()
@@ -92,15 +137,7 @@ int SessionBase::close()
 	close(fd_);
 	fd_ = -1;
 	
-	{
-		CScopeGuard guard(recv_mutex_);
-		recv_buff_.clear();
-	}
-
-	{
-		CScopeGuard guard(send_mutex_);
-		send_buff_.clear();
-	}
+	clearBuffer();
 }
 
 /**
@@ -112,6 +149,8 @@ int SessionBase::close()
 */
 int SessionBase::write2Send(const string& buffer_send)
 {
+	CScopeGuard guard(send_mutex_);
+	send_buff_.append(buffer_send);
 	
 	return 0;
 }

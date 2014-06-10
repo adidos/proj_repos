@@ -8,6 +8,7 @@
 #include "servant.h"
 #include "event_processor.h"
 #include "worker_group.h"
+#include "resp_processor.h"
 
 using namespace std;
 
@@ -33,9 +34,11 @@ private:
 
 	Servant* _servant_ptr;
 
-	EventProcessor* _in_processor_ptr;
+	EventProcessor* _req_processor_ptr;
 
 	WorkerGroup* _worker_group_ptr;
+
+	RespProcessor* _resp_processor_ptr;
 	
 };
 

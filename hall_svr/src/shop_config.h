@@ -1,8 +1,11 @@
 #ifndef SHOP_CONFIG_H
 #define SHOP_CONFIG_H
 
-#include "../main/common_include.h"
-#include "common.h"
+#include <string>
+
+#include "common/configure.h"
+
+using namespace std;
 
 class goods_item
 {
@@ -57,15 +60,14 @@ private:
 	shop_config();
 	~shop_config();
 
-	bool load_cfg(const string & cfg);	
+	bool load_cfg();	
 
 	static shop_config * m_Singleton;
 
 	map<int, goods_item> m_goods_set;
 
-	ConfigReader         m_cfg_reader;
+	Configure m_cfg_reader;
 	
-	DECL_LOGGER(logger);	
 };
 
 #endif //SHOP_CONFIG_H

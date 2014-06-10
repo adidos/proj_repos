@@ -19,7 +19,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include "utility.h"
+#include "common/utility.h"
+#include "common/configure.h"
 
 #inlcude <iostream>
 

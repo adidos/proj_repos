@@ -17,6 +17,7 @@
 
 #define SOCKET_CLOSE	-10
 #define SOCKET_ERR	-11
+#define SOCKET_EAGAIN -12
 
 using namespace std;
 
@@ -43,8 +44,8 @@ public:
 
 	void clearBuffer();
 
-	int recv();
-	int send();
+	int recvBuffer();
+	int sendBuffer();
 	int close();
 
 	int write2Send(const string& buffer_send);	

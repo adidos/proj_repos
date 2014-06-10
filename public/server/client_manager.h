@@ -38,6 +38,8 @@ private:
 	typedef std::multimap<int64_t, int>::iterator Iterator;
 	std::multimap<int64_t, int> _client_session_array;
 
+	std::map<int, int64_t> _seq2uid_array;
+
 	CMutex _mutex;
 };
 

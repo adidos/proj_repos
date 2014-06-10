@@ -13,9 +13,10 @@
 #define EVENT_PROCESSOR_H
 
 #include "event.h"
-#include "queue.h"
-#include "thread.h"
-#include "DataXCmd.h"
+
+#include "common/queue.h"
+#include "common/thread.h"
+#include "common/DataXCmd.h"
 
 #include "client_manager.h"
 
@@ -35,6 +36,11 @@ public:
 	}
 
 	bool addEvent(Event event);
+
+	ClientManager* getClientMgr()
+	{
+		return _client_mgr_ptr;
+	}
 
 protected:
 	virtual void doIt();

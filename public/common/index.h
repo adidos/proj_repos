@@ -25,7 +25,9 @@ public:
 	
 		{
 			CScopeGuard gaurd(_idx_mutex);
-			return _current_idx++;
+			uint32_t temp = _current_idx;
+			_current_idx = (_current_idx + 1) % 0x7FFFFFFE;
+			return temp;
 		}
 	}
 
