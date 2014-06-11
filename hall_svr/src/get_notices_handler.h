@@ -11,7 +11,7 @@
 #ifndef GET_NOTICES_HANDLER_H
 #define GET_NOTICES_HANDLER_H
 
-#include "server/IDataX.h"
+#include "common/IDataX.h"
 #include "server/command_handler.h"
 #include "server/event.h"
 
