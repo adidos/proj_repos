@@ -27,7 +27,7 @@ class SessionBase
 public:
 	SessionBase();
 	SessionBase(int fd, int seqno);
-	~SessionBase();
+	~SessionBase(){};
 
 	int getFd(){return fd_;}
 

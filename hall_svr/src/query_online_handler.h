@@ -11,8 +11,7 @@
 #ifndef QUERY_ONLINE_CMD_HADLER_H
 #define QUERY_ONLINE_CMD_HADLER_H
 
-
-#include "server/IDataX.h"
+#include "common/IDataX.h"
 #include "server/command_handler.h"
 #include "server/event.h"
 
@@ -22,7 +21,6 @@ public:
 	bool handle(CmdTask& task);	
 private:
 	bool decodeParam(IDataX* ptr, int& game_id);
-
 
 };
 

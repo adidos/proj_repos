@@ -12,10 +12,11 @@
 #include "game_room_config.h"
 
 #include <stdio.h>
+#include "common/logger.h"
+#include "common/utility.h"
 
-IMPL_LOGGER(GameRoomConfig, logger);
 
- GameRoomConfig* GameRoomConfig::instance_;
+GameRoomConfig* GameRoomConfig::instance_;
 
 
 GameRoomConfig::GameRoomConfig()
@@ -35,7 +36,7 @@ int GameRoomConfig::loadGameConfig(const string& file_name)
 	bool rst = config_.loadFile(file_name.c_str());
 	if(!rst)
 	{
-		LOG4CPLUS_ERROR(logger, "load config file " << file_name << " failed...");
+		LOG4CPLUS_ERROR(CLogger::logger, "load config file " << file_name << " failed...");
 		return -1;
 	}
 
@@ -122,7 +123,7 @@ int GameRoomConfig::room_list(vector<RoomIdent>& room_array)
 	string strGames = config_.getString("valid.game_id.list");
 	if(strGames.empty())
 	{
-		LOG4CPLUS_ERROR(logger, "game list is not config.");
+		LOG4CPLUS_ERROR(CLogger::logger, "game list is not config.");
 		return -1;
 	}
 
@@ -139,7 +140,7 @@ int GameRoomConfig::room_list(vector<RoomIdent>& room_array)
 		string strRooms = config_.getString(rooms_key);
 		if(strRooms.empty())
 		{
-			LOG4CPLUS_ERROR(logger, "game "<< *game_iter<< " rooms list is null");
+			LOG4CPLUS_ERROR(CLogger::logger, "game "<< *game_iter<< " rooms list is null");
 			continue;
 		}
 
@@ -179,38 +180,38 @@ int GameRoomConfig::room_config(vector<RoomIdent> room_array,
 		room_info.game_id = iter->game_id;
 		room_info.room_id = iter->room_id;
 
-		LOG4CPLUS_INFO(logger, "RoomInfo: game_id = " << room_info.game_id
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: game_id = " << room_info.game_id
 			<< ", room_id = " << room_info.room_id);
 
 		char prefix[32] = {'\0'};
 		snprintf(prefix, 32, "game_%d.room_%d.", iter->game_id, iter->room_id);
 
 		room_info.room_name = config_.getString(string(prefix).append("name").c_str());
-		LOG4CPLUS_INFO(logger, "RoomInfo: name = " << room_info.room_name );
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: name = " << room_info.room_name );
 
 		room_info.server_cu =config_.getString(string(prefix).append("server.cu").c_str());
-		LOG4CPLUS_INFO(logger, "RoomInfo: server.cu= " << room_info.server_cu);
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: server.cu= " << room_info.server_cu);
 
 		room_info.server_ct =config_.getString(string(prefix).append("server.ct").c_str());
-		LOG4CPLUS_INFO(logger, "RoomInfo: server.ct= " << room_info.server_ct);
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: server.ct= " << room_info.server_ct);
 
 		room_info.server_cm =config_.getString(string(prefix).append("server.cm").c_str());
-		LOG4CPLUS_INFO(logger, "RoomInfo: server.cm= " << room_info.server_cm);
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: server.cm= " << room_info.server_cm);
 
 		room_info.min_limit=config_.getInt(string(prefix).append("min.bean.limit").c_str());
-		LOG4CPLUS_INFO(logger, "RoomInfo: min.limit= "<<room_info.min_limit);
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: min.limit= "<<room_info.min_limit);
 
 		room_info.max_limit=config_.getInt(string(prefix).append("max.bean.limit").c_str());
-		LOG4CPLUS_INFO(logger, "RoomInfo: max.limit= "<<room_info.max_limit);
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: max.limit= "<<room_info.max_limit);
 
 		room_info.room_ante = config_.getInt(string(prefix).append("ante").c_str());
-		LOG4CPLUS_INFO(logger, "RoomInfo: ante = "<<room_info.room_ante);
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: ante = "<<room_info.room_ante);
 
 		room_info.min_quick=config_.getInt(string(prefix).append("quick_min").c_str());
-		LOG4CPLUS_INFO(logger, "RoomInfo: quick_min = "<<room_info.min_quick);
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: quick_min = "<<room_info.min_quick);
 
 		room_info.max_quick=config_.getInt(string(prefix).append("quick_max").c_str());
-		LOG4CPLUS_INFO(logger, "RoomInfo: quick_max = "<<room_info.max_quick);
+		LOG4CPLUS_INFO(CLogger::logger, "RoomInfo: quick_max = "<<room_info.max_quick);
 
 		room_info_array.push_back(room_info);
 	}
@@ -220,7 +221,7 @@ int GameRoomConfig::room_config(vector<RoomIdent> room_array,
 
 void GameRoomConfig::parse_int_list(const string& source, vector<int>& integers)
 {
-	string trim_src = Utility::trim_string(source);
+	string trim_src = trim_string(source);
 	if(trim_src.empty())
 		return;
 
@@ -229,7 +230,7 @@ void GameRoomConfig::parse_int_list(const string& source, vector<int>& integers)
 	}
 
 	vector<string> sub_strs;
-	Utility::split_string(trim_src, ",", sub_strs);
+	split_string(trim_src, ",", sub_strs);
 
 	set<int> values;
 	vector<string>::iterator iter = sub_strs.begin();

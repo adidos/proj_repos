@@ -9,9 +9,12 @@
 * 
 * ======================================================*/
 
-#include "query_online_cmd_handler.h"
+#include "query_online_handler.h"
+#include "game_room_config.h"
 #include "server/response_manager.h"
 #include "common/logger.h"
+#include "common/data_id_const.h"
+#include "common/XLDataX.h"
 
 bool QueryOnlineCmdHandler::handle(CmdTask& task)
 {

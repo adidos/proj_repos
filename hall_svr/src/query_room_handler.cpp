@@ -10,8 +10,11 @@
 * ======================================================*/
 
 #include "query_room_handler.h"
+#include "game_room_config.h"
 #include "common/logger.h"
 #include "server/response_manager.h"
+#include "common/XLDataX.h"
+#include "common/data_id_const.h"
 
 #include <stdlib.h>
 
@@ -25,13 +28,6 @@ bool QueryRoomHandler::handle(CmdTask& task)
 	tmp_user[1] = (rand() % ( 500-300+1))+ 300;
 	tmp_user[2] = (rand() % ( 300-200+1))+ 200;
 	tmp_user[3] = (rand() % ( 200-100+1))+ 100;
-	
-	
-	if(NULL == pMsg)
-	{
-		LOG4CPLUS_WARN(CLogger::logger, "the command to handle is NULL");
-		return false;
-	}
 
 	DataXCmd* pCmd = task.pCmd;
 	if(NULL == pCmd)

@@ -41,7 +41,6 @@ private:
 	WorkerGroup* _worker_group_ptr;
 
 	RespProcessor* _resp_processor_ptr;
-	
 };
 
 #endif //APPLICATION_H

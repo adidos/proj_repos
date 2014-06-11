@@ -93,10 +93,12 @@ int Application::waitForShutdown()
 	_worker_group_ptr->startWorker();
 	_req_processor_ptr->start();
 	_servant_ptr->startService();
+	_resp_processor_ptr->start();
 
 	_servant_ptr->waitForStop();
 	_req_processor_ptr->waitForStop();
 	_worker_group_ptr->waitForStop();
+	_resp_processor_ptr->waitForStop();
 	
 	return 0;
 }

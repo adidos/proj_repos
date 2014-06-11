@@ -220,11 +220,11 @@ string Configure::dump()
 
 
 
-int main()
-{
-	CLogger::init("log4cplus.properties");
-	Configure config("config.txt");
-	cout << config.dump();
-
-	return 0;
-}
+//int main()
+//{
+//	CLogger::init("log4cplus.properties");
+//	Configure config("config.txt");
+//	cout << config.dump();
+//
+//	return 0;
+//}

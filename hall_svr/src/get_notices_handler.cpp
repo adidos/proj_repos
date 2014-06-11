@@ -12,6 +12,9 @@
 #include "notice_config.h"
 #include "common/logger.h"
 #include "server/response_manager.h"
+#include "common/IDataX.h"
+#include "common/XLDataX.h"
+#include "common/DxWrapper.h"
 
 bool GetNoticesHandler::handle(CmdTask& task)
 {

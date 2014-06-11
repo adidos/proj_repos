@@ -2,6 +2,8 @@
 #define SHOP_CONFIG_H
 
 #include <string>
+#include <vector>
+#include <map>
 
 #include "common/configure.h"
 
@@ -25,7 +27,7 @@ public:
 
 	int    toolid;
 	string toolname;
-	byte   tooltype;
+	char   tooltype;
 	short  toolicon;
 	int    toolnum;
 	float  toolrmb;
@@ -35,7 +37,7 @@ public:
 	string outstore;
 	short  saleid;
 	short  takeid;
-	byte   vipvalid;
+	char   vipvalid;
 	
 private:
 	
@@ -53,7 +55,7 @@ public:
 		return m_Singleton;
 	}
 
-	bool get_goods_by_type(byte type, vector<goods_item> & goods_set);
+	bool get_goods_by_type(char type, vector<goods_item> & goods_set);
 	
 private:	
 

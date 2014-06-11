@@ -1,11 +1,11 @@
 #ifndef GOODS_HANDLER_H
 #define GOODS_HANDLER_H 
 
-#include "server/IDataX.h"
+#include "common/IDataX.h"
 #include "server/command_handler.h"
 #include "server/event.h"
 
-class goods_handler : public CmdHandler
+class GoodsHandler : public ICmdHandler
 {
 public:
 	bool handle(CmdTask& task);

@@ -2,10 +2,10 @@
 #include "shop_config.h"
 #include "common/logger.h"
 #include "server/response_manager.h"
+#include "common/data_id_const.h"
+#include "common/XLDataX.h"
 
-IMPL_LOGGER(goods_handler, CLogger::logger);
-
-bool goods_handler::handle(CmdTask& task)
+bool GoodsHandler::handle(CmdTask& task)
 {
 	DataXCmd* pCmd = task.pCmd;	
 
@@ -46,7 +46,7 @@ bool goods_handler::handle(CmdTask& task)
 
 		datax_goods[idx]->PutInt(DataID_ToolId, it->toolid);
 		datax_goods[idx]->PutUTF8String(DataID_ToolName, (byte*)it->toolname.c_str(), it->toolname.length());
-		datax_goods[idx]->PutBytes(DataID_ToolType, &(it->tooltype), 1);
+		datax_goods[idx]->PutBytes(DataID_ToolType, (byte*)&(it->tooltype), 1);
 		datax_goods[idx]->PutShort(DataID_ToolIcon, it->toolicon);
 		datax_goods[idx]->PutInt(DataID_ToolNum, it->toolnum);
 		datax_goods[idx]->PutFloat(DataID_Rmb, it->toolrmb);
@@ -56,7 +56,7 @@ bool goods_handler::handle(CmdTask& task)
 		datax_goods[idx]->PutBytes(DataID_OutStore, (byte*)it->outstore.c_str(), it->outstore.length());
 		datax_goods[idx]->PutShort(DataID_SaleId, it->saleid);
 		datax_goods[idx]->PutShort(DataID_TaskId, it->takeid);
-		datax_goods[idx]->PutBytes(DataID_VIPValid, &(it->vipvalid), 1);
+		datax_goods[idx]->PutBytes(DataID_VIPValid, (byte*)&(it->vipvalid), 1);
 		
 		++idx;
 	}
@@ -78,13 +78,13 @@ bool goods_handler::handle(CmdTask& task)
 }
 
 
-bool goods_handler::decodeParam(IDataX * ptr, int& game_id, int & tooltype)
+bool GoodsHandler::decodeParam(IDataX * ptr, int& game_id, int & tooltype)
 {
 	if(NULL == ptr) return false;
 
 	bool rst = ptr->GetInt(DataID_GameId, game_id);
 	rst = ptr->GetInt(DataID_ToolType, tooltype);
-	LOG4CPLUS_DEBUG(CLogger::logger, "decodeParam goods_handler game_id = "<< game_id << " tooltype = " << tooltype);
+	LOG4CPLUS_DEBUG(CLogger::logger, "decodeParam GoodsHandler game_id = "<< game_id << " tooltype = " << tooltype);
 	
 	return rst;
 }

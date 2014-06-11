@@ -17,9 +17,8 @@
 #include <set>
 #include <sstream>
 
-#include "SDLogger.h"
-#include "ConfigReader.h"
-#include "ThreadSync.h"
+#include "common/configure.h"
+#include "common/thread_sync.h"
 
 using namespace std;
 
@@ -129,8 +128,6 @@ private:
 	map<RoomIdent, int>	num_in_room_;
 
 	static GameRoomConfig* instance_;
-
-	DECL_LOGGER(logger);
 };
 
 #endif /*GAME_ROOM_CONFIG_H*/

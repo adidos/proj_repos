@@ -1,7 +1,17 @@
 
+/* ======================================================
+* 
+* file:		shop_config.cpp
+* brief:	
+* author:	80070525(chenjian)
+* version:	1.0.0
+* date:		2014-06-11 15:56:50
+* 
+* ======================================================*/
+
 #include "shop_config.h"
 
-IMPL_LOGGER(shop_config, logger);
+#include <stdlib.h>
 
 shop_config * shop_config::m_Singleton = NULL;
 
@@ -15,7 +25,15 @@ shop_config::~shop_config()
 
 }
 
-bool shop_config::get_goods_by_type(byte type, vector<goods_item> & goods_set)
+/**
+* brief:
+*
+* @param type
+* @param goods_set
+*
+* @returns   
+*/
+bool shop_config::get_goods_by_type(char type, vector<goods_item> & goods_set)
 {
 	goods_set.clear();
 	map<int, goods_item>::iterator iter = m_goods_set.begin();
@@ -30,6 +48,11 @@ bool shop_config::get_goods_by_type(byte type, vector<goods_item> & goods_set)
 	return true;
 }
 
+/**
+* brief:
+*
+* @returns   
+*/
 bool shop_config::load_cfg()
 {
 	int ret = m_cfg_reader.loadFile("../conf/shop.conf");

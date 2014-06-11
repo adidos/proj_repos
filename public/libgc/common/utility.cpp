@@ -12,6 +12,8 @@
 #include "utility.h"
 #include <sys/time.h>
 
+const char* SPACE_STRING = " \t\r\n";
+
 /**
 * brief:
 *
@@ -21,16 +23,9 @@
 */
 string trim_left_blank(const string &str)
 {
-	size_t pos = 0;
-	while(pos != str.size())
-	{
-		if(!isblank(str[pos]))
-		{
-			break;
-		}
-
-		++pos;
-	}
+	size_t pos = str.find_first_not_of(SPACE_STRING);
+	if(pos == string::npos)
+		return string("");
 
 	return str.substr(pos);
 }
@@ -45,19 +40,71 @@ string trim_left_blank(const string &str)
 */
 string trim_right_blank(const string &str)
 {
-	size_t pos = str.size() - 1;
-	while(pos >= 0)
-	{
-		if(!isblank(str[pos]))
-		{
-			break;	
-		}
-		--pos;
-	}
-
+	size_t pos = str.find_last_not_of(SPACE_STRING);
+	if(pos == string::npos)
+		return string("");
+	
 	return str.substr(0, pos + 1);
 }
 
+/**
+* brief:
+*
+* @param str
+*
+* @returns   
+*/
+string trim_string(const string & str)
+{
+	string::size_type bpos = str.find_first_not_of(SPACE_STRING);
+	string::size_type epos = str.find_last_not_of(SPACE_STRING);
+	
+	if(bpos < 0 || epos < 0)
+		return "";
+	else if(bpos == 0 && epos == str.length() - 1)
+		return str;
+	else
+		return str.substr(bpos, epos - bpos + 1);
+}
+
+/**
+* brief:
+*
+* @param source
+* @param delimitor
+* @param result_array
+*
+* @returns   
+*/
+int split_string(const std::string& source, const char* delimitor, std::vector<std::string>& result_array)
+{
+	if(delimitor == NULL)
+		return 0;
+
+	result_array.clear();
+
+	string::size_type startPos = 0;
+	bool reachEnd = false;
+	while(!reachEnd)
+	{
+		string::size_type curPos = source.find(delimitor, startPos);
+		if(curPos != string::npos)
+		{
+			result_array.push_back(source.substr(startPos, curPos - startPos));
+			startPos = curPos + strlen(delimitor);
+		}
+		else
+		{
+			// add the last part
+			if(startPos < source.length())
+				result_array.push_back(source.substr(startPos));
+									
+			reachEnd = true;
+		}
+	}
+
+	return result_array.size();
+}
 
 /**
 * brief:

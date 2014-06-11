@@ -60,7 +60,7 @@ const short DataID_VIPValid = -437;
 
 //Õ®∏Ê≈‰÷√
 const short DataID_ChanId = -429;
-const short DataID_Version = -428;
+//const short DataID_Version = -428;
 const short DataID_NoticeId = -427;
 const short DataID_NoticeType = -426;
 const short DataID_NoticeTitle = -425;
