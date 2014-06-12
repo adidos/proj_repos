@@ -1,49 +1,37 @@
 TARGET=../bin/hall_svr
 
-MAINDIR=./main/
-CMDDIR=./command/
+MAINDIR=./
 
 CC=g++
-INC=-I/usr/include/mysql -I../../../common/hiredis -I../../../common/libasynframe/common -I../../../common/libasynframe/server -I./command -I./frame -I./common -I../../../common/jsoncpp/include/
+INC=-I../../public/libgc/ -I../../public/hiredis/ -I../../public/jsoncpp-src-0.5.0/include/
 
-LIB=-L../../../common/libasynframe/lib -lasynframe -llog4cplus -lpthread -lcrypto -liconv  ../../../common/hiredis/libhiredis.a ../../../common/jsoncpp/libs/libjson.a
-LOG=-DLOGGER -DASYNC_LOGGER
+LIB=-llog4cplus ../../public/jsoncpp/libs/libjson.a ../../public/hiredis/libhiredis.a -lpthread ../../public/libgc/lib/libgc.a
 
 CFLAGS:=-Wall -O0 -g -lrt -rdynamic $(INC) $(LOG) -D_DEBUG 
 CPPFLAGS:=$(CFLAGS)
 CPPFLAGS += -MD
 
 MAINCPP:=$(wildcard $(MAINDIR)*.cpp)
-CMDCPP:=$(wildcard $(CMDDIR)*.cpp)
-CMMCPP:=$(wildcard $(CMMDIR)*.cpp)
 
 MAINOBJ:=$(patsubst %.cpp,%.o,$(MAINCPP))
-CMDOBJ:=$(patsubst %.cpp,%.o,$(CMDCPP))
-FRMOBJ:=$(patsubst %.cpp,%.o,$(FRMCPP))
-CMMOBJ:=$(patsubst %.cpp,%.o,$(CMMCPP))
 
 MAINDEP:=$(patsubst %.cpp,%.d,$(MAINCPP))
-CMDDEP:=$(patsubst %.cpp,%.d,$(CMDCPP))
-CMMDEP:=$(patsubst %.cpp,%.d,$(CMMCPP))
 
 all: $(TARGET)
 
-deps: $(MAINDEP) $(CMDDEP) $(CMMDEP)
+deps: $(MAINDEP)
 
-$(TARGET): $(MAINOBJ) $(CMDOBJ) $(CMMOBJ)
+$(TARGET): $(MAINOBJ)
 	$(CC) $^ $(CFLAGS) $(LIB) -o $@ 
 
 main: $(MAINOBJ)
 	echo $(MAINOBJ)
 
-common: $(CMMOBJ)
-
-command: $(CMDOBJ)
 
 clean:
-	rm $(MAINOBJ) $(CMDOBJ) $(CMMOBJ) -f
-	rm $(MAINDEP) $(CMDDEP) $(CMMDEP) -f
-	rm $(TARGET) -f
+	rm -f $(MAINOBJ)
+	rm -f $(MAINDEP) 
+	rm -f $(TARGET)
 
--include $(MAINDEP) $(CMDDEP) $(CMMDEP)
+-include $(MAINDEP)
 

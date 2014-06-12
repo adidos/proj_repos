@@ -133,7 +133,7 @@ int RedisHandler::pop_queue(const string& queue, string& value) {
 		if(REDIS_REPLY_STRING == replay->type) {
 			value.assign(replay->str, replay->len);
 		}else if(REDIS_REPLY_ARRAY == replay->type) {
-			for(int i = 0; i < replay->elements; ++i) {
+			for(unsigned int i = 0; i < replay->elements; ++i) {
 				value.assign(replay->element[i]->str, replay->element[i]->len);
 			}
 		}else if(REDIS_REPLY_NIL == replay->type) {
@@ -316,7 +316,7 @@ int RedisHandler::get_subscribe_msg(string & str_msg)
 		if(REDIS_REPLY_STRING == replay->type) {
 			str_msg.assign(replay->str, replay->len);
 		}else if(REDIS_REPLY_ARRAY == replay->type) {
-			for(int i = 0; i < replay->elements; ++i) {
+			for(unsigned int i = 0; i < replay->elements; ++i) {
 				str_msg.assign(replay->element[i]->str, replay->element[i]->len);
 			}
 		}else if(REDIS_REPLY_NIL == replay->type) {

@@ -27,7 +27,6 @@ CMutex::~CMutex()
 {
 	pthread_mutex_unlock(&m_mutex);
 	pthread_mutex_destroy(&m_mutex);
-	pthread_mutexattr_destroy(&m_attr);
 }
 
 /**
@@ -37,19 +36,7 @@ CMutex::~CMutex()
 */
 int CMutex::Init()
 {
-	if (pthread_mutexattr_init(&m_attr) != 0)
-	{
-	    LOG4CPLUS_ERROR(CLogger::logger, "pthread_mutexattr_init err: " << strerror(errno));
-		return -1;
-	}
-
-	if (pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_RECURSIVE) != 0)
-	{
-	    LOG4CPLUS_ERROR(CLogger::logger, "pthread_mutexattr_settype err: " << strerror(errno));
-		return -1;
-	}
-
-	if (pthread_mutex_init(&m_mutex, &m_attr) != 0)
+	if (pthread_mutex_init(&m_mutex, NULL) != 0)
 	{
 	    LOG4CPLUS_ERROR(CLogger::logger, "pthread_mutex_init err: " << strerror(errno));
 		return -1;
@@ -121,14 +108,8 @@ CScopeGuard::CScopeGuard(CMutex& mutex)
 {
 
 	m_pMutex = &mutex;
-	if (m_pMutex->Lock())
-	{
-		m_bLocked = 1;
-	}
-	else
-	{
-		m_bLocked = 0;
-	}
+	m_pMutex->Lock();
+	
 }
 
 /******************************************************************************
@@ -141,13 +122,7 @@ CScopeGuard::CScopeGuard(CMutex& mutex)
 ******************************************************************************/
 CScopeGuard::~CScopeGuard()
 {
-	if (m_bLocked)
-	{
-		if (m_pMutex->Unlock())
-		{
-			m_bLocked = 0;
-		}
-	}
+	m_pMutex->Unlock();
 }
 
 /******************************************************************************
@@ -160,16 +135,8 @@ CScopeGuard::~CScopeGuard()
 ******************************************************************************/
 int CScopeGuard::Lock()
 {
-	if (m_pMutex->Lock())
-	{
-		m_bLocked = 1;
-		return 1;
-	}
-	else
-	{
-		m_bLocked = 0;
-		return 0;
-	}
+	m_pMutex->Lock();
+	return 0;
 }
 
 /******************************************************************************
@@ -182,16 +149,8 @@ int CScopeGuard::Lock()
 ******************************************************************************/
 int CScopeGuard::Unlock()
 {
-	if (m_bLocked)
-	{
-		if (m_pMutex->Unlock())
-		{
-			m_bLocked = 0;
-			return 1;
-		}
-		return 0;
-	}
-	
-	return 1;
+	m_pMutex->Unlock();
+		
+	return 0;
 }
 

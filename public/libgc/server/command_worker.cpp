@@ -49,6 +49,8 @@ bool CmdWorker::addTask(CmdTask task)
 */
 void CmdWorker::doIt()
 {
+	LOG4CPLUS_DEBUG(CLogger::logger, "command worker start work!");
+
 	while(true)
 	{
 		CmdTask task;

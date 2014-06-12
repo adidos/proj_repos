@@ -151,6 +151,7 @@ int Servant::initAcceptor()
 		_exit(-1);
 	}
 
+	cout << "server start on " << port << endl;
 	return 0;
 }
 
@@ -175,6 +176,7 @@ int Servant::newConnection(int client)
 	if(NULL == pSession)
 	{
 		LOG4CPLUS_ERROR(CLogger::logger, "get idle session failed!");
+		return -1;
 	}
 
 	setNoBlock(client);

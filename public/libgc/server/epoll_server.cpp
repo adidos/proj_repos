@@ -47,6 +47,8 @@ int EpollServer::init(int size)
 
 int EpollServer::notify(int fd, uint64_t data, int iEvent)
 {
+	LOG4CPLUS_DEBUG(CLogger::logger, "epoll notify: " << fd << "|" 
+			<< data<< "|" << iEvent );
 	switch(iEvent)
 	{
 		case EVENT_NEW:
@@ -80,6 +82,8 @@ int EpollServer::notify(int fd, uint64_t data, int iEvent)
 */
 void EpollServer::doIt()
 {
+	LOG4CPLUS_DEBUG(CLogger::logger, "event processor start work!");
+
 	while(true)
 	{
 		//block until event occure

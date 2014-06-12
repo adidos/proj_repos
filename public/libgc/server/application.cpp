@@ -64,9 +64,9 @@ void Application::initialize(const string & file)
 	g_pConfig = _config_ptr;
 
 	//init logger
-	string log_conf_path = _config_ptr->getString("log.config.path");
-	CLogger::init(log_conf_path);
-	CDebugLogger::init(log_conf_path);
+	//string log_conf_path = _config_ptr->getString("log.config.path");
+	//CLogger::init(log_conf_path);
+	//CDebugLogger::init(log_conf_path);
 
 	//worker group
 	_worker_group_ptr = new WorkerGroup();

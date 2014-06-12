@@ -99,7 +99,7 @@ public:
 
 	int addNotice(vector<Notice> notice_list, bool bAppend = false);
 
-	int clearAll(){notice_array_.clear();};
+	int clearAll(){notice_array_.clear();return 0;};
 
 	int getNotices(const string& channel, short verid,vector<Notice>& out_list);
 	

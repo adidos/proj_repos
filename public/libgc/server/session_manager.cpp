@@ -101,8 +101,10 @@ void SessionManager::freeSession(SessionBase* pSession)
 	}
 
 	{
+		LOG4CPLUS_DEBUG(CLogger::logger, "begin session_mutex_...");
 		CScopeGuard guard(session_mutex_);
 		session_array_.erase(pSession->getSeqno());
+		LOG4CPLUS_DEBUG(CLogger::logger, "end session_mutex_...");
 	}
 
 	pSession->close();
@@ -120,6 +122,7 @@ void SessionManager::freeSession(SessionBase* pSession)
 */
 SessionBase* SessionManager::getSession(int seqno)
 {
+	LOG4CPLUS_DEBUG(CLogger::logger, "begin session_mutex_...");
 	CScopeGuard guard(session_mutex_);	
 	Iterator iter = session_array_.find(seqno);
 	if(iter == session_array_.end())
@@ -128,6 +131,7 @@ SessionBase* SessionManager::getSession(int seqno)
 		return NULL;
 	}
 
+	LOG4CPLUS_DEBUG(CLogger::logger, "end getSession...");
 	return iter->second;
 }
 
@@ -148,9 +152,11 @@ bool SessionManager::addSession(SessionBase* pSession)
 	
 	int seqno = pSession->getSeqno();
 
+	LOG4CPLUS_DEBUG(CLogger::logger, "begin session_mutex_...");
 	CScopeGuard guard(session_mutex_);	
 	pair<Iterator, bool> result = session_array_.insert(make_pair(seqno, pSession));
-	
+		
+	LOG4CPLUS_DEBUG(CLogger::logger, "end session_mutex_...");
 	return result.second;	
 }
 

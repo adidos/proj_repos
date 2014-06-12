@@ -34,6 +34,7 @@ WorkerGroup::~WorkerGroup()
 
 void WorkerGroup::init(int work_num)
 {
+	_worker_num = work_num;
 	for(int i = 0; i < _worker_num; ++i)
 	{
 		CmdWorker* pWorker = new CmdWorker(102400);

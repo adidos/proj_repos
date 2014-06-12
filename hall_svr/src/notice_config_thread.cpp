@@ -33,6 +33,7 @@ NoticeConfigThread::NoticeConfigThread()
 int NoticeConfigThread::init(const string& redis_svr, short port)
 {
 	redis_handler_ptr_ = new RedisHandler(redis_svr, port);	
+	return 0;
 }
 
 void NoticeConfigThread::doIt()
@@ -95,7 +96,7 @@ int NoticeConfigThread::parseConfig(const string& config, vector<Notice>& out_co
             return -1; 
         }   
    
-        for(int i = 0; i < root.size(); ++i)
+        for(unsigned int i = 0; i < root.size(); ++i)
         {   
 			Notice notice;
 

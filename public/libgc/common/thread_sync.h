@@ -28,7 +28,6 @@ private:
 
 private:
 	pthread_mutex_t m_mutex;
-	pthread_mutexattr_t m_attr;
 };
 
 class CScopeGuard
@@ -41,7 +40,6 @@ public:
 
 	int Unlock();
 private:
-	int 		m_bLocked;
 	CMutex* m_pMutex;
 };
 

@@ -122,6 +122,7 @@ bool isDigit(const string &str)
 	{
 		if(!isdigit(str[pos]))
 			return false;
+		++pos;
 	}
 
 	return true;
@@ -151,6 +152,7 @@ bool isDecimal(const string &str)
 
 		if(num > 1)
 			return false;
+		++pos;
 	}
 
 	return true;

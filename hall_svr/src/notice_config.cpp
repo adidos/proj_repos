@@ -1,6 +1,8 @@
 #include "notice_config.h"
-#include <algorithm>
 #include "common/logger.h"
+
+#include <algorithm>
+#include <stdint.h>
 
 NoticeConfig * NoticeConfig::instance_ = NULL;
 
@@ -42,7 +44,7 @@ int NoticeConfig::addNotice(vector<Notice> notice_list, bool bAppend)
 	if ( !bAppend )
 		notice_array_.clear();
 
-	for (int i=0; i<notice_list.size(); ++i)
+	for (uint32_t i=0; i<notice_list.size(); ++i)
 	{
 		notice_array_.push_back(notice_list[i]);
 	}
@@ -64,14 +66,14 @@ int NoticeConfig::getNotices(const string& channel, short verid, vector<Notice>&
 {	
 	out_list.clear();
 
-	for ( int i=0; i<notice_array_.size(); ++i )
+	for (uint32_t i=0; i<notice_array_.size(); ++i )
 	{
 		Notice & curr_n = notice_array_[i];
 
 		if ( curr_n.version == verid  )
 		{
 			vector<string> & channal_list = curr_n.channal_list;
-			for ( int j=0; j<channal_list.size(); ++j )
+			for ( uint32_t j=0; j<channal_list.size(); ++j )
 			{
 				if ( channal_list[j] == channel )
 				{

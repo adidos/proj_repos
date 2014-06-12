@@ -196,6 +196,7 @@ int SessionBase::parseProtocol(DataXCmd* pCmd)
 	ret = ptr->decode_parameters(pBody, body);
 	if(!ret)
 	{
+		LOG4CPLUS_DEBUG(CLogger::logger, "DataXCmd decode parameters failed!");
 		cmdRelease(ptr);
 		return -1;
 	}

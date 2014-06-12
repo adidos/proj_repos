@@ -1,13 +1,13 @@
 COMMONDIR=common/
 SERVERDIR=server/
-OBJDIR=./build/
+OBJDIR=./lib/
 ARLIBDIR=./lib/
 
 CC=g++
 
 INCLUDE:=-I./
 SO_CFLAGS:=-Wall -shared -fPIC -O3 $(INCLUDE) $(LOG) -D_DEBUG
-CFLAGS:=-Wall -O2 -g -fPIC $(INCLUDE) $(LOG) -D_DEBUG -D_FILE_OFFSET_BITS=64
+CFLAGS:=-Wall -O0 -g -fPIC $(INCLUDE) $(LOG) -D_DEBUG -D_FILE_OFFSET_BITS=64
 
 CPPFLAGS:=$(CFLAGS)
 LIB=-llog4cplus -lpthread 

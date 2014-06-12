@@ -16,6 +16,7 @@
 
 #include "server/application.h"
 #include "server/command_registor.h"
+#include "common/logger.h"
 
 #include "get_notices_handler.h"
 #include "goods_handler.h"
@@ -37,9 +38,9 @@ void regHandler()
 
 int main(int argc, char** argv)
 {
-	if(argc < 2)
+	if(argc < 3)
 	{
-		cout << "Usage: " << argv[0] << " config " <<endl;
+		cout << "Usage: " << argv[0] << " /path/app/conf /path/log/conf" <<endl;
 		_exit(0);
 	}
 
@@ -47,14 +48,24 @@ int main(int argc, char** argv)
 	//signal(SIGCHLD, SIG_IGN);
 	//signal(SIGHUP, SIG_IGN);
 	//signal(SIGINT, SIG_IGN);
+	CLogger::init(argv[2]);
+	CDebugLogger::init(argv[2]);
 	
-	NoticeConfigThread* notice_worker = new NoticeConfigThread();
-	notice_worker->init("127.0.0.1", 6379);
-	notice_worker->start();
-
+	
 	g_pApp = new Application();
 
 	g_pApp->initialize(argv[1]);
 
+	Configure* pConfig = g_pApp->getConfigure();
+	string redis_host = pConfig->getString("redis_ip", "127.0.0.1");
+	int redis_port = pConfig->getInt("redis_port", 6379);
+
+
+	NoticeConfigThread* notice_worker = new NoticeConfigThread();
+	notice_worker->init(redis_host, redis_port);
+	notice_worker->start();
+
 	g_pApp->waitForShutdown();
+
+	return 0;
 }

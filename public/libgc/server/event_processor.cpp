@@ -58,6 +58,7 @@ bool EventProcessor::addEvent(Event event)
 */
 void EventProcessor::doIt()
 {
+	LOG4CPLUS_DEBUG(CLogger::logger, "event processor start work!");
 	while(true)
 	{
 		Event event;
