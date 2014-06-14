@@ -122,7 +122,6 @@ void SessionManager::freeSession(SessionBase* pSession)
 */
 SessionBase* SessionManager::getSession(int seqno)
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "begin session_mutex_...");
 	CScopeGuard guard(session_mutex_);	
 	Iterator iter = session_array_.find(seqno);
 	if(iter == session_array_.end())
@@ -131,7 +130,6 @@ SessionBase* SessionManager::getSession(int seqno)
 		return NULL;
 	}
 
-	LOG4CPLUS_DEBUG(CLogger::logger, "end getSession...");
 	return iter->second;
 }
 

@@ -127,6 +127,5 @@ void EpollServer::doIt()
 			_event_processor_ptr->addEvent(event);
 		}
 	}
-
 }
 

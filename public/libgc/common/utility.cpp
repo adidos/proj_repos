@@ -120,8 +120,15 @@ bool isDigit(const string &str)
 	size_t pos = 0;
 	while(pos < str.size())
 	{
+		if(str[0] == '-')
+		{
+			++pos;
+			continue;
+		}
+
 		if(!isdigit(str[pos]))
 			return false;
+
 		++pos;
 	}
 
@@ -143,6 +150,12 @@ bool isDecimal(const string &str)
 	size_t pos = 0;
 	while(pos < str.size())
 	{
+		if(str[0] == '-')
+		{
+			++pos;
+			continue;
+		}
+
 		if(!isdigit(str[pos]) ||
 			str[pos] != '.')
 			return false;

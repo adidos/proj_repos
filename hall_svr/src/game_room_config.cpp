@@ -33,8 +33,8 @@ GameRoomConfig::GameRoomConfig()
 */
 int GameRoomConfig::loadGameConfig(const string& file_name)
 {
-	bool rst = config_.loadFile(file_name.c_str());
-	if(!rst)
+	int rst = config_.loadFile(file_name.c_str());
+	if(0 != rst)
 	{
 		LOG4CPLUS_ERROR(CLogger::logger, "load config file " << file_name << " failed...");
 		return -1;

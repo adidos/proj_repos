@@ -51,7 +51,7 @@ int ClientManager::getSessID(int64_t uid, vector<int>& seqnos)
 	pair<Iterator, Iterator> ret = _client_session_array.equal_range(uid);
 	if(ret.first == ret.second)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "Cant't find user " 
+		LOG4CPLUS_WARN(CLogger::logger, "Cant't find user " 
 				<< uid << " session id");
 		return -1;
 	}

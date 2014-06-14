@@ -79,7 +79,7 @@ void RespProcessor::doIt()
 			_client_mgr_prt->freeClient(uid, resp.seqno);
 		}
 		
-		LOG4CPLUS_DEBUG(CDebugLogger::logger, "TimeTace: request[" << resp.idx << "] to response["
+		LOG4CPLUS_INFO(CDebugLogger::logger, "TimeTace: request[" << resp.idx << "] to response["
 				<< name << "] spend time " << current_time_usec() - resp.timestamp);
 		Index::free(resp.idx);
 	}

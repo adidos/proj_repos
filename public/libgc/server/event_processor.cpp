@@ -124,7 +124,7 @@ void EventProcessor::processRead(Event& event)
 			task.seqno = seqno;
 			task.timestamp = current_time_usec();
 
-			LOG4CPLUS_DEBUG(CDebugLogger::logger, "TimeTrace: event->task spend time " 
+			LOG4CPLUS_INFO(CDebugLogger::logger, "TimeTrace: event->task spend time " 
 				<< task.timestamp - event.timestamp);
 			
 			bool bSucc = _work_group_ptr->dispatch(task);

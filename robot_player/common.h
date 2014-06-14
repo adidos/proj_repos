@@ -1,30 +1,60 @@
-#ifndef APP_COMMON_H_
-#define APP_COMMON_H_
 
-#include <iostream>
+/* ======================================================
+* 
+* file:		game_room.h
+* brief:	
+* author:	80070525(chenjian)
+* version:	1.0.0
+* date:		2014-06-13 15:51:41
+* 
+* ======================================================*/
 
-#include <WinSock2.h>
+#ifndef COMMON_DEFINE_H
+#define COMMON_DEFINE_H
 
-using namespace std;
-
-#pragma comment(lib, "ws2_32.lib")
-
-int init_net()
+struct GameRoom
 {
-	WSADATA wsaData;
-	int rst = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if(rst != 0)
-	{
-		cout <<"error : " << WSAGetLastError() <<endl;
-		exit(-1);
-	}
+    int game_id;
+    int room_id;
+    std::string room_name;
+    int min_limit;
+    int max_limit;
+    int online_user_num;
+    std::string server_cu;
+    std::string server_ct;
+    std::string server_cm;
+    int room_ante;
+    int min_quick;
+    int max_quick;
+};
 
-	return 0;
-}
-
-int fini_net()
+struct Notice
 {
-	WSACleanup();
-}
+	int id;
+	int type;
+	string title;
+	string content;
+	int version;
+	vector<string> channal_list;
+	string begin_date;
+	string end_date;
+};
 
-#endif /*APP_COMMON_H_*/
+struct GoodsItem 
+{
+	int    toolid;
+	string toolname;
+	char   tooltype;
+	short  toolicon;
+	int    toolnum;
+	float  toolrmb;
+	float  toolkeke;
+	string content;
+	string instore;
+	string outstore;
+	short  saleid;
+	short  takeid;
+	char   vipvalid;
+};
+
+#endif //COMMON_DEFINE_H

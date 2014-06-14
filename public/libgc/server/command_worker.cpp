@@ -38,7 +38,7 @@ bool CmdWorker::addTask(CmdTask task)
 	{
 		LOG4CPLUS_ERROR(CLogger::logger, _id << " push task to queue fail.");
 	}
-	LOG4CPLUS_DEBUG(CDebugLogger::logger, _id << " thread current queue size is "
+	LOG4CPLUS_INFO(CDebugLogger::logger, _id << " thread current queue size is "
 			<< _task_queue.getSize());
 	
 	return ret;
@@ -61,7 +61,7 @@ void CmdWorker::doIt()
 			continue;
 		}
 
-		LOG4CPLUS_DEBUG(CDebugLogger::logger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
+		LOG4CPLUS_INFO(CDebugLogger::logger, "TimeTrace:[" << task.pCmd->get_cmd_name() 
 				<< "] out queue spend time " << current_time_usec()- task.timestamp);
 
 		string name = task.pCmd->get_cmd_name();
@@ -78,9 +78,9 @@ void CmdWorker::doIt()
 		
 		pHandler->handle(task);
 
-		task.releaseCmd();
-
-		LOG4CPLUS_DEBUG(CDebugLogger::logger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
+		LOG4CPLUS_INFO(CDebugLogger::logger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
 				<< "] handle spend time " << current_time_usec() - task.timestamp);
+
+		task.releaseCmd();
 	}
 }

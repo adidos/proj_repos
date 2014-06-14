@@ -3,7 +3,7 @@ TARGET=../bin/hall_svr
 MAINDIR=./
 
 CC=g++
-INC=-I../../public/libgc/ -I../../public/hiredis/ -I../../public/jsoncpp-src-0.5.0/include/
+INC=-I../../public/libgc/ -I../../public/hiredis/ -I../../public/jsoncpp/include/
 
 LIB=-llog4cplus ../../public/jsoncpp/libs/libjson.a ../../public/hiredis/libhiredis.a -lpthread ../../public/libgc/lib/libgc.a
 

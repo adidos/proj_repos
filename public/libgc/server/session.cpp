@@ -158,7 +158,7 @@ int SessionBase::write2Send(const string& buffer_send)
 	return 0;
 }
 
-int SessionBase::parseProtocol(DataXCmd* pCmd)
+int SessionBase::parseProtocol(DataXCmd* &pCmd)
 {
 	DataXCmd* ptr = new DataXCmd();
 
@@ -202,6 +202,7 @@ int SessionBase::parseProtocol(DataXCmd* pCmd)
 	}
 
 	pCmd = ptr;
+	LOG4CPLUS_DEBUG(CLogger::logger, "pcmd = " << pCmd << ", ptr = " << ptr);
 	//delete the decode buffer from recv buffer
 	recv_buff_.erase(0, body + header);
 
