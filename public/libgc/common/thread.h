@@ -28,7 +28,7 @@ public:
 		_id = oss.str();
 	};
 	
-	~CThread(){};
+	virtual	~CThread(){};
 
 	int start();
 

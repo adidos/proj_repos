@@ -81,12 +81,12 @@ void WorkerThread::doIt()
 			string buffer = createGetDir(*iter, 1);
 			send(*iter, buffer.c_str(), buffer.length(), 0);
 			
-			usleep(5000);
+			usleep(10000);
 			buffer.clear();
 			
 			buffer = createGetItem(*iter, 1, 0);
 			send(*iter, buffer.c_str(), buffer.length(), 0);
-			usleep(5000);
+			usleep(10000);
 		}
 
 		int begin = index * _array.size() / 10;
