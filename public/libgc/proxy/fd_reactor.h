@@ -84,6 +84,8 @@ private:
 
 	map<int, TransceiverHandle*> _handles;
 
+	CMutex _mutex;
+
 };
 
 #endif //FD_REACTOR_H

@@ -15,23 +15,23 @@
 
 CEpoll::CEpoll(bool bEt)
 {
-	epoll_fd_ = -1;
-	max_connections_ = 65535;
-	event_array_ = NULL;
-	et_ = bEt;
+	_epoll_fd = -1;
+	_max_connections = 65535;
+	_event_array = NULL;
+	_et = bEt;
 }
 
 CEpoll::~CEpoll()
 {
-	if(NULL != event_array_)
+	if(NULL != _event_array)
 	{
-		delete []event_array_;
-		event_array_ = NULL;
+		delete []_event_array;
+		_event_array = NULL;
 	}
 
-	if(epoll_fd_ > 0)
+	if(_epoll_fd > 0)
 	{
-		close(epoll_fd_);
+		close(_epoll_fd);
 	}
 
 }
@@ -45,18 +45,18 @@ CEpoll::~CEpoll()
 */
 int CEpoll::create(int max_connections)
 {
-	max_connections_ = max_connections;
-	epoll_fd_ = epoll_create(max_connections);
+	_max_connections = max_connections;
+	_epoll_fd = epoll_create(max_connections);
 	
-	if(NULL != event_array_)
+	if(NULL != _event_array)
 	{
-		delete []event_array_;
-		event_array_ = NULL;
+		delete []_event_array;
+		_event_array = NULL;
 	}
 
-	event_array_ = new epoll_event[max_connections];
+	_event_array = new epoll_event[max_connections];
 
-	return epoll_fd_;
+	return _epoll_fd;
 }
 
 /**
@@ -72,12 +72,12 @@ void CEpoll::ctrl(int fd, uint64_t data, uint32_t event, int op)
 	struct epoll_event ev;
 	ev.data.u64 = data;
 
-	if(et_)
+	if(_et)
 		ev.events = event | EPOLLET;
 	else
 		ev.events = event ;
 
-	epoll_ctl(epoll_fd_, op, fd, &ev);
+	epoll_ctl(_epoll_fd, op, fd, &ev);
 }
 
 
@@ -137,7 +137,7 @@ int CEpoll::del(int fd, uint64_t data, uint32_t event)
 */
 int CEpoll::wait(int millsecond)
 {
-	int ret = epoll_wait(epoll_fd_, event_array_, max_connections_, millsecond);
+	int ret = epoll_wait(_epoll_fd, _event_array, _max_connections, millsecond);
 	return ret;
 }
 

@@ -37,21 +37,21 @@ public:
 
 	struct epoll_event& get(int i)
 	{
-		assert(NULL != event_array_);
-		return event_array_[i];
+		assert(NULL != _event_array);
+		return _event_array[i];
 	}
 
 private:
 	void ctrl(int fd, uint64_t data, uint32_t event, int op);
 
 private:
-	int epoll_fd_;
+	int _epoll_fd;
 	
-	int max_connections_;
+	int _max_connections;
 
-	struct epoll_event* event_array_;
+	struct epoll_event* _event_array;
 
-	bool et_;
+	bool _et;
 };
 
 #endif /*EPOLL_PRI_H*/
