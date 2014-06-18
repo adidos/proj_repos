@@ -11,6 +11,13 @@
 #ifndef SERVANT_PROXY_H
 #define SERVANT_PROXY_H
 
+#incude <string>
+
+#include "message.h"
+
+class DataXCmd;
+class AdapterProxy;
+
 class ServantProxy
 {
 public:
@@ -19,13 +26,24 @@ public:
 
 	void setTimeout(int msec);
 	int getTimeout();
-
-	int invoke();
-
 	
+	void regAdapterProxy(AdapterProxy* pAdapter)
+	{
+		_adapter_proxy = pAdapter;
+	}
+
+protected:
+	int ServantProxy::invoke(DataXCmd* pReq, DataXCmd** pResp);
+
+private:
+	int invoke(ReqMessage* pReq);
+
+	int encode_command(DataXCmd* pCmd, std::string& buffer);
 
 private:
 	int _timeout_msec;
+
+	AdapterProxy* _adapter_proxy;
 
 };
 

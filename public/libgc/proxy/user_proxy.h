@@ -12,6 +12,14 @@
 #ifndef USER_PROXY_H
 #define USER_PROXY_H
 
+#include <stdint.h>
+
+#include <map>
+#include <string>
+
+#include "servant_proxy.h"
+
+using namespace std;
 //class GameInfo;
 
 class UserProxy : public ServantProxy
@@ -20,15 +28,15 @@ public:
 	UserProxy();
 	~UserProxy();
 
-	int updateUserBasic(const map<short, string>& infos);
+	int updateUserBasic(const map<short, string>& infos, int& result);
 
 	//int updateGameInfo(const GameInfo& info);
 
-	int updateVipInfo(int vip_level, int vaild_day);
+	int updateVipInfo(int64_t uid, char vip_level, int vaild_day, int& result);
 
 	//int getUserInfo();
 	
-	int checkin();
+	int checkin(int64_t uid, int& result);
 };
 
 #endif //USER_PROXY_H

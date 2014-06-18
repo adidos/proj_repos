@@ -9,13 +9,24 @@
 * 
 * ======================================================*/
 
-struct ReqPacket
+#include <stdint.h>
+
+#include <sys/time.h>
+
+#include <string>
+
+using namespace std;
+
+struct ReqMessage
 {
-
-
+	uint32_t req_id;
+	int type;
+	timeval timeout;
+	DataXCmd* req;
+	DataXCmd* resp;
 };
 
-struct RespPacket
+struct RespMessage
 {
 
 
