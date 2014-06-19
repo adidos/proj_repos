@@ -24,21 +24,24 @@ public:
 	ServantProxy();
 	~ServantProxy();
 
-	void setTimeout(int msec);
-	int getTimeout();
+	void setTimeout(int msec)
+	{
+		_timeout_msec = msec;
+	}
+	int getTimeout()
+	{
+		return _timeout_msec;
+	}
 	
 	void regAdapterProxy(AdapterProxy* pAdapter)
 	{
 		_adapter_proxy = pAdapter;
 	}
 
+	int finished(ReqMessage* req);
+
 protected:
 	int ServantProxy::invoke(DataXCmd* pReq, DataXCmd** pResp);
-
-private:
-	int invoke(ReqMessage* pReq);
-
-	int encode_command(DataXCmd* pCmd, std::string& buffer);
 
 private:
 	int _timeout_msec;

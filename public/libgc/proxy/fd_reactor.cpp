@@ -81,8 +81,6 @@ void FDReactor::regHandle(int fd, uint32_t event, TransceiverHandle* pHanndle)
 {
 	CScopeGuard guard(_mutex);
 
-	handle->setFDRactor(this);
-
 	_handles[fd] = pHanndle;
 	
 	_ep.del(fd, fd, 0);

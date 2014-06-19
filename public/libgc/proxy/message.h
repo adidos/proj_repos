@@ -15,19 +15,42 @@
 
 #include <string>
 
+#include "common/DataXCmd.h"
+#include "common/monitor.h"
+
 using namespace std;
 
 struct ReqMessage
 {
-	uint32_t req_id;
+	uint32_t id;
 	int type;
-	timeval timeout;
+	timeval stamp;
+	ServantProxy* proxy;
 	DataXCmd* req;
 	DataXCmd* resp;
+	Monitor* monitor;
+
+	ReqMessage(){};
+
+	~ReqMessage()	//resp 不释放，在子类中取出数据后释放
+	{
+		if(NULL != req)
+		{
+			delete req;
+			req = NULL;
+		}
+
+		if(NULL != monitor)
+		{
+			delete monitor;
+			monitor = NULL;
+		}
+	}
 };
 
 struct RespMessage
 {
+	uint32_t req_id;
+	DataXCmd* resp;
+}
 
-
-};

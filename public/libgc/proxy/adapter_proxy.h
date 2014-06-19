@@ -2,34 +2,55 @@
 #define ADAPTER_PROXY_H
 
 #include <map>
-#include <vector>
+#include <string>
 
 #include "common/queue.h"
+
+using namespace std;
+
+class ReqMessage;
+class FDReactor;
+class Transceiver;
+class TransceiverHandle;
+class DataXCmd;
 
 class AdapterProxy
 {
 public:
-	AdapterProxy(const string& host, port);
+	AdapterProxy(FDReactor* actor, TransceiverHandle* handle);
 	~AdapterProxy();
 
-
+	int initialize(const string& host, short port);
 
 public:
-	int invoke(ReqMessage* req);
+	int invoke(ReqMessage* req);	
 
+	int sendRequest();
 
-	
+	//conncet采用的是非阻塞
+	int finishConnect();
 
-	
+	//TODO this interface is not suitable
+	int finished(DataXCmd* pCmd);
 
 private:
-	vector<Transceiver*> _trans;	//TODO multy transceiver per adapterproxy, now only one in vector
+	string _host;
+	short _port;
 
-	map<int, ReqMessage* req>;
+	FDReactor* _reactor;
 
-	Queue<ReqMessage> _reqs;
+	TransceiverHandle* _handle;
 	
+	Transceiver* _tran;
 
-}
+	map<int, ReqMessage*> _timeout_que;	//所有的请求记录，消息回复后删除
+
+	CMutex _mutex;
+
+	Queue<ReqMessage*> _reqs;		//发送消息队列
+
+	int _conn_timeout_ms;
+	
+};
 
 #endif 

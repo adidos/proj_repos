@@ -7,7 +7,7 @@ class Transceiver
 {
 public:
     
-    Transceiver(int fd, bool connected = true);
+    Transceiver();
 
     virtual ~Transceiver();
 
@@ -16,6 +16,7 @@ public:
 	bool isValid() const;
 
 public:
+	virtual int doConnect() = 0
 	
 	virtual int doRequest();
 
@@ -54,13 +55,13 @@ public:
 	~TcpTransceiver(){};
 
 public:
+	virtual int doConnect(const string& host, short port);
+	
 	virtual int doResponse();
 
 	virtual int send(const void* buf, uint32_t len, uint32_t flag);
 
     virtual int recv(void* buf, uint32_t len, uint32_t flag);
-	
-
 };
 
 #endif

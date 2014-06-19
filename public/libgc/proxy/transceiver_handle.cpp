@@ -13,43 +13,57 @@ TransceiverHandle::~TransceiverHandle()
 
 void TransceiverHandle::handle(int fd, int evs)
 {
-	AdapterProxy* ap = NULL;
+	ProxyInfo proxy;
 	{
 		CScopeGuard guard(_mutex);
 		Iteartor iter = _proxys.find(fd);
 
 		if(iter != _proxys.end())
 		{
-			ap = iter->second;
+			proxy = iter->second;
 		}
 	}
-
-	if(NULL == ap)
-		return;
 	
 	if(evs &  TransceiverHandle::W)
 	{
-		handleOutput(ap);
+		handleOutput(proxy);
 	}
 
 	if(evs & TransceiverHandle::R)
 	{
-		handleInput(ap);
+		handleInput(proxy);
 	}
 }
 
-int TransceiverHandle::handleOutput(AdapterProxy* ap)
+int TransceiverHandle::handleOutput(ProxyInfo& proxy)
 {
-	if(NULL == ap)
+	if(NULL == proxy.adapter || NULL == proxy.trans)
 		reutrn -1;
 
-	ap->sendRequest();
+	while(proxy.adapter->sendRequest() > 0 && proxy.trans->doRequest() >= 0)
+
+	return 0;
 }
 
-int TransceiverHandle::handleInput(AdapterProxy* ap)
+int TransceiverHandle::handleInput(ProxyInfo& proxy)
 {
-	if(NULL == ap)
+	if(NULL == proxy.adapter || NULL == proxy.trans)
+	{
 		reutrn -1;
+	}
 
-	ap->sendRequest();
+	proxy.adapter->finishConnect();
+		
+	list<DataXCmd*> resps;
+
+	if(proxy.trans->doResponse(resps) > 0)
+	{
+		list<DataXCmd*>::iterator iter =resps.begin();
+		for( ; iter != resps.end(); ++iter)
+		{
+			proxy.adapter->finished(*iter);
+		}		
+	}
+
+	return 0;
 }

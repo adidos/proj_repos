@@ -7,24 +7,48 @@
 int ServantProxy::invoke(DataXCmd* pReq, DataXCmd** pResp)
 {
 	ReqMessage req = new ReqMessage;
-	req->req_id = Index::get();
+	req->id = Index::get();
 	req->type = SYNC_CALL;
-	req->timeout = _timeout_msec;
 	req->req = pReq;
+	req->proxy = this;
+	req->resp = NULL;
 	
-	gettimeofday(&req->timestamp, NULL);
+	gettimeofday(&req->stamp, NULL);
 
-	invoke(req, resp);
-		
-	*pResp = req->resp;
+	int ret = _adapter_proxy->invoke(pReq);
+	if(0 != ret)
+	{
+		LOG4CPLUS_DEBUG(CLogger::logger, "Adapter proxy invoke failed! ");
+		return ret;
+	}
+
+	if(SYNC_CALL == pReq->type)
+	{
+		pReq->monitor = new Monitor();
+		pReq->monitor()->timewait(pReq->timeout);
+
+		*pResp = req->resp;
+	}
+
+	timeval now;
+	gettimeofday(&now, NULL);
+
+	int interval = (now.tv_sec - req->stamp.tv_sec)*1000 + (now.tv_usec - req->stamp.tv_usec)/1000;
+
+	LOG4CPLUS_DEBUG(CLogger::logger, "invoke finished! spend time " << interval 
+			<< ", is timeout("<< _timeout_msec << ") ? " << (interval > _timeout_msec));
+
+	delete pReq;
 
 	return 0;
 }
 
-
-int ServantProxy::invoke(ReqMessage* pReq)
+int ServantProxy::finished(ReqMessage* req)
 {
-	_adapter_proxy->invoke(pReq);
+	//check whether the request is timeout
+	if(NULL == req) return 0;
 
+	req->monitor->notify();
+	
 	return 0;
 }
