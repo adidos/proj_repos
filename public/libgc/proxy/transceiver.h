@@ -1,7 +1,14 @@
 #ifndef TRANSCEIVER_H
 #define TRANSCEIVER_H
 
+#include <stdint.h>
+
+#include <list>
 #include <string>
+
+using namespace std;
+
+class DataXCmd;
 
 class Transceiver
 {
@@ -16,11 +23,11 @@ public:
 	bool isValid() const;
 
 public:
-	virtual int doConnect() = 0
+	virtual int doConnect(const string& host, short port) = 0;
 	
 	virtual int doRequest();
 
-	virtual int doResponse() = 0;
+	virtual int doResponse(list<DataXCmd*>& resps) = 0;
 
     void writeToSendBuffer(const std::string& msg);
 
@@ -57,7 +64,7 @@ public:
 public:
 	virtual int doConnect(const string& host, short port);
 	
-	virtual int doResponse();
+	virtual int doResponse(list<DataXCmd*>& resps);
 
 	virtual int send(const void* buf, uint32_t len, uint32_t flag);
 

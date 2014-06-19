@@ -1,4 +1,13 @@
 #include "transceiver_handle.h"
+#include "transceiver.h"
+#include "adapter_proxy.h"
+
+#include "common/logger.h"
+#include "common/DataXCmd.h"
+
+#include <list>
+
+using namespace std;
 
 
 TransceiverHandle::TransceiverHandle()
@@ -16,7 +25,7 @@ void TransceiverHandle::handle(int fd, int evs)
 	ProxyInfo proxy;
 	{
 		CScopeGuard guard(_mutex);
-		Iteartor iter = _proxys.find(fd);
+		Iterator iter = _proxys.find(fd);
 
 		if(iter != _proxys.end())
 		{
@@ -38,7 +47,7 @@ void TransceiverHandle::handle(int fd, int evs)
 int TransceiverHandle::handleOutput(ProxyInfo& proxy)
 {
 	if(NULL == proxy.adapter || NULL == proxy.trans)
-		reutrn -1;
+		return -1;
 
 	while(proxy.adapter->sendRequest() > 0 && proxy.trans->doRequest() >= 0)
 
@@ -49,7 +58,7 @@ int TransceiverHandle::handleInput(ProxyInfo& proxy)
 {
 	if(NULL == proxy.adapter || NULL == proxy.trans)
 	{
-		reutrn -1;
+		return -1;
 	}
 
 	proxy.adapter->finishConnect();

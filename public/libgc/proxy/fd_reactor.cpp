@@ -11,6 +11,10 @@
 
 #include "fd_reactor.h"
 
+#include "transceiver_handle.h"
+#include "server/epoll.h"
+#include "common/thread_sync.h"
+
 FDReactor::FDReactor()
 	:_terminate(false)
 {

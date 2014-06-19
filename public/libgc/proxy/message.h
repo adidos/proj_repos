@@ -9,6 +9,9 @@
 * 
 * ======================================================*/
 
+#ifndef MESSAGE_H
+#define MESSAGE_H
+
 #include <stdint.h>
 
 #include <sys/time.h>
@@ -18,7 +21,15 @@
 #include "common/DataXCmd.h"
 #include "common/monitor.h"
 
+#include "servant_proxy.h"
+
 using namespace std;
+
+enum 
+{
+	SYNC_CALL = 0x1,
+	ASYNC_CALL = 0x2
+};
 
 struct ReqMessage
 {
@@ -52,5 +63,6 @@ struct RespMessage
 {
 	uint32_t req_id;
 	DataXCmd* resp;
-}
+};
 
+#endif

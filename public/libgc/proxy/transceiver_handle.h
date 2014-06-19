@@ -3,12 +3,12 @@
 
 #include <map>
 
+#include "common/thread_sync.h"
+
 using namespace std;
 
 class AdapterProxy;
-class CMutex;
-
-
+class Transceiver;
 
 class TransceiverHandle
 {
@@ -17,13 +17,13 @@ public:
 
 	struct ProxyInfo
 	{
-		int evetn;
+		int event;
 		int fd;
 		Transceiver* trans;
 		AdapterProxy* adapter;
 
 		ProxyInfo():event( -1), fd(-1),
-			trans(NULL), adap(NULL){};
+			trans(NULL), adapter(NULL){};
 	};
 
 public:
@@ -32,7 +32,7 @@ public:
 	
 	~TransceiverHandle();
 
-	setFDReactor();
+	int setFDReactor();
 
 public:
 	
@@ -48,7 +48,7 @@ public:
 	{
 		ProxyInfo info;
 		info.fd = fd;
-		info.adap = proxy;
+		info.adapter = proxy;
 		info.trans = trans;
 
 		_proxys[fd] = info;

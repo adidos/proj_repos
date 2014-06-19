@@ -1,12 +1,13 @@
 #include "servant_proxy.h"
 
+#include "common/logger.h"
 #include "common/DataXCmd.h"
 #include "common/index.h"
-
+#include "message.h"
 
 int ServantProxy::invoke(DataXCmd* pReq, DataXCmd** pResp)
 {
-	ReqMessage req = new ReqMessage;
+	ReqMessage* req = new ReqMessage;
 	req->id = Index::get();
 	req->type = SYNC_CALL;
 	req->req = pReq;
@@ -15,17 +16,17 @@ int ServantProxy::invoke(DataXCmd* pReq, DataXCmd** pResp)
 	
 	gettimeofday(&req->stamp, NULL);
 
-	int ret = _adapter_proxy->invoke(pReq);
+	int ret = _adapter_proxy->invoke(req);
 	if(0 != ret)
 	{
 		LOG4CPLUS_DEBUG(CLogger::logger, "Adapter proxy invoke failed! ");
 		return ret;
 	}
 
-	if(SYNC_CALL == pReq->type)
+	if(SYNC_CALL == req->type)
 	{
-		pReq->monitor = new Monitor();
-		pReq->monitor()->timewait(pReq->timeout);
+		req->monitor = new Monitor();
+		req->monitor->timewait(_timeout_msec);
 
 		*pResp = req->resp;
 	}

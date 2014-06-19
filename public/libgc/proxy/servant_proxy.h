@@ -11,12 +11,11 @@
 #ifndef SERVANT_PROXY_H
 #define SERVANT_PROXY_H
 
-#incude <string>
+#include <string>
 
-#include "message.h"
+#include "adapter_proxy.h"
 
 class DataXCmd;
-class AdapterProxy;
 
 class ServantProxy
 {
@@ -41,7 +40,7 @@ public:
 	int finished(ReqMessage* req);
 
 protected:
-	int ServantProxy::invoke(DataXCmd* pReq, DataXCmd** pResp);
+	int invoke(DataXCmd* pReq, DataXCmd** pResp);
 
 private:
 	int _timeout_msec;

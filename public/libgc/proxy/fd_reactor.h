@@ -16,10 +16,13 @@
 
 #include <stdint.h>
 
+#include "server/epoll.h"
+#include "common/thread.h"
+#include "common/thread_sync.h"
+
 using namespace std;
 
-#include "common/thread.h"
-
+class CMutex;
 class TransceiverHandle;
 
 class FDReactor : public CThread

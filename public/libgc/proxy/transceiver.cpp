@@ -9,6 +9,8 @@
 #include <arpa/inet.h>
 
 #include "common/utility.h"
+#include "common/logger.h"
+#include "common/DataXCmd.h"
 
 Transceiver::Transceiver()
 	:_fd(-1), _connected(false)
@@ -26,7 +28,7 @@ int Transceiver::fd() const
 	return _fd;
 }
 
-int Transceiver::close()
+void Transceiver::close()
 {
 	::close(_fd);
 	_connected = false;
@@ -66,7 +68,7 @@ int Transceiver::doRequest()
 			}
 				
 		}
-	}while(ret > 0)
+	}while(ret > 0);
 
 	return ret;
 
@@ -80,9 +82,9 @@ void Transceiver::writeToSendBuffer(const  string & msg)
 
 ////////////////////////////////////////////////////////////
 
-int TcpTransceiver::doConnect()
+int TcpTransceiver::doConnect(const string& host, short port)
 {
-	if(_fd >0)	close(_fd);
+	if(_fd >0)	close();
 	
 	_fd = ::socket(AF_INET, SOCK_STREAM, 0);
 	
@@ -100,7 +102,7 @@ int TcpTransceiver::doConnect()
 	addr.sin_addr.s_addr = inet_addr(host.c_str());
 
 	bool bConnect = false;
-	int ret = ::connect(fd, (sockaddr*)&addr, (socklen_t)sizeof(addr));
+	int ret = ::connect(_fd, (sockaddr*)&addr, (socklen_t)sizeof(addr));
 	if(0 == ret)
 	{
 		_connected = true;
@@ -108,7 +110,7 @@ int TcpTransceiver::doConnect()
 	else if(ret < 0 && EINPROGRESS != errno)
 	{
 		LOG4CPLUS_ERROR(CLogger::logger, "connect error:" << strerror(errno));
-		close(fd);
+		::close(_fd);
 		return -1;
 	}
 
@@ -122,18 +124,18 @@ int TcpTransceiver::doResponse(list<DataXCmd*>& resps)
 
 	resps.clear();
 
-	int recv = 0;
+	int len = 0;
 
 	char buffer[8192] = {'\0'};
 	
 	do
 	{
-		if((recv = recv(buffer, sizeof(buffer), 0)) > 0)
+		if((len= recv(buffer, sizeof(buffer), 0)) > 0)
 		{
-			_recv_buffer.append(buffer, recv);
+			_recv_buffer.append(buffer, len);
 			memset(buffer, '\0', 8192);
 		}
-	} while (recv > 0)
+	} while (len > 0);
 
 	if(_recv_buffer.empty()) return -1;
 
@@ -172,7 +174,7 @@ int TcpTransceiver::doResponse(list<DataXCmd*>& resps)
 		resps.push_back(pCmd);
 
 		index += (body + header);
-	}while(1)
+	}while(1);
 
 	_recv_buffer.erase(0, index);	
 

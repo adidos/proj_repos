@@ -1,3 +1,13 @@
+/* ======================================================
+* 
+* file:		adapter_proxy.cpp
+* brief:	
+* author:	80070525(chenjian)
+* version:	1.0.0
+* date:		2014-06-19 23:13:46
+* 
+* ======================================================*/
+
 #include "adapter_proxy.h"
 
 #include "message.h"
@@ -6,22 +16,27 @@
 #include "transceiver.h"
 
 #include "common/utility.h"
-#include "common/epoll.h"
+#include "server/epoll.h"
+#include "common/DataXCmd.h"
+#include "common/logger.h"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/epoll.h>
 
 
 AdapterProxy::AdapterProxy(FDReactor* actor, TransceiverHandle* handle)
-	:_host(""), _port(port), _reactor(actor), _handle(handle)
+	:_host(""), _port(0), _reactor(actor), _handle(handle),_reqs(10240)
 {
 
 }
 
 AdapterProxy::~AdapterProxy()
 {
-	if(NULL != _handle)
+	if(NULL != _tran)
 	{
-		delete _handle;
-		_handle = NULL;
+		delete _tran;
+		_tran = NULL;
 	}
 }
 
@@ -30,7 +45,7 @@ int AdapterProxy::initialize(const string& host, short port)
 	_host = host;
 	_port = port;
 
-	_tran = new Transceiver();
+	_tran = new TcpTransceiver();
 	int ret = _tran->doConnect(host, port);
 
 	if(ret == 0)
@@ -47,7 +62,7 @@ int AdapterProxy::sendRequest()
 
 	int len = 0;
 	
-	ReqMessage* ptr = NULL
+	ReqMessage* ptr = NULL;
 	
 	while(_reqs.pop(ptr))
 	{
@@ -74,7 +89,7 @@ int AdapterProxy::sendRequest()
 int AdapterProxy::invoke(ReqMessage * req)
 {
 	//将消息加入到队列
-	if(! _reqs->push(req, 10))
+	if(! _reqs.push(req))
 	{
 		LOG4CPLUS_ERROR(CLogger::logger, "push request to queue failed!");
 		return -1;
@@ -82,10 +97,10 @@ int AdapterProxy::invoke(ReqMessage * req)
 
 	{
 		CScopeGuard guard(_mutex);
-		_timeout_que[req->req_id] = req;
+		_timeout_que[req->id] = req;
 	}
 
-	LOG4CPLUS_DEBUG(CLogger::logger, "push request[" << req->req_id << "] to queue");
+	LOG4CPLUS_DEBUG(CLogger::logger, "push request[" << req->id << "] to queue");
 	_reactor->notify(_tran->fd());
 
 	return 0;
@@ -104,7 +119,7 @@ int AdapterProxy::finishConnect()
 
         _tran->close();
 
-        return ;
+        return -1;
     }
 
    	LOG4CPLUS_DEBUG(CLogger::logger, "Adapter conncet to Server " << _host << ":" << _port << " Success!");
