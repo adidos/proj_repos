@@ -36,7 +36,9 @@ int UserProxy::updateVipInfo(int64_t uid, short vip_level, short vaild_day , int
 
 	if(NULL == pResp) return -1;
 
-	
+	IDataX* pData = pCmd->get_datax();
+
+	pData->GetInt(DataID_Result, result);
 
 	return ret;
 }

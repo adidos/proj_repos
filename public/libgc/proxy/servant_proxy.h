@@ -23,14 +23,13 @@ public:
 	ServantProxy();
 	~ServantProxy();
 
-	void setTimeout(int msec)
-	{
-		_timeout_msec = msec;
-	}
-	int getTimeout()
-	{
-		return _timeout_msec;
-	}
+	void setTimeout(int msec){_timeout_msec = msec;}
+
+	int getTimeout(){return _timeout_msec;}
+
+	string getName(){return _name;};
+
+	void setName(const string& name){_name = name;};
 	
 	void regAdapterProxy(AdapterProxy* pAdapter)
 	{
@@ -44,6 +43,8 @@ protected:
 
 private:
 	int _timeout_msec;
+
+	string _name;
 
 	AdapterProxy* _adapter_proxy;
 
