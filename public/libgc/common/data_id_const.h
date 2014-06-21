@@ -8,6 +8,9 @@ const short DataID_Param1 = -199;
 const short DataID_Result = -198;
 const short DataID_LastChgTime = -197;
 const short DataID_NextInterval = -196;
+const short DataID_Attribute = -195;
+const short DataID_Value = -194;
+const short DataID_Version = -193;
 
 const short DataID_GameId = -299;
 const short DataID_RoomId = -298;
@@ -36,6 +39,10 @@ const short DataID_TotalTime=-383;
 const short DataID_ChatSeqNo = -382;
 const short DataID_MinLimit = -381;
 const short DataID_ChatContent = -380;
+const short DataID_Vip = -379;
+const short DataID_Days = -378;
+const short DataID_ValidTime = -377;
+const short DataID_CheckDay = -376;
 
 const short DataID_GameData=-499;
 

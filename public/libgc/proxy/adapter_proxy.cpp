@@ -53,7 +53,7 @@ int AdapterProxy::initialize(const string& host, short port)
 		_reactor->regHandle(_tran->fd(), EPOLLIN|EPOLLOUT, _handle);
 
 		_handle->regProxy(_tran->fd(), this, _tran);
-	}	
+	}
 }
 
 int AdapterProxy::sendRequest()

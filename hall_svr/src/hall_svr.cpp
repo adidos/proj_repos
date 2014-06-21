@@ -23,6 +23,7 @@
 #include "query_room_handler.h"
 #include "query_online_handler.h"
 #include "notice_config_thread.h"
+#include "update_user_handler.h"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ void regHandler()
 	CmdRegistor::regCommand("QueryOnline", new QueryOnlineCmdHandler());
 	CmdRegistor::regCommand("GetDirReq", new QueryRoomHandler());
 	CmdRegistor::regCommand("GetStoreConfig", new GoodsHandler());
+	CmdRegistor::regCommand("UpdateUserInfoReq", new UpdateUserHandler());
 };
 
 int main(int argc, char** argv)
@@ -44,9 +46,9 @@ int main(int argc, char** argv)
 		_exit(0);
 	}
 
-	//signal(SIGPIPE, SIG_IGN);
-	//signal(SIGCHLD, SIG_IGN);
-	//signal(SIGHUP, SIG_IGN);
+	signal(SIGPIPE, SIG_IGN);
+	signal(SIGCHLD, SIG_IGN);
+	signal(SIGHUP, SIG_IGN);
 	//signal(SIGINT, SIG_IGN);
 	CLogger::init(argv[2]);
 	CDebugLogger::init(argv[2]);
