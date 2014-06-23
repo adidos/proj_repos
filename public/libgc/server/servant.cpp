@@ -137,7 +137,7 @@ int Servant::initAcceptor()
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = INADDR_ANY;
 
-	int ret = bind(_acceptor, (sockaddr*)&addr, sizeof(addr));
+	int ret = ::bind(_acceptor, (sockaddr*)&addr, sizeof(addr));
 	if(-1 == ret)
 	{
 		perror("bind");

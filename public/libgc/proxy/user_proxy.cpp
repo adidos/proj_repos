@@ -43,7 +43,7 @@ int UserProxy::updateVipInfo(int64_t uid, short vip_level, short vaild_day , int
 	return ret;
 }
 
-int UserProxy::checkin(int64_t uid)
+int UserProxy::checkin(int64_t uid, int& result)
 {
 
 	return 0;

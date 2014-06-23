@@ -13,16 +13,20 @@
 
 #include "fd_reactor.h"
 #include "transceiver_handle.h"
+#include "user_proxy.h"
+
+#include "common/configure.h"
+#include "common/logger.h"
 
 extern Configure* g_pConfig;
 
-ProxyClient::ProxyClient() :_trans_handle(NULL),
-	 _reactor(NULL), _adapter(NULL)
+ProxyClient::ProxyClient() : _reactor(NULL), 
+	_trans_handle(NULL),_adapter(NULL)
 {
 
 }
 
-ProxyClient::~ProxyClient
+ProxyClient::~ProxyClient()
 {
 	if(NULL != _trans_handle)
 	{
@@ -35,7 +39,7 @@ ProxyClient::~ProxyClient
 	}
 }
 
-ProxyClient::initialize()
+int ProxyClient::initialize()
 {
 	string host = g_pConfig->getString("user.server.host");
 	short port = (short)g_pConfig->getInt("user.server.port");
@@ -63,6 +67,8 @@ ProxyClient::initialize()
 	_array[name] = ptr;
 
 	_reactor->waitForStop();
+
+	return 0;
 }
 
 
@@ -75,7 +81,7 @@ ServantProxyPtr ProxyClient::getServantPrxy(const string& name)
 		LOG4CPLUS_ERROR(CLogger::logger, "could't find " << name
 			<< " servant proxy!");	
 		
-		return ServantProxyPtr(NULL);
+		return ServantProxyPtr();
 	}
 	
 	return iter->second;

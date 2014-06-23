@@ -101,8 +101,8 @@ int TcpTransceiver::doConnect(const string& host, short port)
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = inet_addr(host.c_str());
 
-	bool bConnect = false;
 	int ret = ::connect(_fd, (sockaddr*)&addr, (socklen_t)sizeof(addr));
+
 	if(0 == ret)
 	{
 		_connected = true;
@@ -147,7 +147,7 @@ int TcpTransceiver::doResponse(list<DataXCmd*>& resps)
 	{
 		DataXCmd* pCmd = new DataXCmd();
 		
-		int header = pCmd->header_length();
+		unsigned int header = pCmd->header_length();
 		
 		if(header > _recv_buffer.length())
 		{
@@ -159,7 +159,7 @@ int TcpTransceiver::doResponse(list<DataXCmd*>& resps)
 		byte* ptr = (byte*)(_recv_buffer.c_str() + index);
 		pCmd->decode_header(ptr, header);
 
-		int body = pCmd->body_length();
+		uint32_t body = pCmd->body_length();
 
 		if(body + header > _recv_buffer.length())
 		{

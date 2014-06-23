@@ -52,6 +52,8 @@ public:
 		info.trans = trans;
 
 		_proxys[fd] = info;
+
+		return 0;
 	}
 
 private:

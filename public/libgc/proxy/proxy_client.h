@@ -14,6 +14,7 @@
 
 #include <map>
 #include <string>
+#include <memory>
 
 using namespace std;
 
@@ -22,7 +23,7 @@ using namespace std;
 class FDReactor;
 class TransceiverHandle;
 
-typedef shared_ptr<ServantProxy> ServantProxyPtr;
+typedef std::shared_ptr<ServantProxy> ServantProxyPtr;
 
 class ProxyClient
 {
@@ -66,9 +67,9 @@ private:
 
 	AdapterProxy* _adapter;
 
-	typedef map<int, ServantProxyPtr>::iterator Iterator;
+	typedef map<string, ServantProxyPtr>::iterator Iterator;
 
-	map<int, ServantProxyPtr> _array;
+	map<string, ServantProxyPtr> _array;
 };
 
 #endif //PROXY_CLIENT_H

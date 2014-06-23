@@ -28,11 +28,11 @@ public:
 	UserProxy();
 	~UserProxy();
 
-	int updateUserBasic(const map<short, string>& infos, int& result);
+	int updateUserBasic(int64_t uid, const map<short, string>& infos, int& result);
 
 	//int updateGameInfo(const GameInfo& info);
 
-	int updateVipInfo(int64_t uid, char vip_level, int vaild_day, int& result);
+	int updateVipInfo(int64_t uid, short vip_level, short vaild_day, int& result);
 
 	//int getUserInfo();
 	

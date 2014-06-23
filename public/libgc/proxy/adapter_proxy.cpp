@@ -54,6 +54,8 @@ int AdapterProxy::initialize(const string& host, short port)
 
 		_handle->regProxy(_tran->fd(), this, _tran);
 	}
+
+	return 0;
 }
 
 int AdapterProxy::sendRequest()
