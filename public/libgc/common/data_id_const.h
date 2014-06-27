@@ -43,6 +43,7 @@ const short DataID_Vip = -379;
 const short DataID_Days = -378;
 const short DataID_ValidTime = -377;
 const short DataID_CheckDay = -376;
+const short DataID_Reward = -375;
 
 const short DataID_GameData=-499;
 

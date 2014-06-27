@@ -27,7 +27,7 @@ public:
 	
 	virtual int doRequest();
 
-	virtual int doResponse(list<DataXCmd*>& resps) = 0;
+	virtual int doResponse(list<DataXCmdPtr>& resps) = 0;
 
     void writeToSendBuffer(const std::string& msg);
 
@@ -58,17 +58,19 @@ protected:
 class TcpTransceiver : public Transceiver
 {
 public:
-	TcpTransceiver(){};
+	TcpTransceiver();
 	~TcpTransceiver(){};
 
 public:
 	virtual int doConnect(const string& host, short port);
 	
-	virtual int doResponse(list<DataXCmd*>& resps);
+	virtual int doResponse(list<DataXCmdPtr>& resps);
 
 	virtual int send(const void* buf, uint32_t len, uint32_t flag);
 
     virtual int recv(void* buf, uint32_t len, uint32_t flag);
+
+	int reset();
 };
 
 #endif

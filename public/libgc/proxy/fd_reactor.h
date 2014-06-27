@@ -46,7 +46,7 @@ public:
 	* @param event
 	* @param pHanndler
 	*/
-	void regHandle(int fd, uint32_t event, TransceiverHandle* pHanndle);
+	void regHandle(int fd, uint32_t event, TransceiverHandle* pHandle);
 
 	/**
 	* brief: cancel fd handle
@@ -55,7 +55,7 @@ public:
 	* @param event
 	* @param pHanndle
 	*/
-	void unregHandle(int fd, uint32_t event, TransceiverHandle* pHanndle);
+	void unregHandle(int fd, uint32_t event, TransceiverHandle* pHandle);
 
 	
 	/**

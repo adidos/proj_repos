@@ -16,12 +16,13 @@
 
 #include <sys/time.h>
 
+#include <memory>
 #include <string>
 
 #include "common/DataXCmd.h"
 #include "common/monitor.h"
 
-#include "servant_proxy.h"
+class ServantProxy;
 
 using namespace std;
 
@@ -37,32 +38,19 @@ struct ReqMessage
 	int type;
 	timeval stamp;
 	ServantProxy* proxy;
-	DataXCmd* req;
-	DataXCmd* resp;
-	Monitor* monitor;
+	DataXCmdPtr req;
+	DataXCmdPtr resp;
+	MonitorPtr monitor;
 
 	ReqMessage(){};
-
-	~ReqMessage()	//resp 不释放，在子类中取出数据后释放
-	{
-		if(NULL != req)
-		{
-			delete req;
-			req = NULL;
-		}
-
-		if(NULL != monitor)
-		{
-			delete monitor;
-			monitor = NULL;
-		}
-	}
 };
 
 struct RespMessage
 {
 	uint32_t req_id;
-	DataXCmd* resp;
+	DataXCmdPtr resp;
 };
+
+typedef shared_ptr<ReqMessage> ReqMessagePtr;
 
 #endif

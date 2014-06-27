@@ -11,7 +11,10 @@
 #ifndef THREAD_MONITOR_H
 #define THREAD_MONITOR_H
 
+#include <memory>
 #include <pthread.h>
+
+using namespace std;
 
 class Monitor
 {
@@ -56,5 +59,7 @@ private:
 	pthread_cond_t	_cond;
 
 };
+
+typedef shared_ptr<Monitor> MonitorPtr;
 
 #endif //THREAD_MONITOR_H

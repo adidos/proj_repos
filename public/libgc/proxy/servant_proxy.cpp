@@ -1,19 +1,19 @@
 #include "servant_proxy.h"
 
 #include "common/logger.h"
-#include "common/DataXCmd.h"
 #include "common/index.h"
 #include "message.h"
 
-int ServantProxy::invoke(DataXCmd* pReq, DataXCmd** pResp)
+int ServantProxy::invoke(DataXCmdPtr pReq, DataXCmdPtr& pResp)
 {
-	ReqMessage* req = new ReqMessage;
+	ReqMessagePtr req(new ReqMessage());
 	req->id = Index::get();
 	req->type = SYNC_CALL;
 	req->req = pReq;
 	req->proxy = this;
-	req->resp = NULL;
 	
+	req->req->set_release_id(req->id);
+
 	gettimeofday(&req->stamp, NULL);
 
 	int ret = _adapter_proxy->invoke(req);
@@ -25,10 +25,10 @@ int ServantProxy::invoke(DataXCmd* pReq, DataXCmd** pResp)
 
 	if(SYNC_CALL == req->type)
 	{
-		req->monitor = new Monitor();
+		req->monitor = MonitorPtr(new Monitor());
 		req->monitor->timewait(_timeout_msec);
 
-		*pResp = req->resp;
+		pResp = req->resp;
 	}
 
 	timeval now;
@@ -39,15 +39,13 @@ int ServantProxy::invoke(DataXCmd* pReq, DataXCmd** pResp)
 	LOG4CPLUS_DEBUG(CLogger::logger, "invoke finished! spend time " << interval 
 			<< ", is timeout("<< _timeout_msec << ") ? " << (interval > _timeout_msec));
 
-	delete pReq;
-
 	return 0;
 }
 
-int ServantProxy::finished(ReqMessage* req)
+int ServantProxy::finished(ReqMessagePtr req)
 {
 	//check whether the request is timeout
-	if(NULL == req) return 0;
+	if(!req) return 0;
 
 	req->monitor->notify();
 	

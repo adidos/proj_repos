@@ -13,19 +13,22 @@
 
 #include <string>
 
+#include "common/DataXCmd.h"
 #include "adapter_proxy.h"
-
-class DataXCmd;
 
 class ServantProxy
 {
 public:
-	ServantProxy();
-	~ServantProxy();
+	ServantProxy(int64_t id)
+		:_id(id)
+	{
+	}
 
-	void setTimeout(int msec){_timeout_msec = msec;}
+	virtual ~ServantProxy(){};
 
-	int getTimeout(){return _timeout_msec;}
+	void setTimeout(int msec){_timeout_msec = msec;};
+
+	int getTimeout(){return _timeout_msec;};
 
 	string getName(){return _name;};
 
@@ -34,12 +37,14 @@ public:
 	void regAdapterProxy(AdapterProxy* pAdapter)
 	{
 		_adapter_proxy = pAdapter;
-	}
+	};
 
-	int finished(ReqMessage* req);
+	int finished(ReqMessagePtr req);
 
 protected:
-	int invoke(DataXCmd* pReq, DataXCmd** pResp);
+	int invoke(DataXCmdPtr pReq, DataXCmdPtr& pResp);
+
+	int64_t _id;
 
 private:
 	int _timeout_msec;

@@ -131,6 +131,10 @@ int Servant::initAcceptor()
 		perror("socket");
 		_exit(-1);
 	}
+	
+	int iReuseAddrFlag=1;
+
+	setsockopt(_acceptor, SOL_SOCKET, SO_REUSEADDR, (char*)&iReuseAddrFlag, sizeof(iReuseAddrFlag));
 
 	sockaddr_in addr;
 	addr.sin_family = AF_INET;

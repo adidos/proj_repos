@@ -15,16 +15,17 @@
 #include <map>
 #include <string>
 
+#include "common/DataXCmd.h"
 #include "common/queue.h"
 #include "common/thread_sync.h"
 
+#include "message.h"
+
 using namespace std;
 
-class ReqMessage;
 class FDReactor;
 class Transceiver;
 class TransceiverHandle;
-class DataXCmd;
 
 class AdapterProxy
 {
@@ -59,7 +60,7 @@ public:
 	*
 	* @returns   
 	*/
-	int invoke(ReqMessage* req);	
+	int invoke(ReqMessagePtr req);	
 
 	/**
 	* brief:
@@ -83,7 +84,7 @@ public:
 	*
 	* @returns   
 	*/
-	int finished(DataXCmd* pCmd);
+	int finished(DataXCmdPtr pCmd);
 
 private:
 	string _host;
@@ -96,9 +97,9 @@ private:
 	
 	Transceiver* _tran;
 
-	Queue<ReqMessage*> _reqs;		//发送消息队列
+	Queue<ReqMessagePtr> _reqs;		//发送消息队列
 
-	map<int, ReqMessage*> _timeout_que;	//所有的请求记录，消息回复后删除
+	map<int, ReqMessagePtr> _timeout_que;	//所有的请求记录，消息回复后删除
 
 	CMutex _mutex;
 

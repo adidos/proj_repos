@@ -14,6 +14,7 @@
 #include "transceiver_handle.h"
 #include "server/epoll.h"
 #include "common/thread_sync.h"
+#include "common/function_trace.h"
 
 FDReactor::FDReactor()
 	:_terminate(false)
@@ -28,6 +29,9 @@ FDReactor::~FDReactor()
 
 void FDReactor::notify(int fd)
 {
+	LOG4CPLUS_DEBUG(CLogger::logger, "notify reactor fd " << fd 
+			<< " have buffer to write out!");
+
 	_ep.mod(fd, fd , EPOLLIN | EPOLLOUT);
 }
 
@@ -43,11 +47,24 @@ void FDReactor::doIt()
 		{
 			epoll_event ev = _ep.get(i);
 			
+			int event = 0;
 			int fd = ev.data.fd;
 
-			int event = (ev.events & EPOLLIN) ? TransceiverHandle::R : 0;
-			
-			event = event | (ev.events & EPOLLOUT) ? TransceiverHandle::W : 0;
+			if(ev.events & EPOLLIN)
+			{
+				LOG4CPLUS_DEBUG(CLogger::logger, "epollin occure!");
+
+				event = TransceiverHandle::R;				
+			}
+
+			if(ev.events & EPOLLOUT)
+			{
+				LOG4CPLUS_DEBUG(CLogger::logger, "epollout occure!");
+
+				event = event | TransceiverHandle::W;				
+			}
+
+			LOG4CPLUS_DEBUG(CLogger::logger, "occure event : " << event);
 
 			handle(fd, event);
 		}
@@ -57,6 +74,7 @@ void FDReactor::doIt()
 
 void FDReactor::handle(int fd, int events)
 {
+
 	TransceiverHandle* ptr = NULL;
 	
 	{
@@ -64,6 +82,8 @@ void FDReactor::handle(int fd, int events)
 		map<int, TransceiverHandle*>::iterator iter = _handles.find(fd);
 		if(_handles.end() == iter)
 		{
+			LOG4CPLUS_ERROR(CLogger::logger, "couldn't find fd " << fd  <<" transceiver handle!");
+	
 			_ep.del(fd, fd, 0);
 			return;
 		}
@@ -81,18 +101,20 @@ void FDReactor::handle(int fd, int events)
 	}
 }
 
-void FDReactor::regHandle(int fd, uint32_t event, TransceiverHandle* pHanndle)
+void FDReactor::regHandle(int fd, uint32_t event, TransceiverHandle* pHandle)
 {
 	CScopeGuard guard(_mutex);
 
-	_handles[fd] = pHanndle;
+	_handles[fd] = pHandle;
 	
 	_ep.del(fd, fd, 0);
 
 	_ep.add(fd, fd, event);
+
+	LOG4CPLUS_DEBUG(CLogger::logger, fd << " add into reactor!");
 }
 
-void FDReactor::unregHandle(int fd, uint32_t event, TransceiverHandle* pHanndle)
+void FDReactor::unregHandle(int fd, uint32_t event, TransceiverHandle* pHandle)
 {
 	CScopeGuard guard(_mutex);
 

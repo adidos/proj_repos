@@ -13,6 +13,8 @@
 #include <cstdio>
 #include <exception>
 
+#include "logger.h"
+
 int CThread::start()
 {
 	int ret = pthread_create(&tid_, NULL, threadEntry, (void*)this);
@@ -44,7 +46,7 @@ void* CThread::threadEntry(void* pParam)
 	}
 	catch(std::exception& e)
 	{
-		e.what();
+		LOG4CPLUS_ERROR(CLogger::logger, "exception: " <<e.what());
 	}
 
 	return NULL;

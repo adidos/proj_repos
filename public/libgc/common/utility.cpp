@@ -11,6 +11,8 @@
 
 #include "utility.h"
 #include <sys/time.h>
+#include <time.h>
+#include <string.h>
 
 const char* SPACE_STRING = " \t\r\n";
 
@@ -59,7 +61,7 @@ string trim_string(const string & str)
 	string::size_type bpos = str.find_first_not_of(SPACE_STRING);
 	string::size_type epos = str.find_last_not_of(SPACE_STRING);
 	
-	if(bpos < 0 || epos < 0)
+	if(bpos == string::npos || epos == string::npos)
 		return "";
 	else if(bpos == 0 && epos == str.length() - 1)
 		return str;
@@ -198,6 +200,34 @@ int64_t current_time_usec()
 
 	return value;
 }
+
+string current_date()
+{
+	time_t now = time(NULL);
+
+	struct tm* tm = localtime(&now);
+
+	char buffer[32] = {'\0'};
+
+	strftime(buffer, 32, "%Y-%m-%d", tm);
+
+	return string(buffer, strlen(buffer));
+}
+
+string current_datetime()
+{
+	time_t now = time(NULL);
+
+	struct tm* tm = localtime(&now);
+
+	char buffer[32] = {'\0'};
+
+	strftime(buffer, 32, "%Y-%m-%d %H:%M:%S", tm);
+
+	return string(buffer, strlen(buffer));
+
+}
+
 
 /**
 * brief:

@@ -35,6 +35,9 @@ int64_t current_time_sec();
 int64_t current_time_ms();
 int64_t current_time_usec();
 
+string current_date();
+string current_datetime();
+
 int setNoBlock(int fd);
 
 
