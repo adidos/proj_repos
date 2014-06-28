@@ -87,6 +87,9 @@ bool GetNoticesHandler::handle(CmdTask& task)
 	pResp->set_datax(pParam);
 	pResp->set_userid(pCmd->get_userid());
 
+	delete [] notice_data;
+	notice_data = NULL;
+
 	//TODO response
 	CmdTask resp;
 	resp.idx = task.idx;

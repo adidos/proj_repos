@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <memory>
 
 #include "server/application.h"
 #include "server/command_registor.h"
@@ -24,6 +25,9 @@
 #include "query_online_handler.h"
 #include "notice_config_thread.h"
 #include "update_user_handler.h"
+#include "checkin_handle.h"
+#include "user_proxy.h"
+#include "proxy_client.h"
 
 using namespace std;
 
@@ -36,13 +40,26 @@ void regHandler()
 	CmdRegistor::regCommand("GetDirReq", new QueryRoomHandler());
 	CmdRegistor::regCommand("GetStoreConfig", new GoodsHandler());
 	CmdRegistor::regCommand("UpdateUserInfoReq", new UpdateUserHandler());
+	CmdRegistor::regCommand("CheckInReq", new CheckinHandle());
+};
+
+void startNotice()
+{
+	Configure* pConfig = g_pApp->getConfigure();
+	string redis_host = pConfig->getString("redis_ip", "127.0.0.1");
+	int redis_port = pConfig->getInt("redis_port", 6379);
+
+
+	NoticeConfigThread* notice_worker = new NoticeConfigThread();
+	notice_worker->init(redis_host, redis_port);
+	notice_worker->start();
 };
 
 int main(int argc, char** argv)
 {
 	if(argc < 3)
 	{
-		cout << "Usage: " << argv[0] << " /path/app/conf /path/log/conf" <<endl;
+		cout << "Usage: " << argv[0] << " /path/app_conf /path/log/conf" <<endl;
 		_exit(0);
 	}
 
@@ -55,19 +72,13 @@ int main(int argc, char** argv)
 
 	regHandler();
 	
-	g_pApp = new Application();
 
+	g_pApp = new Application();
 	g_pApp->initialize(argv[1]);
 
-	Configure* pConfig = g_pApp->getConfigure();
-	string redis_host = pConfig->getString("redis_ip", "127.0.0.1");
-	int redis_port = pConfig->getInt("redis_port", 6379);
-
-
-	NoticeConfigThread* notice_worker = new NoticeConfigThread();
-	notice_worker->init(redis_host, redis_port);
-	notice_worker->start();
-
+	startNotice();
+	ProxyClient::Instance()->initialize();
+	
 	g_pApp->waitForShutdown();
 
 	return 0;

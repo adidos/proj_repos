@@ -99,11 +99,13 @@ bool QueryRoomHandler::handle(CmdTask& task)
 		++idx;
 	}
 	pParam->PutDataXArray(DataID_Param1, (IDataX**)rooms_data, size, true);
+	
+	delete [] rooms_data;
+	rooms_data = NULL;
 
 	DataXCmd * pResp = new DataXCmd("GetDirResp", pCmd->get_cipher_flag());
 	pResp->set_datax(pParam);
 	pResp->set_userid(pCmd->get_userid());
-
 	
 	//send pResp
 	CmdTask resp;

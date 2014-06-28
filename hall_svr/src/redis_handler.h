@@ -47,6 +47,15 @@ public:
 	
 private:
 	int conn2Redis();
+	
+	void freeReply(redisReply* reply)
+	{
+		if(NULL != reply)
+		{
+			delete reply;
+			reply = NULL;
+		}
+	}
 
 private:
 	string	host_;

@@ -72,6 +72,9 @@ bool QueryOnlineCmdHandler::handle(CmdTask& task)
 	pResp->set_datax(pParam);
 	pResp->set_userid(pCmd->get_userid());
 
+	delete [] online_data;
+	online_data = NULL;
+
 	CmdTask resp;
 	resp.idx = task.idx;
 	resp.seqno = task.seqno;

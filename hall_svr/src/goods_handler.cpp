@@ -67,6 +67,9 @@ bool GoodsHandler::handle(CmdTask& task)
 	pResp->set_datax(pParam);
 	pResp->set_userid(pCmd->get_userid());
 
+	delete [] datax_goods;
+	datax_goods = NULL;
+
 	CmdTask resp;
 	resp.idx = task.idx;
 	resp.seqno = task.seqno;

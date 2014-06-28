@@ -13,12 +13,12 @@ class Command;
 class PaymentRequest
 {
 public:
-	string type;
-	string uid;
-	string product_id;
+	int type;
+	int64_t uid;
+	int product_id;
 	string product_name;
-	string price;
-	string count;
+	float price;
+	int count;
 		
 	string dump() const {
 		stringstream ss;
@@ -50,13 +50,17 @@ protected:
 	virtual void doIt();
 
 private:
+	
+	bool handleRequest(const PaymentRequest & payment_req);
 
 	bool parse_str_payment_req(const string& str_payment_req, 
 		                               PaymentRequest & payment_req);
 
-	void handle_payment_req(const PaymentRequest & payment_req);
+	void handle_buy_bean(const PaymentRequest & payment_req);
+	
+	void handle_vip(const PaymentRequest &payment_req);
 
-	Command * create_UpdateGameInfo(const PaymentRequest & payment_req);
+	void handle_rewards(const PaymentRequest &payment_req);
 
 private:
 

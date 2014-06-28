@@ -57,11 +57,11 @@ int RedisHandler::push_queue(const string& queue, const string& value) {
 		LOG4CPLUS_ERROR(CLogger::logger, "PUSH QUEUE INVALID PARAM");
 		return -1;
 	}
-	redisReply* replay = (redisReply*)redisCommand(context_, "RPUSH %s %s", 
+	redisReply* reply = (redisReply*)redisCommand(context_, "RPUSH %s %s", 
 									queue.c_str(), value.c_str());
 
 	if(REDIS_ERR_IO == context_->err){
-		freeReplyObject(replay);
+		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
 		LOG4CPLUS_ERROR(CLogger::logger, "net error occur, err: " << context_->errstr << ", reconnect...");
@@ -71,9 +71,9 @@ int RedisHandler::push_queue(const string& queue, const string& value) {
 			return -1;	
 		}
 
-		replay = (redisReply*)redisCommand(context_, "RPUSH %s %s",queue.c_str(), value.c_str());
+		reply = (redisReply*)redisCommand(context_, "RPUSH %s %s",queue.c_str(), value.c_str());
 	} else if(REDIS_OK != context_->err) {
-		freeReplyObject(replay);
+		freeReply(reply);
 		LOG4CPLUS_ERROR(CLogger::logger, "RPUSH: failed, err: " << context_->errstr);
 		return context_->err;
 	}
@@ -81,7 +81,7 @@ int RedisHandler::push_queue(const string& queue, const string& value) {
 	LOG4CPLUS_DEBUG(CLogger::logger, "RPUSH: push " << value << " into queue[" << queue 
 					<< "], info: " << context_->errstr);
 
-	freeReplyObject(replay);
+	freeReply(reply);
 	return context_->err;	
 }
 
@@ -110,9 +110,9 @@ int RedisHandler::pop_queue(const string& queue, string& value) {
 		return -1;
 	}
 
-	redisReply* replay = (redisReply*)redisCommand(context_, "LPOP %s",queue.c_str());
+	redisReply* reply = (redisReply*)redisCommand(context_, "LPOP %s",queue.c_str());
 	if(REDIS_ERR_IO == context_->err){
-		freeReplyObject(replay);
+		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
 		LOG4CPLUS_ERROR(CLogger::logger, "net error occur, err: " << context_->errstr << ", reconnect...");
@@ -122,28 +122,28 @@ int RedisHandler::pop_queue(const string& queue, string& value) {
 			return -1;	
 		}
 
-		replay = (redisReply*)redisCommand(context_, "LPOP %s",queue.c_str());
+		reply = (redisReply*)redisCommand(context_, "LPOP %s",queue.c_str());
 	} else if(REDIS_OK != context_->err) {
 		LOG4CPLUS_ERROR(CLogger::logger, "POP : failed, err: " << context_->errstr);
-		freeReplyObject(replay);
+		freeReply(reply);
 		return context_->err;
 	}
 
-	if(REDIS_OK == context_->err && NULL != replay) {
-		if(REDIS_REPLY_STRING == replay->type) {
-			value.assign(replay->str, replay->len);
-		}else if(REDIS_REPLY_ARRAY == replay->type) {
-			for(unsigned int i = 0; i < replay->elements; ++i) {
-				value.assign(replay->element[i]->str, replay->element[i]->len);
+	if(REDIS_OK == context_->err && NULL != reply) {
+		if(REDIS_REPLY_STRING == reply->type) {
+			value.assign(reply->str, reply->len);
+		}else if(REDIS_REPLY_ARRAY == reply->type) {
+			for(unsigned int i = 0; i < reply->elements; ++i) {
+				value.assign(reply->element[i]->str, reply->element[i]->len);
 			}
-		}else if(REDIS_REPLY_NIL == replay->type) {
+		}else if(REDIS_REPLY_NIL == reply->type) {
 			return 1; //队列为空		
 		}
 	}
 		
 	LOG4CPLUS_DEBUG(CLogger::logger, "POP: pop " << value << " from queue[" << queue << "]");
 	
-	freeReplyObject(replay);
+	freeReply(reply);
 	return context_->err;
 }
 
@@ -154,9 +154,9 @@ int RedisHandler::get_value(const string& key, string& value)
 		return -1;
 	}
 
-	redisReply* replay = (redisReply*)redisCommand(context_, "GET %s",key.c_str());
+	redisReply* reply = (redisReply*)redisCommand(context_, "GET %s",key.c_str());
 	if(REDIS_ERR_IO == context_->err){
-		freeReplyObject(replay);
+		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
 		LOG4CPLUS_ERROR(CLogger::logger, "net error occur, err: " << context_->errstr << ", reconnect...");
@@ -166,35 +166,35 @@ int RedisHandler::get_value(const string& key, string& value)
 			return -1;	
 		}
 
-		replay = (redisReply*)redisCommand(context_, "GET %s",key.c_str());
+		reply = (redisReply*)redisCommand(context_, "GET %s",key.c_str());
 	} else if(REDIS_OK != context_->err) {
 		LOG4CPLUS_ERROR(CLogger::logger, "GET : failed, err: " << context_->errstr);
-		freeReplyObject(replay);
+		freeReply(reply);
 		return context_->err;
 	}
 
-	if(REDIS_OK == context_->err && NULL != replay) {
-		if(REDIS_REPLY_STRING == replay->type) {
-			value.assign(replay->str, replay->len);
-		}else if(REDIS_REPLY_ARRAY == replay->type) {
+	if(REDIS_OK == context_->err && NULL != reply) {
+		if(REDIS_REPLY_STRING == reply->type) {
+			value.assign(reply->str, reply->len);
+		}else if(REDIS_REPLY_ARRAY == reply->type) {
 			//TODO	
-		}else if(REDIS_REPLY_NIL == replay->type) {
+		}else if(REDIS_REPLY_NIL == reply->type) {
 		}
 	}
 		
 	LOG4CPLUS_DEBUG(CLogger::logger, "Get: get " << key << ", value " << value << "]");
 	
-	freeReplyObject(replay);
+	freeReply(reply);
 	return context_->err;
 }
 
 int RedisHandler::set_value(const string& key, const string& value){
 	if(key.empty() || value.empty()) return -1;
 
-	redisReply* replay = (redisReply*)redisCommand(context_, "SET %s %s EX %d",
+	redisReply* reply = (redisReply*)redisCommand(context_, "SET %s %s EX %d",
 				key.c_str(), value.c_str(), REDIS_VALUE_TIMEOUT);
 	if(REDIS_ERR_IO == context_->err){
-		freeReplyObject(replay);
+		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
 		LOG4CPLUS_ERROR(CLogger::logger, "net error occur, err: " << context_->errstr << ", reconnect...");
@@ -204,17 +204,17 @@ int RedisHandler::set_value(const string& key, const string& value){
 			return -1;	
 		}
 
-		replay = (redisReply*)redisCommand(context_, "SET %s %s EX %d",
+		reply = (redisReply*)redisCommand(context_, "SET %s %s EX %d",
 				key.c_str(), value.c_str(), REDIS_VALUE_TIMEOUT);
 	} else if(REDIS_OK != context_->err) {
 		LOG4CPLUS_ERROR(CLogger::logger, "SET: failed, err: " << context_->errstr);
-		freeReplyObject(replay);
+		freeReply(reply);
 		return context_->err;
 	}
 		
 	LOG4CPLUS_DEBUG(CLogger::logger, "SET: set " << key << " \t value " << value );
 	
-	freeReplyObject(replay);
+	freeReply(reply);
 	return context_->err;
 
 	return 0;
@@ -253,9 +253,9 @@ int RedisHandler::conn2Redis() {
 
 int RedisHandler::subscribe_channel( const string & channel_name )
 {	
-	redisReply* replay = (redisReply*)redisCommand(context_, "SUBSCRIBE %s", channel_name.c_str());
+	redisReply* reply = (redisReply*)redisCommand(context_, "SUBSCRIBE %s", channel_name.c_str());
 	if(REDIS_ERR_IO == context_->err){
-		freeReplyObject(replay);
+		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
 		LOG4CPLUS_ERROR(CLogger::logger, "net error occur, err: " << context_->errstr << ", reconnect...");
@@ -265,14 +265,14 @@ int RedisHandler::subscribe_channel( const string & channel_name )
 			return -1;	
 		}
 
-		replay = (redisReply*)redisCommand(context_, "SUBSCRIBE %s", channel_name.c_str());
+		reply = (redisReply*)redisCommand(context_, "SUBSCRIBE %s", channel_name.c_str());
 	} else if(REDIS_OK != context_->err) {
 		LOG4CPLUS_ERROR(CLogger::logger, "subscribe : failed, err: " << context_->errstr);
-		freeReplyObject(replay);
+		freeReply(reply);
 		return context_->err;
 	}				
 	
-	freeReplyObject(replay);
+	freeReply(reply);
 	return context_->err;
 }
 
@@ -283,9 +283,9 @@ int RedisHandler::unsubscribe_channel( const string & channel_name )
 		return -1;
 	}
 
-	redisReply* replay = (redisReply*)redisCommand(context_, "UNSUBSCRIBE %s", channel_name.c_str());
+	redisReply* reply = (redisReply*)redisCommand(context_, "UNSUBSCRIBE %s", channel_name.c_str());
 	if(REDIS_ERR_IO == context_->err){
-		freeReplyObject(replay);
+		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
 		LOG4CPLUS_ERROR(CLogger::logger, "net error occur, err: " << context_->errstr << ", reconnect...");
@@ -295,31 +295,31 @@ int RedisHandler::unsubscribe_channel( const string & channel_name )
 			return -1;	
 		}
 
-		replay = (redisReply*)redisCommand(context_, "UNSUBSCRIBE %s", channel_name.c_str());
+		reply = (redisReply*)redisCommand(context_, "UNSUBSCRIBE %s", channel_name.c_str());
 	} else if(REDIS_OK != context_->err) {
 		LOG4CPLUS_ERROR(CLogger::logger, "subscribe : failed, err: " << context_->errstr);
-		freeReplyObject(replay);
+		freeReply(reply);
 		return context_->err;
 	}
 	
-	freeReplyObject(replay);
+	freeReply(reply);
 	return context_->err;
 }
 
 
 int RedisHandler::get_subscribe_msg(string & str_msg)
 {
-	redisReply *replay;
-	int iret = redisGetReply(context_, (void **)&replay);
+	redisReply *reply;
+	int iret = redisGetReply(context_, (void **)&reply);
 
-	if(REDIS_OK == iret && NULL != replay) {
-		if(REDIS_REPLY_STRING == replay->type) {
-			str_msg.assign(replay->str, replay->len);
-		}else if(REDIS_REPLY_ARRAY == replay->type) {
-			for(unsigned int i = 0; i < replay->elements; ++i) {
-				str_msg.assign(replay->element[i]->str, replay->element[i]->len);
+	if(REDIS_OK == iret && NULL != reply) {
+		if(REDIS_REPLY_STRING == reply->type) {
+			str_msg.assign(reply->str, reply->len);
+		}else if(REDIS_REPLY_ARRAY == reply->type) {
+			for(unsigned int i = 0; i < reply->elements; ++i) {
+				str_msg.assign(reply->element[i]->str, reply->element[i]->len);
 			}
-		}else if(REDIS_REPLY_NIL == replay->type) {
+		}else if(REDIS_REPLY_NIL == reply->type) {
 			return 1; //队列为空		
 		}
 	}

@@ -20,10 +20,20 @@
 class UpdateUserHandler : public ICmdHandler
 {
 public:
+	
+	/**
+	* brief:
+	*
+	* @param task
+	*
+	* @returns   
+	*/
 	virtual bool handle(CmdTask& task);
 
 private:
-	bool decodeParam(IDataX* ptr, std::map<short, string>& out_array);
+	int doUpdateUserBasic(int64_t uid, const string& value);
+	
+	bool decodeParam(IDataX* ptr, string& value);
 };
 
 #endif //UPDATE_USER_INFO_HANDLER_H

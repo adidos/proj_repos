@@ -16,6 +16,9 @@
 #include "common/data_id_const.h"
 #include "server/response_manager.h"
 
+#include "proxy_client.h"
+#include "user_proxy.h"
+
 bool UpdateUserHandler::handle(CmdTask& task)
 {
 	DataXCmd* pCmd = task.pCmd;
@@ -35,15 +38,18 @@ bool UpdateUserHandler::handle(CmdTask& task)
 		return false;
 	}
 
-	map<short, string> attr_array;
-	bool bSuccess = decodeParam(pCmd->get_datax(), attr_array);
+	string value;
+	bool bSuccess = decodeParam(pCmd->get_datax(), value);
 	if(!bSuccess)
 	{
 		LOG4CPLUS_ERROR(CLogger::logger, "decode param failed");
 		return false;
 	}
+
+	int64_t uid = pCmd->get_userid();
 	
-	//TODO call usersvr interface
+	rst =  doUpdateUserBasic(uid, value);
+	
 	XLDataX* pParam = new XLDataX();
 	pParam->PutInt(DataID_Result, 0);
 
@@ -61,32 +67,49 @@ bool UpdateUserHandler::handle(CmdTask& task)
 	return true;
 }
 
-bool UpdateUserHandler::decodeParam(IDataX* ptr, std::map<short, string>& out_array)
+int UpdateUserHandler::doUpdateUserBasic(int64_t uid, const string& value)
+{
+	ProxyClient* ptr = ProxyClient::Instance();
+
+	UserProxy* proxy = (UserProxy*)ptr->getServantPrxy("usersvr");
+
+	if(NULL == proxy)
+	{
+		LOG4CPLUS_ERROR(CLogger::logger, "User Proxy is NULL!");
+
+		return -1;
+	}
+
+	int resp = -1;
+	int ret = proxy->updateUserBasic(uid, value, resp);
+
+	if(0 == ret)
+	{
+		return resp;
+	}
+
+	return -1;
+}
+
+bool UpdateUserHandler::decodeParam(IDataX* ptr, string& value)
 {
 	if(NULL == ptr) return false;
 
-	int num = 0;
-	ptr->GetDataXArraySize(DataID_Param1, num);
-	LOG4CPLUS_DEBUG(CLogger::logger, "array num is " << num);
-
-	IDataX* pData;
-	for(int i = 0; i < num; ++i)
+	int len = 0;
+	bool ret = ptr->GetBytes(DataID_Sex, NULL, len);
+	if(!ret)
 	{
-		ptr->GetDataXArrayElement(DataID_Param1, i, &pData);	
-		
-		short attr;
-		ptr->GetShort(DataID_Attribute, attr);
-		
-		int len = 0;
-		ptr->GetUTF8String(DataID_Value, NULL, len);
-		string value(len, 0);
-		ptr->GetUTF8String(DataID_Value, (byte*)value.c_str(), len);
-		
-		LOG4CPLUS_DEBUG(CLogger::logger, "attribute: " << attr 
-				<< ", value len : " << len <<", " << value[0]);
-
-		out_array[attr] = value;	
+		LOG4CPLUS_ERROR(CLogger::logger, "decode sex data failed.");
+		return false;
 	}
 	
-	return true;
+	LOG4CPLUS_DEBUG(CLogger::logger, "param len is " << len);
+
+	string temp(len, 0);
+	ret = ptr->GetBytes(DataID_Sex, (byte*)temp.c_str(), len);	
+	LOG4CPLUS_DEBUG(CLogger::logger, "decode value :" << temp[0]);
+
+	value = temp;
+	
+	return ret;
 }
