@@ -46,7 +46,7 @@ void* CThread::threadEntry(void* pParam)
 	}
 	catch(std::exception& e)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "exception: " <<e.what());
+		LOG4CPLUS_ERROR(FLogger, "exception: " <<e.what());
 	}
 
 	return NULL;

@@ -13,6 +13,7 @@
 #define ADAPTER_PROXY_H
 
 #include <map>
+#include <vector>
 #include <string>
 
 #include "common/DataXCmd.h"
@@ -20,11 +21,11 @@
 #include "common/thread_sync.h"
 
 #include "message.h"
+#include "transceiver.h"
 
 using namespace std;
 
 class FDReactor;
-class Transceiver;
 class TransceiverHandle;
 
 class AdapterProxy
@@ -67,7 +68,7 @@ public:
 	*
 	* @returns   
 	*/
-	int sendRequest();
+	int sendRequest(TransceiverPtr& trans);
 
 	/**
 	* brief:
@@ -81,9 +82,8 @@ public:
 	*
 	* @returns   
 	*/
-	int finishConnect();
+	int finishConnect(TransceiverPtr& trans);
 
-	
 	/**
 	* brief:
 	* TODO this interface is not suitable
@@ -92,6 +92,20 @@ public:
 	* @returns   
 	*/
 	int finished(DataXCmdPtr pCmd);
+
+	/**
+	* brief:
+	*/
+	void refreshTransceiver();
+	
+private:
+
+	/**
+	* brief:
+	*
+	* @returns   
+	*/
+	TransceiverPtr selectTransceiver();
 
 private:
 	string _host;
@@ -105,15 +119,17 @@ private:
 	//Transceiver* _tran;
 	vector<TransceiverPtr> _trans;
 
-	int _trans_num;
+	CMutex _trans_mutex;
+
+	size_t _trans_num;
 
 	Queue<ReqMessagePtr> _reqs;		//发送消息队列
 
 	map<int, ReqMessagePtr> _timeout_que;	//所有的请求记录，消息回复后删除
 
 	CMutex _mutex;
-
-	int _conn_timeout_ms;
 };
+
+typedef shared_ptr<AdapterProxy> AdapterProxyPtr;
 
 #endif 

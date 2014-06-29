@@ -7,15 +7,15 @@
 #include <string>
 #include <memory>
 
-using namespace std;
+#include "common/DataXCmd.h"
 
-class DataXCmd;
+using namespace std;
 
 class Transceiver
 {
 public:
     
-    Transceiver();
+    Transceiver(int fd, bool bConnect);
 
     virtual ~Transceiver();
 
@@ -49,17 +49,18 @@ public:
 protected:
     int _fd;
 
+	bool _connected;	//表示是否已经连接到服务端
+
     std::string _send_buffer;
 
     std::string _recv_buffer;
 
-	bool _connected;	//表示是否已经连接到服务端
 };
 
 class TcpTransceiver : public Transceiver
 {
 public:
-	TcpTransceiver();
+	TcpTransceiver(int fd, bool bConnect);
 	~TcpTransceiver(){};
 
 public:

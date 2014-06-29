@@ -33,28 +33,31 @@ void TransceiverHandle::handle(int fd, int evs)
 		}
 	}
 
-	if(NULL != proxy.adapter)
+	if(! proxy.adapter)
 	{
-		proxy.adapter->finishConnect();
+		proxy.adapter->finishConnect(proxy.trans);
 		
 		if(evs &  TransceiverHandle::W)
 		{
-			LOG4CPLUS_DEBUG(CLogger::logger, proxy.fd << " receive a epoll out event!");
+			LOG4CPLUS_DEBUG(FLogger, proxy.fd << " receive a epoll out event!");
 			handleOutput(proxy);
 		}
 
 		if(evs & TransceiverHandle::R)
 		{
-			LOG4CPLUS_DEBUG(CLogger::logger, proxy.fd << " receive a epoll in event!");
+			LOG4CPLUS_DEBUG(FLogger, proxy.fd << " receive a epoll in event!");
 			handleInput(proxy);
 		}
+		
+		if(! proxy.trans->isValid())
+			proxy.adapter->refreshTransceiver();
 	}
 }
 
 
 int TransceiverHandle::handleExcept(int fd)
 {	
-	LOG4CPLUS_ERROR(CLogger::logger, "fd " << fd << " occur a error!");
+	LOG4CPLUS_ERROR(FLogger, "fd " << fd << " occur a error!");
 
 	ProxyInfo proxy;
 	{
@@ -68,9 +71,11 @@ int TransceiverHandle::handleExcept(int fd)
 		}
 	}
 
-	if(NULL != proxy.trans)
+	if(! proxy.trans)
 	{
 		proxy.trans->close();
+
+		proxy.adapter->refreshTransceiver();	
 	}
 
 	return 0;
@@ -78,17 +83,17 @@ int TransceiverHandle::handleExcept(int fd)
 
 int TransceiverHandle::handleOutput(ProxyInfo& proxy)
 {
-	if(NULL == proxy.adapter || NULL == proxy.trans)
+	if(! proxy.adapter || ! proxy.trans)
 		return -1;
 
-	while(proxy.adapter->sendRequest() > 0 && proxy.trans->doRequest() >= 0);
+	while(proxy.adapter->sendRequest(proxy.trans) > 0 && proxy.trans->doRequest() >= 0);
 
 	return 0;
 }
 
 int TransceiverHandle::handleInput(ProxyInfo& proxy)
 {
-	if(NULL == proxy.adapter || NULL == proxy.trans)
+	if(! proxy.adapter || ! proxy.trans)
 	{
 		return -1;
 	}
@@ -104,11 +109,11 @@ int TransceiverHandle::handleInput(ProxyInfo& proxy)
 
 			if(!ptr)
 			{
-				LOG4CPLUS_ERROR(CLogger::logger, "INVALID DataXCmdPtr! fuck!");
+				LOG4CPLUS_ERROR(FLogger, "INVALID DataXCmdPtr! fuck!");
+				continue;
 			}
 
 			proxy.adapter->finished(*iter);
-			
 		}		
 	}
 

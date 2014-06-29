@@ -29,7 +29,7 @@ FDReactor::~FDReactor()
 
 void FDReactor::notify(int fd)
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "notify reactor fd " << fd 
+	LOG4CPLUS_DEBUG(FLogger, "notify reactor fd " << fd 
 			<< " have buffer to write out!");
 
 	_ep.mod(fd, fd , EPOLLIN | EPOLLOUT);
@@ -52,19 +52,19 @@ void FDReactor::doIt()
 
 			if(ev.events & EPOLLIN)
 			{
-				LOG4CPLUS_DEBUG(CLogger::logger, "epollin occure!");
+				LOG4CPLUS_DEBUG(FLogger, "epollin occure!");
 
 				event = TransceiverHandle::R;				
 			}
 
 			if(ev.events & EPOLLOUT)
 			{
-				LOG4CPLUS_DEBUG(CLogger::logger, "epollout occure!");
+				LOG4CPLUS_DEBUG(FLogger, "epollout occure!");
 
 				event = event | TransceiverHandle::W;				
 			}
 
-			LOG4CPLUS_DEBUG(CLogger::logger, "occure event : " << event);
+			LOG4CPLUS_DEBUG(FLogger, "occure event : " << event);
 
 			handle(fd, event);
 		}
@@ -82,7 +82,7 @@ void FDReactor::handle(int fd, int events)
 		map<int, TransceiverHandle*>::iterator iter = _handles.find(fd);
 		if(_handles.end() == iter)
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "couldn't find fd " << fd  <<" transceiver handle!");
+			LOG4CPLUS_ERROR(FLogger, "couldn't find fd " << fd  <<" transceiver handle!");
 	
 			_ep.del(fd, fd, 0);
 			return;
@@ -111,7 +111,7 @@ void FDReactor::regHandle(int fd, uint32_t event, TransceiverHandle* pHandle)
 
 	_ep.add(fd, fd, event);
 
-	LOG4CPLUS_DEBUG(CLogger::logger, fd << " add into reactor!");
+	LOG4CPLUS_DEBUG(FLogger, fd << " add into reactor!");
 }
 
 void FDReactor::unregHandle(int fd, uint32_t event, TransceiverHandle* pHandle)

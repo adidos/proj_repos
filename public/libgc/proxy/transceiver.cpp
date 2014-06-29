@@ -14,8 +14,8 @@
 #include "common/logger.h"
 #include "common/function_trace.h"
 
-Transceiver::Transceiver()
-	:_fd(-1), _connected(false)
+Transceiver::Transceiver(int fd, bool bConnect)
+	:_fd(fd), _connected(bConnect)
 {
 
 }
@@ -32,7 +32,7 @@ int Transceiver::fd() const
 
 void Transceiver::close()
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "socket close...");
+	LOG4CPLUS_DEBUG(FLogger, "socket close...");
 	::close(_fd);
 	_connected = false;
 	_fd = -1;
@@ -47,7 +47,7 @@ int Transceiver::doRequest()
 {
 	if(!isValid()) 
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "socket is invalid!");
+		LOG4CPLUS_ERROR(FLogger, "socket is invalid!");
 	
 		return -1;
 	}
@@ -65,7 +65,7 @@ int Transceiver::doRequest()
 			ret = this->send(_send_buffer.c_str(), _send_buffer.length(), 0);
 			if(ret > 0)
 			{
-				LOG4CPLUS_DEBUG(CLogger::logger, "success send " << ret  << " bytes!");
+				LOG4CPLUS_DEBUG(FLogger, "success send " << ret  << " bytes!");
 				if((size_t) ret == len)
 				{
 					_send_buffer.clear();
@@ -75,7 +75,6 @@ int Transceiver::doRequest()
 					_send_buffer.erase(_send_buffer.begin(), _send_buffer.begin() + ret);
 				}
 			}
-				
 		}
 	}while(ret > 0);
 
@@ -86,14 +85,15 @@ int Transceiver::doRequest()
 void Transceiver::writeToSendBuffer(const  string & msg)
 {
 	_send_buffer.append(msg);
-	LOG4CPLUS_DEBUG(CLogger::logger, "after append, send length is " << _send_buffer.size());
+	LOG4CPLUS_DEBUG(FLogger, "after append, send length is " << _send_buffer.size());
 }
 
 
 ////////////////////////////////////////////////////////////
 
 
-TcpTransceiver::TcpTransceiver()
+TcpTransceiver::TcpTransceiver(int fd, bool bConnect)
+	:Transceiver(fd, bConnect)
 {
 }
 
@@ -103,7 +103,7 @@ int TcpTransceiver::doConnect(const string& host, short port)
 	
 	if(_fd < 0)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "socket error:" << strerror(errno));
+		LOG4CPLUS_ERROR(FLogger, "socket error:" << strerror(errno));
 	}
 
 	setNoBlock(_fd);
@@ -117,7 +117,7 @@ int TcpTransceiver::doConnect(const string& host, short port)
 
 	int err_no = errno;
 
-	LOG4CPLUS_DEBUG(CLogger::logger, "connect to server " << host 
+	LOG4CPLUS_DEBUG(FLogger, "connect to server " << host 
 				<< ":" << port << " error: " << strerror(err_no));
 
 	if(0 == ret)
@@ -126,7 +126,7 @@ int TcpTransceiver::doConnect(const string& host, short port)
 	}
 	else if(ret < 0 && EINPROGRESS != err_no)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "connect error:" << strerror(err_no));
+		LOG4CPLUS_ERROR(FLogger, "connect error:" << strerror(err_no));
 		::close(_fd);
 		return -1;
 	}
@@ -139,7 +139,7 @@ int TcpTransceiver::doResponse(list<DataXCmdPtr>& resps)
 {
 	if(!isValid()) 
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "invalid socket fd!");
+		LOG4CPLUS_ERROR(FLogger, "invalid socket fd!");
 
 		return -1;
 	}
@@ -159,7 +159,7 @@ int TcpTransceiver::doResponse(list<DataXCmdPtr>& resps)
 		}
 	} while (len > 0);
 
-	LOG4CPLUS_DEBUG(CLogger::logger, "recv buffer length is " << _recv_buffer.length());
+	LOG4CPLUS_DEBUG(FLogger, "recv buffer length is " << _recv_buffer.length());
 
 	if(_recv_buffer.empty()) return -1;
 
@@ -173,11 +173,11 @@ int TcpTransceiver::doResponse(list<DataXCmdPtr>& resps)
 		
 		unsigned int header = pCmd->header_length();
 
-		LOG4CPLUS_DEBUG(CLogger::logger, "header length is " << header);
+		LOG4CPLUS_DEBUG(FLogger, "header length is " << header);
 		
 		if(header > _recv_buffer.length() - index)
 		{
-			LOG4CPLUS_WARN(CLogger::logger, "recv buffer length  less then header length");
+			LOG4CPLUS_WARN(FLogger, "recv buffer length  less then header length");
 			break;
 		}
 
@@ -186,11 +186,11 @@ int TcpTransceiver::doResponse(list<DataXCmdPtr>& resps)
 
 		uint32_t body = pCmd->body_length();
 
-		LOG4CPLUS_DEBUG(CLogger::logger, "body length is " << body);
+		LOG4CPLUS_DEBUG(FLogger, "body length is " << body);
 
 		if(body + header > _recv_buffer.length() - index)
 		{
-			LOG4CPLUS_WARN(CLogger::logger, "recv buffer length  less then body length");
+			LOG4CPLUS_WARN(FLogger, "recv buffer length  less then body length");
 
 			break;
 		}
@@ -203,7 +203,7 @@ int TcpTransceiver::doResponse(list<DataXCmdPtr>& resps)
 
 		resps.push_back(pCmd);
 
-		LOG4CPLUS_DEBUG(CLogger::logger, "pCmd use count is " << pCmd.use_count());
+		LOG4CPLUS_DEBUG(FLogger, "pCmd use count is " << pCmd.use_count());
 
 	}while(1);
 
@@ -220,7 +220,7 @@ int TcpTransceiver::send(const void* buf, uint32_t len, uint32_t flag)
 
     if (ret < 0 && errno != EAGAIN)
     {
-		LOG4CPLUS_ERROR(CLogger::logger, "send error: " << strerror(errno));
+		LOG4CPLUS_ERROR(FLogger, "send error: " << strerror(errno));
         close();
 
         return 0;
@@ -253,7 +253,7 @@ int TcpTransceiver::reset()
 	
 	if(_fd < 0)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "socket error:" << strerror(errno));
+		LOG4CPLUS_ERROR(FLogger, "socket error:" << strerror(errno));
 		return -1;
 	}
 

@@ -100,11 +100,11 @@ void Servant::doIt()
 			if(EINTR == errno)
 				continue;
 
-			LOG4CPLUS_ERROR(CLogger::logger, "accept error: " << strerror(errno));
+			LOG4CPLUS_ERROR(FLogger, "accept error: " << strerror(errno));
 			_exit(-1);
 		}
 
-		LOG4CPLUS_DEBUG(CLogger::logger, "receive a connection from client " 
+		LOG4CPLUS_DEBUG(FLogger, "receive a connection from client " 
 			<< inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port));
 		
 		newConnection(client);
@@ -171,7 +171,7 @@ int Servant::newConnection(int client)
 	int seqno =	_session_mgr_ptr->getSeqno8Fd(client);
 	if(-1 != seqno) //fd被重复使用了，说明前一个连接已经断开，需要释放掉session
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "socket " << client <<" reused, find the old session free it!");
+		LOG4CPLUS_DEBUG(FLogger, "socket " << client <<" reused, find the old session free it!");
 		SessionBase* ptr = _session_mgr_ptr->getSession(seqno);
 		_session_mgr_ptr->freeSession(ptr);
 	}
@@ -179,7 +179,7 @@ int Servant::newConnection(int client)
 	SessionBase* pSession = _session_mgr_ptr->getIdleSession();
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "get idle session failed!");
+		LOG4CPLUS_ERROR(FLogger, "get idle session failed!");
 		return -1;
 	}
 
@@ -190,7 +190,7 @@ int Servant::newConnection(int client)
 	bool bret = _session_mgr_ptr->addSession(pSession);
 	if(!bret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "add session to manager failed!");
+		LOG4CPLUS_ERROR(FLogger, "add session to manager failed!");
 
 		_session_mgr_ptr->freeSession(pSession);
 		return -1;

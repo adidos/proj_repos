@@ -44,7 +44,7 @@ int SessionBase::recvBuffer()
 {
 	if(-1 == fd_)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "socket is invalide, close it!");
+		LOG4CPLUS_ERROR(FLogger, "socket is invalide, close it!");
 		return SOCKET_CLOSE;
 	}
 
@@ -59,19 +59,19 @@ int SessionBase::recvBuffer()
 		{
 			if(EAGAIN == errno || EWOULDBLOCK == errno)
 			{
-				LOG4CPLUS_TRACE(CLogger::logger, fd_ << " will recv EAGAIN, error:" << strerror(errno));
+				LOG4CPLUS_TRACE(FLogger, fd_ << " will recv EAGAIN, error:" << strerror(errno));
 				break;
 			}
 			else if(EINTR == errno)
 				continue;
 
-			LOG4CPLUS_ERROR(CLogger::logger, fd_ << " recv error, msg: " << strerror(errno));
+			LOG4CPLUS_ERROR(FLogger, fd_ << " recv error, msg: " << strerror(errno));
 			
 			return SOCKET_ERR;
 		}
 		else if(recv_len == 0)
 		{
-			LOG4CPLUS_DEBUG(CLogger::logger, fd_ << " close by client!");
+			LOG4CPLUS_DEBUG(FLogger, fd_ << " close by client!");
 			return SOCKET_CLOSE;
 		}
 		else
@@ -83,7 +83,7 @@ int SessionBase::recvBuffer()
 		}
 	}
 
-	LOG4CPLUS_TRACE(CLogger::logger, fd_ << " recieve " << total_len << " bytes buffer!");
+	LOG4CPLUS_TRACE(FLogger, fd_ << " recieve " << total_len << " bytes buffer!");
 	return total_len;
 }
 
@@ -96,7 +96,7 @@ int SessionBase::sendBuffer()
 	{
 		if(-1 == fd_ ) 
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "socket fd = -1!");
+			LOG4CPLUS_ERROR(FLogger, "socket fd = -1!");
 			return SOCKET_ERR;
 		}
 		
@@ -107,7 +107,7 @@ int SessionBase::sendBuffer()
 		{
 			if(EWOULDBLOCK == errno || EAGAIN == errno)
 			{
-				LOG4CPLUS_WARN(CLogger::logger, fd_ << " will recv EAGAIN, error:" 
+				LOG4CPLUS_WARN(FLogger, fd_ << " will recv EAGAIN, error:" 
 						<< strerror(errno));
 
 				send_buff_.erase(0, total_len);
@@ -118,7 +118,7 @@ int SessionBase::sendBuffer()
 				continue;
 			}
 
-			LOG4CPLUS_ERROR(CLogger::logger, fd_ << " send error, msg: " << strerror(errno));
+			LOG4CPLUS_ERROR(FLogger, fd_ << " send error, msg: " << strerror(errno));
 
 			return SOCKET_ERR;
 		}
@@ -166,7 +166,7 @@ int SessionBase::parseProtocol(DataXCmd* &pCmd)
 	unsigned int header = ptr->header_length();
 	if(recv_buff_.length() < header)
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "recv buffer length is " << recv_buff_.length()
+		LOG4CPLUS_DEBUG(FLogger, "recv buffer length is " << recv_buff_.length()
 			<< ", is less then header require length " << header);
 		cmdRelease(ptr);
 
@@ -184,7 +184,7 @@ int SessionBase::parseProtocol(DataXCmd* &pCmd)
 	unsigned int body = ptr->body_length();
 	if(recv_buff_.length() < body + header)
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "recv buffer length is " << recv_buff_.length()
+		LOG4CPLUS_DEBUG(FLogger, "recv buffer length is " << recv_buff_.length()
 			<<", is less then a complete command package length " << body + header);
 
 		cmdRelease(ptr);
@@ -196,13 +196,13 @@ int SessionBase::parseProtocol(DataXCmd* &pCmd)
 	ret = ptr->decode_parameters(pBody, body);
 	if(!ret)
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "DataXCmd decode parameters failed!");
+		LOG4CPLUS_DEBUG(FLogger, "DataXCmd decode parameters failed!");
 		cmdRelease(ptr);
 		return -1;
 	}
 
 	pCmd = ptr;
-	LOG4CPLUS_DEBUG(CLogger::logger, "pcmd = " << pCmd << ", ptr = " << ptr);
+	LOG4CPLUS_DEBUG(FLogger, "pcmd = " << pCmd << ", ptr = " << ptr);
 	//delete the decode buffer from recv buffer
 	recv_buff_.erase(0, body + header);
 

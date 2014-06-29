@@ -24,13 +24,13 @@ public:
 	FunctionTrace(const string& clazz,const string& func)
 		:_class_name(clazz), _func_name(func)
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "Enter Function " 
+		LOG4CPLUS_DEBUG(FLogger, "Enter Function " 
 			<< _class_name << ":"<< _func_name);
 	}
 
 	~FunctionTrace()
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "Exit Function "
+		LOG4CPLUS_DEBUG(FLogger, "Exit Function "
 			<< _class_name << ":"<< _func_name);
 	}
 
