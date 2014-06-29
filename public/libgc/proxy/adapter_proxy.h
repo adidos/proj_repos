@@ -74,6 +74,13 @@ public:
 	*
 	* @returns   
 	*/
+	TransceiverPtr doReconnect();
+
+	/**
+	* brief:
+	*
+	* @returns   
+	*/
 	int finishConnect();
 
 	
@@ -95,7 +102,10 @@ private:
 
 	TransceiverHandle* _handle;
 	
-	Transceiver* _tran;
+	//Transceiver* _tran;
+	vector<TransceiverPtr> _trans;
+
+	int _trans_num;
 
 	Queue<ReqMessagePtr> _reqs;		//发送消息队列
 

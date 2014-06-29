@@ -5,6 +5,7 @@
 
 #include <list>
 #include <string>
+#include <memory>
 
 using namespace std;
 
@@ -72,5 +73,7 @@ public:
 
 	int reset();
 };
+
+typedef std::shared_ptr<Transceiver> TransceiverPtr;
 
 #endif
