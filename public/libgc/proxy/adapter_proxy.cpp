@@ -30,7 +30,7 @@
 AdapterProxy::AdapterProxy(FDReactor* actor, TransceiverHandle* handle)
 	:_host(""), _port(0), _reactor(actor), _handle(handle),_reqs(10240)
 {
-	_trans_num = 3; // 默认每个adapter proxy 3个连接
+
 }
 
 AdapterProxy::~AdapterProxy()
@@ -42,24 +42,11 @@ AdapterProxy::~AdapterProxy()
 	}
 }
 
-/**
-* brief:
-*
-* @param host
-* @param port
-*
-* @returns   
-*/
 int AdapterProxy::initialize(const string& host, short port)
 {
 	_host = host;
 	_port = port;
 
-	for(int i = 0; i < _trans_num; i++)
-	{
-		
-
-	}
 	_tran = new TcpTransceiver();
 
 		
@@ -75,11 +62,6 @@ int AdapterProxy::initialize(const string& host, short port)
 	return 0;
 }
 
-/**
-* brief:
-*
-* @returns   
-*/
 int AdapterProxy::sendRequest()
 {
 	if(_reqs.empty())
@@ -129,13 +111,6 @@ int AdapterProxy::sendRequest()
 	return length;
 }
 
-/**
-* brief:
-*
-* @param req
-*
-* @returns   
-*/
 int AdapterProxy::invoke(ReqMessagePtr req)
 {
 	//将消息加入到队列
@@ -156,11 +131,6 @@ int AdapterProxy::invoke(ReqMessagePtr req)
 	return 0;
 }
 
-/**
-* brief:
-*
-* @returns   
-*/
 int AdapterProxy::finishConnect()
 {
 	if(_tran->hasConnected())
@@ -188,13 +158,6 @@ int AdapterProxy::finishConnect()
 	return 0;
 }
 
-/**
-* brief:
-*
-* @param pCmd
-*
-* @returns   
-*/
 int AdapterProxy::finished(DataXCmdPtr pCmd)
 {
 	if(!pCmd)

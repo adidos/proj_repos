@@ -7,9 +7,9 @@
 #include <string>
 #include <memory>
 
-using namespace std;
+#include "common/DataXCmd.h"
 
-class DataXCmd;
+using namespace std;
 
 class Transceiver
 {
