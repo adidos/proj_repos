@@ -49,8 +49,11 @@ typedef struct cmd_task_t
 
 	void releaseCmd()
 	{
-		delete pCmd;
-		pCmd = NULL;
+		if(NULL != pCmd)
+		{
+			delete pCmd;
+			pCmd = NULL;
+		}
 	}
 }CmdTask;
 

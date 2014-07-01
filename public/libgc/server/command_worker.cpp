@@ -36,9 +36,9 @@ bool CmdWorker::addTask(CmdTask task)
 	bool ret = _task_queue.push(task, 100);
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, _id << " push task to queue fail.");
+		LOG4CPLUS_ERROR(FLogger, _id << " push task to queue fail.");
 	}
-	LOG4CPLUS_INFO(CDebugLogger::logger, _id << " thread current queue size is "
+	LOG4CPLUS_INFO(FLogger, _id << " thread current queue size is "
 			<< _task_queue.getSize());
 	
 	return ret;
@@ -49,7 +49,7 @@ bool CmdWorker::addTask(CmdTask task)
 */
 void CmdWorker::doIt()
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "command worker start work!");
+	LOG4CPLUS_DEBUG(FLogger, "command worker start work!");
 
 	while(true)
 	{
@@ -57,28 +57,32 @@ void CmdWorker::doIt()
 		bool bret = _task_queue.pop(task, 60*1000);
 		if(!bret)
 		{
-			LOG4CPLUS_DEBUG(CLogger::logger, "task queue is empty! continue wait...");
+			LOG4CPLUS_DEBUG(FLogger, "task queue is empty! continue wait...");
 			continue;
 		}
 
-		LOG4CPLUS_INFO(CDebugLogger::logger, "TimeTrace:[" << task.pCmd->get_cmd_name() 
+		LOG4CPLUS_INFO(FLogger, "TimeTrace:[" << task.pCmd->get_cmd_name() 
 				<< "] out queue spend time " << current_time_usec()- task.timestamp);
 
 		string name = task.pCmd->get_cmd_name();
 		ICmdHandler* pHandler = CmdRegistor::getCommand(name);
 		if(NULL == pHandler)
 		{
-			LOG4CPLUS_WARN(CLogger::logger, "couldn't find handler for command["
+			LOG4CPLUS_WARN(FLogger, "couldn't find handler for command["
 				<< name << "]");
+
+			//release unknow command
+			task.releaseCmd();
+			
 			continue;
 		}
 
-		LOG4CPLUS_DEBUG(CLogger::logger, "find a command handler to process command["
+		LOG4CPLUS_DEBUG(FLogger, "find a command handler to process command["
 				<< name << "]");
 		
 		pHandler->handle(task);
 
-		LOG4CPLUS_INFO(CDebugLogger::logger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
+		LOG4CPLUS_INFO(FLogger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
 				<< "] handle spend time " << current_time_usec() - task.timestamp);
 
 		task.releaseCmd();

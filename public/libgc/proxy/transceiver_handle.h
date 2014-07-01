@@ -5,10 +5,10 @@
 
 #include "common/thread_sync.h"
 
-using namespace std;
+#include "adapter_proxy.h"
+#include "transceiver.h"
 
-class AdapterProxy;
-class Transceiver;
+using namespace std;
 
 class TransceiverHandle
 {
@@ -19,11 +19,11 @@ public:
 	{
 		int event;
 		int fd;
-		Transceiver* trans;
-		AdapterProxy* adapter;
+		TransceiverPtr trans;
+		AdapterProxyPtr adapter;
 
 		ProxyInfo():event( -1), fd(-1),
-			trans(NULL), adapter(NULL){};
+			trans(), adapter(){};
 	};
 
 public:
@@ -44,11 +44,11 @@ public:
 
 	int handleExcept(int fd);
 
-	int regProxy(int fd, AdapterProxy* proxy, Transceiver* trans)
+	int regProxy(int fd, AdapterProxyPtr adapter, TransceiverPtr trans)
 	{
 		ProxyInfo info;
 		info.fd = fd;
-		info.adapter = proxy;
+		info.adapter = adapter;
 		info.trans = trans;
 
 		_proxys[fd] = info;

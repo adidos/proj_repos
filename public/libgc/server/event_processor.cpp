@@ -58,18 +58,18 @@ bool EventProcessor::addEvent(Event event)
 */
 void EventProcessor::doIt()
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "event processor start work!");
+	LOG4CPLUS_DEBUG(FLogger, "event processor start work!");
 	while(true)
 	{
 		Event event;
 		bool bSucc = _event_queue.pop(event, 60*1000);
 		if(!bSucc)
 		{
-			LOG4CPLUS_DEBUG(CLogger::logger, "event queue is empty!");
+			LOG4CPLUS_DEBUG(FLogger, "event queue is empty!");
 			continue;
 		}
 
-		LOG4CPLUS_DEBUG(CLogger::logger, "Process Event" << event.dump());
+		LOG4CPLUS_DEBUG(FLogger, "Process Event" << event.dump());
 		if(EVENT_CLOSE == event.type)
 		{
 			processClose(event);
@@ -97,7 +97,7 @@ void EventProcessor::processRead(Event& event)
 	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_WARN(CLogger::logger, "session is null, seqno = "<<seqno);
+		LOG4CPLUS_WARN(FLogger, "session is null, seqno = "<<seqno);
 		return ;
 	}
 	
@@ -124,13 +124,13 @@ void EventProcessor::processRead(Event& event)
 			task.seqno = seqno;
 			task.timestamp = current_time_usec();
 
-			LOG4CPLUS_INFO(CDebugLogger::logger, "TimeTrace: event->task spend time " 
+			LOG4CPLUS_INFO(FLogger, "TimeTrace: event->task spend time " 
 				<< task.timestamp - event.timestamp);
 			
 			bool bSucc = _work_group_ptr->dispatch(task);
 			if(!bSucc)
 			{
-				LOG4CPLUS_ERROR(CLogger::logger, "insert command to receive"
+				LOG4CPLUS_ERROR(FLogger, "insert command to receive"
 						<< " queue failed.");
 				return ;
 			}
@@ -149,7 +149,7 @@ void EventProcessor::processWrite(Event& event)
 	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_WARN(CLogger::logger, "session is null, seqno = "<<seqno);
+		LOG4CPLUS_WARN(FLogger, "session is null, seqno = "<<seqno);
 		return ;
 	}
 
@@ -176,7 +176,7 @@ void EventProcessor::processClose(Event& event)
 	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_WARN(CLogger::logger, "session is null, seqno = "<<seqno);
+		LOG4CPLUS_WARN(FLogger, "session is null, seqno = "<<seqno);
 		return ;
 	}
 

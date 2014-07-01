@@ -19,7 +19,7 @@ ICmdHandler* CmdRegistor::getCommand(const string& name)
 	Iterator iter = _handler_array.find(name);
 	if(iter == _handler_array.end())
 	{
-		LOG4CPLUS_WARN(CLogger::logger, "didn't find the command["
+		LOG4CPLUS_WARN(FLogger, "didn't find the command["
 			<< name << "]'s handler");
 		return NULL;
 	}	
@@ -32,7 +32,7 @@ void CmdRegistor::regCommand(const string& name, ICmdHandler* pHandler)
 	pair<Iterator, bool> ret = _handler_array.insert(make_pair(name, pHandler));
 	if(!ret.second)
 	{
-		LOG4CPLUS_WARN(CLogger::logger, "command[" << name << "] is already registed!");
+		LOG4CPLUS_WARN(FLogger, "command[" << name << "] is already registed!");
 		return;
 	}
 }

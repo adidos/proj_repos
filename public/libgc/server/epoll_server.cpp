@@ -47,7 +47,7 @@ int EpollServer::init(int size)
 
 int EpollServer::notify(int fd, uint64_t data, int iEvent)
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "epoll notify: " << fd << "|" 
+	LOG4CPLUS_DEBUG(FLogger, "epoll notify: " << fd << "|" 
 			<< data<< "|" << iEvent );
 	switch(iEvent)
 	{
@@ -69,7 +69,7 @@ int EpollServer::notify(int fd, uint64_t data, int iEvent)
 			break;
 
 		default:
-			LOG4CPLUS_ERROR(CLogger::logger, "notify unknow event, " << iEvent);
+			LOG4CPLUS_ERROR(FLogger, "notify unknow event, " << iEvent);
 	}
 
 	return 0;
@@ -82,7 +82,7 @@ int EpollServer::notify(int fd, uint64_t data, int iEvent)
 */
 void EpollServer::doIt()
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "event processor start work!");
+	LOG4CPLUS_DEBUG(FLogger, "event processor start work!");
 
 	while(true)
 	{
@@ -93,11 +93,11 @@ void EpollServer::doIt()
 			if(errno == EINTR)
 				continue;
 
-			LOG4CPLUS_ERROR(CLogger::logger, "epoll server error, exit run loop...");
+			LOG4CPLUS_ERROR(FLogger, "epoll server error, exit run loop...");
 			break;
 		}
 		
-		LOG4CPLUS_TRACE(CLogger::logger, "epoll wait return value " << ret);
+		LOG4CPLUS_TRACE(FLogger, "epoll wait return value " << ret);
 		for(int i = 0; i < ret; ++i)
 		{
 			struct epoll_event ev = _epoll.get(i);
@@ -107,19 +107,19 @@ void EpollServer::doIt()
 			event.timestamp = current_time_usec();
 			if(ev.events & (EPOLLHUP | EPOLLERR))
 			{
-				LOG4CPLUS_TRACE(CLogger::logger, "epoll error, fd = " << ev.data.fd
+				LOG4CPLUS_TRACE(FLogger, "epoll error, fd = " << ev.data.fd
 					<< ", seqno = " << H32(ev.data.u64));
 				event.type = EVENT_CLOSE;
 			}
 			else if(ev.events & EPOLLIN)
 			{
-				LOG4CPLUS_TRACE(CLogger::logger, "epoll readable, fd = " << ev.data.fd
+				LOG4CPLUS_TRACE(FLogger, "epoll readable, fd = " << ev.data.fd
 					<< ", seqno = " << H32(ev.data.u64));
 				event.type = EVENT_READ;
 			}
 			else if(ev.events & EPOLLOUT)
 			{
-				LOG4CPLUS_TRACE(CLogger::logger, "epoll writeable, fd = " << ev.data.fd
+				LOG4CPLUS_TRACE(FLogger, "epoll writeable, fd = " << ev.data.fd
 					<< ", seqno = " << H32(ev.data.u64));
 				event.type = EVENT_WRITE;
 			}

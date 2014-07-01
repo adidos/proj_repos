@@ -19,7 +19,7 @@ int ServantProxy::invoke(DataXCmdPtr pReq, DataXCmdPtr& pResp)
 	int ret = _adapter_proxy->invoke(req);
 	if(0 != ret)
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "Adapter proxy invoke failed! ");
+		LOG4CPLUS_DEBUG(FLogger, "Adapter proxy invoke failed! ");
 		return ret;
 	}
 
@@ -36,7 +36,7 @@ int ServantProxy::invoke(DataXCmdPtr pReq, DataXCmdPtr& pResp)
 
 	int interval = (now.tv_sec - req->stamp.tv_sec)*1000 + (now.tv_usec - req->stamp.tv_usec)/1000;
 
-	LOG4CPLUS_DEBUG(CLogger::logger, "invoke finished! spend time " << interval 
+	LOG4CPLUS_DEBUG(FLogger, "invoke finished! spend time " << interval 
 			<< ", is timeout("<< _timeout_msec << ") ? " << (interval > _timeout_msec));
 
 	return 0;

@@ -47,7 +47,7 @@ int Configure::loadFile(const string &file)
 	_ifs.open(file.c_str(), ios::binary | ios::in);
 	if(_ifs.fail() | !_ifs.is_open())
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "open file[" << file << "] fail"
+		LOG4CPLUS_ERROR(FLogger, "open file[" << file << "] fail"
 			<< ", error : " << strerror(errno));
 		return -1;
 	}
@@ -66,7 +66,7 @@ string Configure::getString(const string &key, const string &value)
 	Iterator iter = _config_items.find(key);
 	if(iter == _config_items.end())
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "] is  not "
+		LOG4CPLUS_DEBUG(FLogger, "config[" << key << "] is  not "
 			<< "exist, so use default value!");
 		return value;
 	}
@@ -84,14 +84,14 @@ int Configure::getInt(const string &key, const int &value)
 	Iterator iter = _config_items.find(key);
 	if(iter == _config_items.end())
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "] is  not "
+		LOG4CPLUS_DEBUG(FLogger, "config[" << key << "] is  not "
 			<< "exist, so use default value!");
 		return value;
 	}
 
 	if(! isDigit(iter->second))
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "isDigit check failed for value "
+		LOG4CPLUS_ERROR(FLogger, "isDigit check failed for value "
 			<< iter->second);
 		return value;
 	}
@@ -109,7 +109,7 @@ bool Configure::getBool(const string &key, const bool &value)
 	Iterator iter = _config_items.find(key);
 	if(iter == _config_items.end())
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "] is  not "
+		LOG4CPLUS_DEBUG(FLogger, "config[" << key << "] is  not "
 			<< "exist, so use default value!");
 		return value;
 	}
@@ -117,7 +117,7 @@ bool Configure::getBool(const string &key, const bool &value)
 	string ret = iter->second;
 	if(ret.empty())
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "]'s value is"
+		LOG4CPLUS_DEBUG(FLogger, "config[" << key << "]'s value is"
 			<< " NULL, so use default value!");
 		return value;
 	}
@@ -139,14 +139,14 @@ float Configure::getFloat(const string &key, const float &value)
 	Iterator iter = _config_items.find(key);
 	if(iter == _config_items.end())
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "config[" << key << "] is  not "
+		LOG4CPLUS_DEBUG(FLogger, "config[" << key << "] is  not "
 			<< "exist, so use default value!");
 		return value;
 	}
 
 	if(! isDecimal(iter->second))
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "isDecimal check failed for value "
+		LOG4CPLUS_ERROR(FLogger, "isDecimal check failed for value "
 			<< iter->second);
 		return value;
 	}
@@ -163,7 +163,7 @@ int Configure::parseConfig()
 	string line;
 	while(getline(_ifs, line))
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "read line : " << line);
+		LOG4CPLUS_DEBUG(FLogger, "read line : " << line);
 		if(line.empty())
 			continue;
 
@@ -188,12 +188,12 @@ int Configure::parseConfig()
 		key = trim_left_blank(key);
 		key = trim_right_blank(key);
 
-		LOG4CPLUS_DEBUG(CLogger::logger, "key : " << key);
+		LOG4CPLUS_DEBUG(FLogger, "key : " << key);
 
 		value = trim_left_blank(value);
 		value = trim_left_blank(value);
 		
-		LOG4CPLUS_DEBUG(CLogger::logger, "value: " << value);
+		LOG4CPLUS_DEBUG(FLogger, "value: " << value);
 
 		if(!key.empty())
 			_config_items[key] = value;
@@ -204,17 +204,17 @@ int Configure::parseConfig()
 
 string Configure::dump()
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "*********** config item begin ********** ");
+	LOG4CPLUS_DEBUG(FLogger, "*********** config item begin ********** ");
 
 	ostringstream oss;
 	map<string,string>::iterator iter = _config_items.begin();
 	for(; iter != _config_items.end(); ++iter)
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, iter->first << " = " << iter->second);
+		LOG4CPLUS_DEBUG(FLogger, iter->first << " = " << iter->second);
 		oss << iter->first << " = " << iter->second << endl;
 	}
 
-	LOG4CPLUS_DEBUG(CLogger::logger, "*********** config item end********** ");
+	LOG4CPLUS_DEBUG(FLogger, "*********** config item end********** ");
 	return oss.str();
 }
 

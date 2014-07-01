@@ -25,12 +25,12 @@ using namespace log4cplus;
 class CLogger
 {
 public:
+	
 	static int init(const string& file)
 	{
 		try
 		{
 			PropertyConfigurator::doConfigure(file);
-			logger = Logger::getRoot();	
 		}
 		catch(...)
 		{
@@ -40,28 +40,27 @@ public:
 		return 0;
 	}
 
-	static Logger logger;
-};
-
-class CDebugLogger
-{
-public:
-	static int init(const string& file)
+	static Logger Instance(const string& name = "")
 	{
+		Logger logger;
 		try
 		{
-			PropertyConfigurator::doConfigure(file);
-			logger = Logger::getInstance("Dev");	
+			if(name.empty())
+				logger = Logger::getRoot();
+			else
+				logger = Logger::getInstance(name);
 		}
-		catch(...)
+		catch(exception& e)
 		{
-			cerr << "log init exception..." <<endl;
+			cerr << "logger instance exception: " << e.what() <<endl;
 		}
-		
-		return 0;
+
+		return logger;
 	}
 
-	static Logger logger;
 };
+
+#define LOGGER(NAME) CLogger::Instance(NAME) 
+#define FLogger LOGGER("Frame")
 
 #endif //GC_LOGGER_H

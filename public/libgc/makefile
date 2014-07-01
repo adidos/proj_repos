@@ -24,7 +24,7 @@ PROXYOBJ:=$(patsubst %.cpp,%.o,$(PROXYSRC))
 
 SERVERDEP:=$(patsubst %.cpp,%.d,$(SERVERSRC))
 COMMONDEP:=$(patsubst %.cpp,%.d,$(COMMONSRC))
-PROXYDEP:=$(patsubst %.cpp,%.d,$(COMMONSRC))
+PROXYDEP:=$(patsubst %.cpp,%.d,$(PROXYSRC))
 
 CPPFLAGS += -MD
 

@@ -73,14 +73,14 @@ SessionBase* SessionManager::getIdleSession()
 		CScopeGuard guard(idle_mutex_);
 		ptr = idle_array_.front();
 		idle_array_.pop_front();
-		LOG4CPLUS_TRACE(CLogger::logger, "get a session from idle array, seqno = " 
+		LOG4CPLUS_TRACE(FLogger, "get a session from idle array, seqno = " 
 			<< ptr->getSeqno());
 	}
 	else
 	{
 		ptr = new SessionBase();
 		ptr->setSeqno(Index::get());
-		LOG4CPLUS_TRACE(CLogger::logger, "idle array is empty, create a new session, "
+		LOG4CPLUS_TRACE(FLogger, "idle array is empty, create a new session, "
 				<< "seqno = " << ptr->getSeqno());
 	}
 	
@@ -96,15 +96,15 @@ void SessionManager::freeSession(SessionBase* pSession)
 {
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "INVALID paramer...");
+		LOG4CPLUS_ERROR(FLogger, "INVALID paramer...");
 		return;
 	}
 
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "begin session_mutex_...");
+		LOG4CPLUS_DEBUG(FLogger, "begin session_mutex_...");
 		CScopeGuard guard(session_mutex_);
 		session_array_.erase(pSession->getSeqno());
-		LOG4CPLUS_DEBUG(CLogger::logger, "end session_mutex_...");
+		LOG4CPLUS_DEBUG(FLogger, "end session_mutex_...");
 	}
 
 	pSession->close();
@@ -126,7 +126,7 @@ SessionBase* SessionManager::getSession(int seqno)
 	Iterator iter = session_array_.find(seqno);
 	if(iter == session_array_.end())
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "session[" << seqno << "] is not exist!");
+		LOG4CPLUS_ERROR(FLogger, "session[" << seqno << "] is not exist!");
 		return NULL;
 	}
 
@@ -144,17 +144,17 @@ bool SessionManager::addSession(SessionBase* pSession)
 {
 	if(NULL == pSession)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "INVALID paramer...");
+		LOG4CPLUS_ERROR(FLogger, "INVALID paramer...");
 		return false;
 	}
 	
 	int seqno = pSession->getSeqno();
 
-	LOG4CPLUS_DEBUG(CLogger::logger, "begin session_mutex_...");
+	LOG4CPLUS_DEBUG(FLogger, "begin session_mutex_...");
 	CScopeGuard guard(session_mutex_);	
 	pair<Iterator, bool> result = session_array_.insert(make_pair(seqno, pSession));
 		
-	LOG4CPLUS_DEBUG(CLogger::logger, "end session_mutex_...");
+	LOG4CPLUS_DEBUG(FLogger, "end session_mutex_...");
 	return result.second;	
 }
 

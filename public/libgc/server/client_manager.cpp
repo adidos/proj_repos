@@ -51,7 +51,7 @@ int ClientManager::getSessID(int64_t uid, vector<int>& seqnos)
 	pair<Iterator, Iterator> ret = _client_session_array.equal_range(uid);
 	if(ret.first == ret.second)
 	{
-		LOG4CPLUS_WARN(CLogger::logger, "Cant't find user " 
+		LOG4CPLUS_WARN(FLogger, "Cant't find user " 
 				<< uid << " session id");
 		return -1;
 	}
@@ -108,7 +108,7 @@ int64_t ClientManager::getUid8Sid(int seqno)
 	std::map<int, int64_t>::iterator iter = _seq2uid_array.find(seqno);
 	if(iter == _seq2uid_array.end())
 	{
-		LOG4CPLUS_WARN(CLogger::logger, "can't find user by seqno[" << seqno <<"].");
+		LOG4CPLUS_WARN(FLogger, "can't find user by seqno[" << seqno <<"].");
 		return -1;
 	}
 	return iter->second;

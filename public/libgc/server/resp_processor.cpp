@@ -37,14 +37,14 @@ void RespProcessor::doIt()
 		bool ret = pRespMgr->getRespTask(resp);
 		if(!ret)
 		{
-			LOG4CPLUS_WARN(CLogger::logger, "response array is empty.");
+			LOG4CPLUS_WARN(FLogger, "response array is empty.");
 			continue;
 		}
 
 		SessionBase* pSession = _sess_mgr_prt->getSession(resp.seqno);
 		if(NULL == pSession)
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "can't find the session by " << resp.seqno);
+			LOG4CPLUS_ERROR(FLogger, "can't find the session by " << resp.seqno);
 			delete resp.pCmd;
 			resp.pCmd = NULL;
 			continue;
@@ -61,7 +61,7 @@ void RespProcessor::doIt()
 	
 		if(!ret)
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "command encode failed for " << name);
+			LOG4CPLUS_ERROR(FLogger, "command encode failed for " << name);
 			continue;
 		}
 		
@@ -79,7 +79,7 @@ void RespProcessor::doIt()
 			_client_mgr_prt->freeClient(uid, resp.seqno);
 		}
 		
-		LOG4CPLUS_INFO(CDebugLogger::logger, "TimeTace: request[" << resp.idx << "] to response["
+		LOG4CPLUS_INFO(FLogger, "TimeTace: request[" << resp.idx << "] to response["
 				<< name << "] spend time " << current_time_usec() - resp.timestamp);
 		Index::free(resp.idx);
 	}

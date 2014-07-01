@@ -13,7 +13,7 @@ int ResponseManager::sendResponse(CmdTask & task)
 	bool ret = 	_task_array.push(task, 50);
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "push response to queue failed."
+		LOG4CPLUS_ERROR(FLogger, "push response to queue failed."
 			<< " response queue current size is " << _task_array.getSize());
 	}
 

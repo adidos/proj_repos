@@ -38,7 +38,7 @@ int CMutex::Init()
 {
 	if (pthread_mutex_init(&m_mutex, NULL) != 0)
 	{
-	    LOG4CPLUS_ERROR(CLogger::logger, "pthread_mutex_init err: " << strerror(errno));
+	    LOG4CPLUS_ERROR(FLogger, "pthread_mutex_init err: " << strerror(errno));
 		return -1;
 	}
 
@@ -54,7 +54,7 @@ int CMutex::Lock()
 {
 	if (0 != pthread_mutex_lock(&m_mutex))
 	{
-	    LOG4CPLUS_ERROR(CLogger::logger, "pthread_mutex_lock err: " << strerror(errno));
+	    LOG4CPLUS_ERROR(FLogger, "pthread_mutex_lock err: " << strerror(errno));
 		return -1;
 	}
 
@@ -70,7 +70,7 @@ int CMutex::TryLock()
 {
 	if (0 != pthread_mutex_trylock(&m_mutex))
 	{
-	    LOG4CPLUS_ERROR(CLogger::logger, "pthread_mutex_trylock err: " << strerror(errno));
+	    LOG4CPLUS_ERROR(FLogger, "pthread_mutex_trylock err: " << strerror(errno));
 		return -1;
 	}
 
@@ -86,7 +86,7 @@ int CMutex::Unlock()
 {
 	if (0 != pthread_mutex_unlock(&m_mutex))
 	{
-	    LOG4CPLUS_ERROR(CLogger::logger, "pthread_mutex_unlock err: " << strerror(errno));
+	    LOG4CPLUS_ERROR(FLogger, "pthread_mutex_unlock err: " << strerror(errno));
 		return -1;
 	}
 
