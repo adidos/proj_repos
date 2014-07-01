@@ -12,22 +12,20 @@
 #include "command_registor.h"
 #include "common/logger.h"
 
-map<string, ICmdHandler*> CmdRegistor::_handler_array;
+map<string, ICmdHandlerPtr> CmdRegistor::_handler_array;
 
-ICmdHandler* CmdRegistor::getCommand(const string& name)
+ICmdHandlerPtr CmdRegistor::getCommand(const string& name)
 {
 	Iterator iter = _handler_array.find(name);
 	if(iter == _handler_array.end())
 	{
-		LOG4CPLUS_WARN(FLogger, "didn't find the command["
-			<< name << "]'s handler");
-		return NULL;
+		return ICmdHandlerPtr();
 	}	
 	
 	return iter->second;
 }
 
-void CmdRegistor::regCommand(const string& name, ICmdHandler* pHandler)
+void CmdRegistor::regCommand(const string& name, ICmdHandlerPtr pHandler)
 {
 	pair<Iterator, bool> ret = _handler_array.insert(make_pair(name, pHandler));
 	if(!ret.second)

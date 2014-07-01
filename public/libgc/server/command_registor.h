@@ -22,13 +22,13 @@ using namespace std;
 class CmdRegistor
 {
 public:
-	static ICmdHandler* getCommand(const string& name);
+	static ICmdHandlerPtr getCommand(const string& name);
 
-	static void regCommand(const string& name, ICmdHandler* pHandler);
+	static void regCommand(const string& name, ICmdHandlerPtr pHandler);
 
 private:
-	typedef map<string, ICmdHandler*>::iterator Iterator;
-	static map<string, ICmdHandler*> _handler_array;
+	typedef map<string, ICmdHandlerPtr>::iterator Iterator;
+	static map<string, ICmdHandlerPtr> _handler_array;
 };
 
 #endif //COMMAND_REGISTOR_H

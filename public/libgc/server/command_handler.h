@@ -12,20 +12,26 @@
 #ifndef COMMAND_HANDLER_H
 #define COMMAND_HANDLER_H
 
+#include <memory>
+
 #include "common/DataXCmd.h"
 #include "event.h"
+
+using namespace std;
 
 class ICmdHandler
 {
 public:
+	virtual ~ICmdHandler(){};
+
 	virtual bool handle(CmdTask& task) = 0;
 
 protected:
-	int checkCmd(DataXCmd* pCmd, const string& cmd_name);
+	int checkCmd(DataXCmdPtr pCmd, const string& cmd_name);
 
 };
 
-inline int ICmdHandler::checkCmd(DataXCmd* pCmd, const string& cmd_name)
+inline int ICmdHandler::checkCmd(DataXCmdPtr pCmd, const string& cmd_name)
 {
 	string name = pCmd->get_cmd_name();
 	if(name != cmd_name)
@@ -41,5 +47,7 @@ inline int ICmdHandler::checkCmd(DataXCmd* pCmd, const string& cmd_name)
 
 	return 0;
 }
+
+typedef shared_ptr<ICmdHandler> ICmdHandlerPtr;
 
 #endif /*COMMAND_HANDLER_H*/

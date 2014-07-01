@@ -51,7 +51,7 @@ public:
 
 	int write2Send(const string& buffer_send);	
 
-	int parseProtocol(DataXCmd* &pCmd);
+	int parseProtocol(DataXCmdPtr &pCmd);
 
 private:
 	void cmdRelease(DataXCmd* pCmd)

@@ -62,5 +62,6 @@ public:
 
 #define LOGGER(NAME) CLogger::Instance(NAME) 
 #define FLogger LOGGER("Frame")
+#define ALogger LOGGER("App")
 
 #endif //GC_LOGGER_H

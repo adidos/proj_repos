@@ -32,7 +32,7 @@ int UserProxy::updateUserBasic(int64_t uid, const string& value,  int& result)
 	pParam->PutInt64(DataID_PlayerId, uid);
 	pParam->PutBytes(DataID_Sex, (byte*)value.c_str(), 1);
 	
-	LOG4CPLUS_DEBUG(CLogger::logger, "value: " << value[0]);
+	LOG4CPLUS_DEBUG(ALogger, "value: " << value[0]);
 
 	DataXCmdPtr pReq(new DataXCmd("UpdateUserInfoReq", CIPHER_MODE_NONE));
 	
@@ -45,7 +45,7 @@ int UserProxy::updateUserBasic(int64_t uid, const string& value,  int& result)
 
 	if(!pResp || 0 != ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "UpdateUserInfoReq response is NULL");
+		LOG4CPLUS_ERROR(ALogger, "UpdateUserInfoReq response is NULL");
 
 		return -1;
 	}
@@ -84,7 +84,7 @@ int UserProxy::updateGameInfo(int64_t uid, const UpdateGameInfoReq& info, Update
 
 	if(!pResp || 0 != ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "get response failed!");
+		LOG4CPLUS_ERROR(ALogger, "get response failed!");
 
 		return -1;
 	}
@@ -92,7 +92,7 @@ int UserProxy::updateGameInfo(int64_t uid, const UpdateGameInfoReq& info, Update
 	IDataX* pData = pResp->get_datax();
 	if(NULL == pData)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "no data in response!");
+		LOG4CPLUS_ERROR(ALogger, "no data in response!");
 
 		return -1;
 	}
@@ -134,7 +134,7 @@ int UserProxy::updateVipInfo(int64_t uid, short vip_level, short valid_day, VIPI
 
 	if(NULL == pData)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "no data in response!");
+		LOG4CPLUS_ERROR(ALogger, "no data in response!");
 
 		return -1;
 	}
@@ -172,7 +172,7 @@ int UserProxy::checkin(int game_id, int64_t uid, CheckinResult& resp)
 
 	if(!pResp || 0 != ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "get response failed!");
+		LOG4CPLUS_ERROR(ALogger, "get response failed!");
 
 		return -1;
 	}
@@ -180,7 +180,7 @@ int UserProxy::checkin(int game_id, int64_t uid, CheckinResult& resp)
 	IDataX* pData = pResp->get_datax();
 	if(NULL == pData)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "no data in response!");
+		LOG4CPLUS_ERROR(ALogger, "no data in response!");
 
 		return -1;
 	}
@@ -211,7 +211,7 @@ int UserProxy::decodeResponse(IDataX* pData, CheckinResult& resp)
 
 		if(!ret)
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "decode uid from data failed!");
+			LOG4CPLUS_ERROR(ALogger, "decode uid from data failed!");
 			return -1;
 		}
 
@@ -219,7 +219,7 @@ int UserProxy::decodeResponse(IDataX* pData, CheckinResult& resp)
 
 		if(!ret)
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "decode check day uid from data failed!");
+			LOG4CPLUS_ERROR(ALogger, "decode check day uid from data failed!");
 			return -1;
 		}
 
@@ -227,7 +227,7 @@ int UserProxy::decodeResponse(IDataX* pData, CheckinResult& resp)
 
 		if(!ret)
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "decode vip flag from data failed!");
+			LOG4CPLUS_ERROR(ALogger, "decode vip flag from data failed!");
 			return -1;
 		}
 	}
@@ -251,7 +251,7 @@ int UserProxy::decodeResponse(IDataX* pData, int& result)
 	
 	if(! ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode response result failed!");	
+		LOG4CPLUS_ERROR(ALogger, "decode response result failed!");	
 		
 		return -1;
 	}
@@ -275,7 +275,7 @@ int UserProxy::decodeResponse(IDataX* pData, VIPInfoResp& resp)
 	
 	if(! ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode update game info result failed!");	
+		LOG4CPLUS_ERROR(ALogger, "decode update game info result failed!");	
 		
 		return 0;
 	}
@@ -286,7 +286,7 @@ int UserProxy::decodeResponse(IDataX* pData, VIPInfoResp& resp)
 
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode uid from data failed!");
+		LOG4CPLUS_ERROR(ALogger, "decode uid from data failed!");
 		return -1;
 	}
 
@@ -294,7 +294,7 @@ int UserProxy::decodeResponse(IDataX* pData, VIPInfoResp& resp)
 
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode vip level from data failed!");
+		LOG4CPLUS_ERROR(ALogger, "decode vip level from data failed!");
 		return -1;
 	}
 
@@ -302,7 +302,7 @@ int UserProxy::decodeResponse(IDataX* pData, VIPInfoResp& resp)
 
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode valid time from data failed!");
+		LOG4CPLUS_ERROR(ALogger, "decode valid time from data failed!");
 		return -1;
 	}
 	
@@ -325,7 +325,7 @@ int UserProxy::decodeResponse(IDataX* pData, UpdateGameInfoResp& resp)
 	
 	if(! ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode update game info result failed!");	
+		LOG4CPLUS_ERROR(ALogger, "decode update game info result failed!");	
 		
 		return 0;
 	}
@@ -336,7 +336,7 @@ int UserProxy::decodeResponse(IDataX* pData, UpdateGameInfoResp& resp)
 
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode uid from data failed!");
+		LOG4CPLUS_ERROR(ALogger, "decode uid from data failed!");
 		return -1;
 	}
 
@@ -344,7 +344,7 @@ int UserProxy::decodeResponse(IDataX* pData, UpdateGameInfoResp& resp)
 
 	//if(!ret)
 	//{
-	//	LOG4CPLUS_ERROR(CLogger::logger, "decode uid from data failed!");
+	//	LOG4CPLUS_ERROR(ALogger, "decode uid from data failed!");
 	//	return -1;
 	//}
 
@@ -352,7 +352,7 @@ int UserProxy::decodeResponse(IDataX* pData, UpdateGameInfoResp& resp)
 
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode win num from data failed!");
+		LOG4CPLUS_ERROR(ALogger, "decode win num from data failed!");
 		return -1;
 	}
 
@@ -360,7 +360,7 @@ int UserProxy::decodeResponse(IDataX* pData, UpdateGameInfoResp& resp)
 
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode lose num from data failed!");
+		LOG4CPLUS_ERROR(ALogger, "decode lose num from data failed!");
 		return -1;
 	}
 
@@ -368,7 +368,7 @@ int UserProxy::decodeResponse(IDataX* pData, UpdateGameInfoResp& resp)
 
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode bean num from data failed!");
+		LOG4CPLUS_ERROR(ALogger, "decode bean num from data failed!");
 		return -1;
 	}
 

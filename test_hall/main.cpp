@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <signal.h>
 
 using namespace std;
 
@@ -22,6 +23,10 @@ EventServer* pEventSvr = NULL;
 class WorkerThread : public CThread
 {
 public:
+	WorkerThread():_array(2048)
+	{
+	}
+
 	int init(int size);
 
 protected:
@@ -55,7 +60,7 @@ int WorkerThread::Connect()
 	sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(8900);
-	addr.sin_addr.s_addr = inet_addr("10.161.159.33");
+	addr.sin_addr.s_addr = inet_addr("192.168.5.172");
 
 	int client = socket(AF_INET, SOCK_STREAM, 0);
 	int ret = connect(client, (sockaddr*)&addr, sizeof(addr));
@@ -109,32 +114,37 @@ void WorkerThread::doIt()
 
 int main(int argc, char** argv)
 {
-	if(argc < 3)
+	if(argc < 2)
 	{
 		cout << "Usage: " << argv[0] << " thread_num num_per_thread" <<endl;
 		return -1;
 	}
 
+	signal(SIGPIPE, SIG_IGN);
+	signal(SIGCHLD, SIG_IGN);
+	signal(SIGHUP, SIG_IGN);
+
 	CLogger::init("log4cplus.properties");
 	CDebugLogger::init("log4cplus.properties");
 
-	int thread_num = atoi(argv[1]);
-	int per_thread= atoi(argv[2]);
+	int total = atoi(argv[1]);
 
 	pEventSvr = new EventServer(20480);
 	pEventSvr->start();
 	
-	WorkerThread* workers = new WorkerThread[thread_num];
-	for(int i = 0; i < thread_num; ++i)
+	int per_thread = total / 10;
+
+	WorkerThread* workers[10];
+	for(int i = 0; i < 10; ++i)
 	{
-		workers[i] = WorkerThread();
-		workers[i].init(per_thread);
-		workers[i].start();
+		workers[i] = new WorkerThread();
+		workers[i]->init(per_thread);
+		workers[i]->start();
 	}
 
-	for(int i = 0; i < thread_num; ++i)
+	for(int i = 0; i < 10; ++i)
 	{
-		workers[i].waitForStop();
+		workers[i]->waitForStop();
 	}
 
 	pEventSvr->waitForStop();

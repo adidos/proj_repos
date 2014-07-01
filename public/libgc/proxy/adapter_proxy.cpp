@@ -44,18 +44,6 @@ int AdapterProxy::initialize(const string& host, short port)
 	_host = host;
 	_port = port;
 
-<<<<<<< HEAD
-	_tran = new TcpTransceiver();
-
-		
-	int ret = _tran->doConnect(host, port);
-	
-	if(0 == ret)
-	{
-		_reactor->regHandle(_tran->fd(), EPOLLIN|EPOLLOUT, _handle);
-
-		_handle->regProxy(_tran->fd(), this, _tran);
-=======
 	//when init, create three connection
 	for(size_t i = 0; i < _trans_num; i++)
 	{
@@ -65,22 +53,17 @@ int AdapterProxy::initialize(const string& host, short port)
 		{
 			LOG4CPLUS_WARN(FLogger, "proxy connect to servant failed!");
 		}
->>>>>>> multi
 	}
 	
 	return 0;
 }
 
-<<<<<<< HEAD
-int AdapterProxy::sendRequest()
-=======
 /**
 * brief:
 *
 * @returns   
 */
 int AdapterProxy::sendRequest(TransceiverPtr& trans)
->>>>>>> multi
 {
 	int length = 0;
 	
@@ -143,16 +126,12 @@ int AdapterProxy::invoke(ReqMessagePtr req)
 	return 0;
 }
 
-<<<<<<< HEAD
-int AdapterProxy::finishConnect()
-=======
 /**
 * brief:
 *
 * @returns   
 */
 TransceiverPtr AdapterProxy::doReconnect()
->>>>>>> multi
 {
 	//防止servant未启动,不断地增加连接
 	if(_trans.size() == _trans_num) return TransceiverPtr();
@@ -251,8 +230,6 @@ int AdapterProxy::finishConnect(TransceiverPtr& trans)
 	return 0;
 }
 
-<<<<<<< HEAD
-=======
 /**
 * brief: select a valid transceiver to send msg
 *
@@ -306,7 +283,6 @@ void AdapterProxy::refreshTransceiver()
 *
 * @returns   
 */
->>>>>>> multi
 int AdapterProxy::finished(DataXCmdPtr pCmd)
 {
 	if(!pCmd)

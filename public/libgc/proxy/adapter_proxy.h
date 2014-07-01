@@ -75,9 +75,6 @@ public:
 	*
 	* @returns   
 	*/
-<<<<<<< HEAD
-	int finishConnect();
-=======
 	TransceiverPtr doReconnect();
 
 	/**
@@ -86,7 +83,6 @@ public:
 	* @returns   
 	*/
 	int finishConnect(TransceiverPtr& trans);
->>>>>>> multi
 
 	/**
 	* brief:
@@ -120,16 +116,11 @@ private:
 
 	TransceiverHandle* _handle;
 	
-<<<<<<< HEAD
-	Transceiver* _tran;
-=======
-	//Transceiver* _tran;
 	vector<TransceiverPtr> _trans;
 
 	CMutex _trans_mutex;
 
 	size_t _trans_num;
->>>>>>> multi
 
 	Queue<ReqMessagePtr> _reqs;		//发送消息队列
 

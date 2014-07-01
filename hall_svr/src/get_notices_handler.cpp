@@ -18,10 +18,10 @@
 
 bool GetNoticesHandler::handle(CmdTask& task)
 {
-	DataXCmd* pCmd = task.pCmd;
+	DataXCmdPtr& pCmd = task.pCmd;
 	if(NULL == pCmd)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "convert command to dataxcmd failed.");
+		LOG4CPLUS_ERROR(ALogger, "convert command to dataxcmd failed.");
 
 		return false;
 	}
@@ -29,7 +29,7 @@ bool GetNoticesHandler::handle(CmdTask& task)
 	int rst = checkCmd(pCmd, string("GetNotices")); 
 	if(0 != rst)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "ckeck command failed. ident = "
+		LOG4CPLUS_ERROR(ALogger, "ckeck command failed. ident = "
 			<< pCmd->get_userid() << ", cmd_name = " << pCmd->get_cmd_name());
 
 		return false;
@@ -41,16 +41,16 @@ bool GetNoticesHandler::handle(CmdTask& task)
 	bool bSuccess = decodeParam(pCmd->get_datax(), game_id, channal, version);
 	if(!bSuccess)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode param from idatax failed.");
+		LOG4CPLUS_ERROR(ALogger, "decode param from idatax failed.");
 		return false;
 	}
 
-	LOG4CPLUS_DEBUG(CLogger::logger, "Get Notices: game_id :" << game_id << ", channal: " << channal << ", version: " << version);
+	LOG4CPLUS_DEBUG(ALogger, "Get Notices: game_id :" << game_id << ", channal: " << channal << ", version: " << version);
 
 	vector<Notice> notice_array;
 	NoticeConfig* ptr = NoticeConfig::getInstance();
 	ptr->getNotices(channal, version, notice_array);
-	LOG4CPLUS_DEBUG(CLogger::logger, "get notice cnt =" << notice_array.size());
+	LOG4CPLUS_DEBUG(ALogger, "get notice cnt =" << notice_array.size());
 	
 	int idx = 0;
 	int size = notice_array.size();
@@ -76,14 +76,14 @@ bool GetNoticesHandler::handle(CmdTask& task)
 				, iter->content.length());
 
 		++idx;
-		LOG4CPLUS_INFO(CLogger::logger, "Notice info: { id :" << iter->id << ", type: " 
+		LOG4CPLUS_INFO(ALogger, "Notice info: { id :" << iter->id << ", type: " 
 				<< iter->type << ", version: " << version << ", title: "
 				<< iter->title << ", content: " << iter->content);
 	}
 	pParam->PutInt(DataID_GameId, 1);
 	pParam->PutDataXArray(DataID_Param1, (IDataX**)notice_data, size, true);
 
-	DataXCmd* pResp = new DataXCmd("GetNoticesResp", pCmd->get_cipher_flag());
+	DataXCmdPtr pResp(new DataXCmd("GetNoticesResp", pCmd->get_cipher_flag()));
 	pResp->set_datax(pParam);
 	pResp->set_userid(pCmd->get_userid());
 

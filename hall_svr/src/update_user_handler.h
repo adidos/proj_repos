@@ -12,6 +12,7 @@
 #define UPDATE_USER_HANDLER_H
 
 #include <map>
+#include <memory>
 
 #include "server/command_handler.h"
 #include "common/IDataX.h"
@@ -35,5 +36,7 @@ private:
 	
 	bool decodeParam(IDataX* ptr, string& value);
 };
+
+typedef std::shared_ptr<UpdateUserHandler> UpdateUserHandlerPtr;
 
 #endif //UPDATE_USER_INFO_HANDLER_H

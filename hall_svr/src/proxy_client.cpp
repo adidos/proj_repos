@@ -45,7 +45,7 @@ ProxyClient::~ProxyClient()
 
 int ProxyClient::initialize()
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "run here?");
+	LOG4CPLUS_DEBUG(ALogger, "run here?");
 	//
 	_reactor = new FDReactor();
 	_reactor->start();
@@ -83,7 +83,7 @@ ServantProxy* ProxyClient::getServantPrxy(const string& name)
 
 	if(iter == _array.end())
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "could't find " << name
+		LOG4CPLUS_ERROR(ALogger, "could't find " << name
 			<< " servant proxy!");	
 		
 		return NULL;

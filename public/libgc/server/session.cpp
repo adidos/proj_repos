@@ -158,9 +158,9 @@ int SessionBase::write2Send(const string& buffer_send)
 	return 0;
 }
 
-int SessionBase::parseProtocol(DataXCmd* &pCmd)
+int SessionBase::parseProtocol(DataXCmdPtr &pCmd)
 {
-	DataXCmd* ptr = new DataXCmd();
+	DataXCmdPtr ptr(new DataXCmd());
 
 	CScopeGuard gaurd(recv_mutex_);
 	unsigned int header = ptr->header_length();
@@ -168,7 +168,6 @@ int SessionBase::parseProtocol(DataXCmd* &pCmd)
 	{
 		LOG4CPLUS_DEBUG(FLogger, "recv buffer length is " << recv_buff_.length()
 			<< ", is less then header require length " << header);
-		cmdRelease(ptr);
 
 		return -1;
 	}
@@ -176,8 +175,6 @@ int SessionBase::parseProtocol(DataXCmd* &pCmd)
 	bool ret = ptr->decode_header((byte*)recv_buff_.c_str(), header);	
 	if(!ret)
 	{
-		cmdRelease(ptr);
-		
 		return -1;
 	}
 
@@ -187,8 +184,6 @@ int SessionBase::parseProtocol(DataXCmd* &pCmd)
 		LOG4CPLUS_DEBUG(FLogger, "recv buffer length is " << recv_buff_.length()
 			<<", is less then a complete command package length " << body + header);
 
-		cmdRelease(ptr);
-
 		return -1;
 	}
 	
@@ -197,12 +192,12 @@ int SessionBase::parseProtocol(DataXCmd* &pCmd)
 	if(!ret)
 	{
 		LOG4CPLUS_DEBUG(FLogger, "DataXCmd decode parameters failed!");
-		cmdRelease(ptr);
 		return -1;
 	}
 
 	pCmd = ptr;
 	LOG4CPLUS_DEBUG(FLogger, "pcmd = " << pCmd << ", ptr = " << ptr);
+
 	//delete the decode buffer from recv buffer
 	recv_buff_.erase(0, body + header);
 

@@ -3,9 +3,9 @@ TARGET=../bin/hall_svr
 MAINDIR=./
 
 CC=g++
-INC=-I../../../public/libgc/ -I../../../public/hiredis/ -I../../../public/jsoncpp/include/
+INC=-I../../public/libgc/ -I../../public/hiredis/ -I../../public/jsoncpp/include/
 
-LIB=-llog4cplus ../../../public/jsoncpp/libs/libjson.a ../../../public/hiredis/libhiredis.a -lpthread ../../../public/libgc/lib/libgc.a
+LIB=-llog4cplus ../../public/jsoncpp/libs/libjson.a ../../public/hiredis/libhiredis.a -lpthread ../../public/libgc/lib/libgc.a
 
 CFLAGS:=-Wall -O0 -g -lrt -rdynamic $(INC) $(LOG) -D_DEBUG -std=c++0x
 CPPFLAGS:=$(CFLAGS)

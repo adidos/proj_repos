@@ -22,7 +22,7 @@ int NoticeConfig::addNotice(Notice& notice)
 
 	if(iter == notice_array_.end())
 	{
-		LOG4CPLUS_DEBUG(CLogger::logger, "addNotice()");
+		LOG4CPLUS_DEBUG(ALogger, "addNotice()");
 		notice_array_.push_back(notice);
 	}
 
@@ -39,7 +39,7 @@ int NoticeConfig::addNotice(Notice& notice)
 */
 int NoticeConfig::addNotice(vector<Notice> notice_list, bool bAppend)
 {
-	LOG4CPLUS_DEBUG(CLogger::logger, "addNotice list " << notice_list.size());
+	LOG4CPLUS_DEBUG(ALogger, "addNotice list " << notice_list.size());
 	
 	if ( !bAppend )
 		notice_array_.clear();
@@ -54,8 +54,8 @@ int NoticeConfig::addNotice(vector<Notice> notice_list, bool bAppend)
 
 
 /**
-* brief: ÇëÇóµÄÇşµÀºÍ°æ±¾ÔÚ¹«¸æµÄÇşµÀºÍ°æ±¾ÁĞ±íÖĞ£¬
-*		»òÕß¹«¸æµÄÇşµÀºÍ°æ±¾ÁĞ±íÎª¿Õ£¬·µ»Ø¸Ã¹«¸æ
+* brief: è¯·æ±‚çš„æ¸ é“å’Œç‰ˆæœ¬åœ¨å…¬å‘Šçš„æ¸ é“å’Œç‰ˆæœ¬åˆ—è¡¨ä¸­ï¼Œ
+*		æˆ–è€…å…¬å‘Šçš„æ¸ é“å’Œç‰ˆæœ¬åˆ—è¡¨ä¸ºç©ºï¼Œè¿”å›è¯¥å…¬å‘Š
 * @param channel
 * @param verid
 * @param out_list

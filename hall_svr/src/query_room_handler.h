@@ -11,6 +11,8 @@
 #ifndef ROOM_CONFIG_CMD_HANDLER_H
 #define ROOM_CONFIG_CMD_HANDLER_H 
 
+#include <memory>
+
 #include "common/IDataX.h"
 #include "server/command_handler.h"
 #include "server/event.h"
@@ -24,6 +26,8 @@ private:
 	bool decodeParam(IDataX* ptr, int& game_id);
 
 };
+
+typedef std::shared_ptr<QueryRoomHandler> QueryRoomHandlerPtr;
 
 #endif /*ROOM_CONFIG_CMD_HANDLER_H*/
 

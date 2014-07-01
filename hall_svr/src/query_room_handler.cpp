@@ -29,10 +29,10 @@ bool QueryRoomHandler::handle(CmdTask& task)
 	tmp_user[2] = (rand() % ( 300-200+1))+ 200;
 	tmp_user[3] = (rand() % ( 200-100+1))+ 100;
 
-	DataXCmd* pCmd = task.pCmd;
+	DataXCmdPtr& pCmd = task.pCmd;
 	if(NULL == pCmd)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "convert command to dataxcmd failed.");
+		LOG4CPLUS_ERROR(ALogger, "convert command to dataxcmd failed.");
 
 		return false;
 	}
@@ -40,7 +40,7 @@ bool QueryRoomHandler::handle(CmdTask& task)
 	int rst = checkCmd(pCmd, string("GetDirReq")); 
 	if(0 != rst)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "ckeck command failed. user id = "
+		LOG4CPLUS_ERROR(ALogger, "ckeck command failed. user id = "
 			<< pCmd->get_userid() << ", cmd_name = " << pCmd->get_cmd_name());
 
 		return false;
@@ -50,7 +50,7 @@ bool QueryRoomHandler::handle(CmdTask& task)
 	bool bSuccess = decodeParam(pCmd->get_datax(), game_id);
 	if(!bSuccess)	
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "get game id from datax failed...");
+		LOG4CPLUS_ERROR(ALogger, "get game id from datax failed...");
 		return false;
 	}
 
@@ -103,7 +103,7 @@ bool QueryRoomHandler::handle(CmdTask& task)
 	delete [] rooms_data;
 	rooms_data = NULL;
 
-	DataXCmd * pResp = new DataXCmd("GetDirResp", pCmd->get_cipher_flag());
+	DataXCmdPtr pResp(new DataXCmd("GetDirResp", pCmd->get_cipher_flag()));
 	pResp->set_datax(pParam);
 	pResp->set_userid(pCmd->get_userid());
 	

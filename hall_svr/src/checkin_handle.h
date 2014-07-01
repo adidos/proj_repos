@@ -123,4 +123,6 @@ private:
 	
 };
 
+typedef std::shared_ptr<CheckinHandle> CheckinHandlePtr;
+
 #endif //CHECK_IN_HANDLE_H

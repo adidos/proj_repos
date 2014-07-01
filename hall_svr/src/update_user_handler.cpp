@@ -21,10 +21,10 @@
 
 bool UpdateUserHandler::handle(CmdTask& task)
 {
-	DataXCmd* pCmd = task.pCmd;
+	DataXCmdPtr& pCmd = task.pCmd;
 	if(NULL == pCmd)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "convert command to dataxcmd failed.");
+		LOG4CPLUS_ERROR(ALogger, "convert command to dataxcmd failed.");
 
 		return false;
 	}
@@ -32,7 +32,7 @@ bool UpdateUserHandler::handle(CmdTask& task)
 	int rst = checkCmd(pCmd, string("UpdateUserInfoReq")); 
 	if(0 != rst)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "ckeck command failed. user id = "
+		LOG4CPLUS_ERROR(ALogger, "ckeck command failed. user id = "
 			<< pCmd->get_userid() << ", cmd_name = " << pCmd->get_cmd_name());
 
 		return false;
@@ -42,7 +42,7 @@ bool UpdateUserHandler::handle(CmdTask& task)
 	bool bSuccess = decodeParam(pCmd->get_datax(), value);
 	if(!bSuccess)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode param failed");
+		LOG4CPLUS_ERROR(ALogger, "decode param failed");
 		return false;
 	}
 
@@ -53,7 +53,7 @@ bool UpdateUserHandler::handle(CmdTask& task)
 	XLDataX* pParam = new XLDataX();
 	pParam->PutInt(DataID_Result, 0);
 
-	DataXCmd* pResp = new DataXCmd("UpdateUserInfoResp", pCmd->get_cipher_flag());
+	DataXCmdPtr pResp(new DataXCmd("UpdateUserInfoResp", pCmd->get_cipher_flag()));
 	pResp->set_userid(pCmd->get_userid());
 	pResp->set_datax(pParam);
 
@@ -75,7 +75,7 @@ int UpdateUserHandler::doUpdateUserBasic(int64_t uid, const string& value)
 
 	if(NULL == proxy)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "User Proxy is NULL!");
+		LOG4CPLUS_ERROR(ALogger, "User Proxy is NULL!");
 
 		return -1;
 	}
@@ -99,15 +99,15 @@ bool UpdateUserHandler::decodeParam(IDataX* ptr, string& value)
 	bool ret = ptr->GetBytes(DataID_Sex, NULL, len);
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "decode sex data failed.");
+		LOG4CPLUS_ERROR(ALogger, "decode sex data failed.");
 		return false;
 	}
 	
-	LOG4CPLUS_DEBUG(CLogger::logger, "param len is " << len);
+	LOG4CPLUS_DEBUG(ALogger, "param len is " << len);
 
 	string temp(len, 0);
 	ret = ptr->GetBytes(DataID_Sex, (byte*)temp.c_str(), len);	
-	LOG4CPLUS_DEBUG(CLogger::logger, "decode value :" << temp[0]);
+	LOG4CPLUS_DEBUG(ALogger, "decode value :" << temp[0]);
 
 	value = temp;
 	

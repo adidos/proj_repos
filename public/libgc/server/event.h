@@ -45,16 +45,7 @@ typedef struct cmd_task_t
 	int idx;
 	uint32_t seqno;
 	int64_t timestamp; //us
-	DataXCmd* pCmd;
-
-	void releaseCmd()
-	{
-		if(NULL != pCmd)
-		{
-			delete pCmd;
-			pCmd = NULL;
-		}
-	}
+	DataXCmdPtr pCmd;
 }CmdTask;
 
 #endif //GC_EVENT_H

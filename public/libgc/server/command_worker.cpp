@@ -38,6 +38,7 @@ bool CmdWorker::addTask(CmdTask task)
 	{
 		LOG4CPLUS_ERROR(FLogger, _id << " push task to queue fail.");
 	}
+
 	LOG4CPLUS_INFO(FLogger, _id << " thread current queue size is "
 			<< _task_queue.getSize());
 	
@@ -65,14 +66,11 @@ void CmdWorker::doIt()
 				<< "] out queue spend time " << current_time_usec()- task.timestamp);
 
 		string name = task.pCmd->get_cmd_name();
-		ICmdHandler* pHandler = CmdRegistor::getCommand(name);
-		if(NULL == pHandler)
+		ICmdHandlerPtr pHandler = CmdRegistor::getCommand(name);
+		if(!pHandler)
 		{
 			LOG4CPLUS_WARN(FLogger, "couldn't find handler for command["
 				<< name << "]");
-
-			//release unknow command
-			task.releaseCmd();
 			
 			continue;
 		}
@@ -85,6 +83,5 @@ void CmdWorker::doIt()
 		LOG4CPLUS_INFO(FLogger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
 				<< "] handle spend time " << current_time_usec() - task.timestamp);
 
-		task.releaseCmd();
 	}
 }

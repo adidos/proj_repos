@@ -48,7 +48,7 @@ void NoticeConfigThread::doIt()
 		int rst = redis_handler_ptr_->get_value(NOTICE_KEY, config);
 		if(0 != rst)
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "read notice config from redis failed, " 
+			LOG4CPLUS_ERROR(ALogger, "read notice config from redis failed, " 
 				<< "result no : " << rst);
 			
 			sleep(60*5);
@@ -58,7 +58,7 @@ void NoticeConfigThread::doIt()
 		notice_array.clear();
 		rst = parseConfig(config, notice_array);
 				
-		LOG4CPLUS_DEBUG(CLogger::logger, "Notice parseConfig " << notice_array.size());
+		LOG4CPLUS_DEBUG(ALogger, "Notice parseConfig " << notice_array.size());
 
 		if ( notice_array.empty() )
 		{
@@ -69,7 +69,7 @@ void NoticeConfigThread::doIt()
 		
 		if(0 != rst)
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "read notice config from redis failed, " 
+			LOG4CPLUS_ERROR(ALogger, "read notice config from redis failed, " 
 				<< "result no : " << rst);
 			
 			sleep(60*5);
@@ -92,7 +92,7 @@ int NoticeConfigThread::parseConfig(const string& config, vector<Notice>& out_co
         Json::Value root;
         if(!reader.parse(config, root, false)) 
 		{
-			LOG4CPLUS_ERROR(CLogger::logger, "Json reader parse string " << config << "failed.");		
+			LOG4CPLUS_ERROR(ALogger, "Json reader parse string " << config << "failed.");		
             return -1; 
         }   
    
@@ -112,7 +112,7 @@ int NoticeConfigThread::parseConfig(const string& config, vector<Notice>& out_co
 			    pch = strtok (NULL, ",");
 		  	}
 
-			LOG4CPLUS_DEBUG(CLogger::logger, "channal_list: "<< notice.channal_list.size());
+			LOG4CPLUS_DEBUG(ALogger, "channal_list: "<< notice.channal_list.size());
 			
 			string vers = root[i]["ver"].asString();					
 
@@ -126,11 +126,11 @@ int NoticeConfigThread::parseConfig(const string& config, vector<Notice>& out_co
 
 					pch = strtok (NULL, ",");
 
-					LOG4CPLUS_DEBUG(CLogger::logger, "add a version: "<< version);
+					LOG4CPLUS_DEBUG(ALogger, "add a version: "<< version);
 				}
 			}
 			
-			LOG4CPLUS_DEBUG(CLogger::logger, "version list size: "<< notice.version.size());
+			LOG4CPLUS_DEBUG(ALogger, "version list size: "<< notice.version.size());
 						
 			notice.id = atoi(notice_id.c_str());	
 			notice.type = atoi(notice_type.c_str());
@@ -142,7 +142,7 @@ int NoticeConfigThread::parseConfig(const string& config, vector<Notice>& out_co
 
 			if(notice.isValid())
 			{
-				LOG4CPLUS_DEBUG(CLogger::logger, 
+				LOG4CPLUS_DEBUG(ALogger, 
 						"{ id: " << notice.id << 
 						", type : " << notice.type << 
 						", title : " << notice.title << 
@@ -159,7 +159,7 @@ int NoticeConfigThread::parseConfig(const string& config, vector<Notice>& out_co
     }
 	catch(exception& e)
 	{ 
-		LOG4CPLUS_ERROR(CLogger::logger, "exception: " << e.what());         
+		LOG4CPLUS_ERROR(ALogger, "exception: " << e.what());         
     }
 
 	return 0;

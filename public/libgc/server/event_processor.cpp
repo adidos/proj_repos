@@ -111,7 +111,7 @@ void EventProcessor::processRead(Event& event)
 	{
 		while(1) //may be receive buffer contain not only one commands
 		{
-			DataXCmd* pCmd = NULL;
+			DataXCmdPtr pCmd;
 			ret = pSession->parseProtocol(pCmd);
 			if(ret != 0) break;
 
@@ -214,7 +214,7 @@ void EventProcessor::handleClient(uint64_t uid, int seqno)
 
 void EventProcessor::notifyUserDrop(int64_t uid)
 {	
-	DataXCmd* pCmd = new DataXCmd("UserDrop");
+	DataXCmdPtr pCmd(new DataXCmd("UserDrop"));
 	pCmd->set_userid(uid);
 
 	CmdTask task;
@@ -227,7 +227,7 @@ void EventProcessor::notifyUserDrop(int64_t uid)
 
 void EventProcessor::notifyUserRelogin(int64_t uid, int seqno)
 {
-	DataXCmd* pCmd = new DataXCmd("UserRelogin");
+	DataXCmdPtr pCmd(new DataXCmd("UserRelogin"));
 	pCmd->set_userid(uid);
 
 	CmdTask task;

@@ -11,6 +11,8 @@
 #ifndef QUERY_ONLINE_CMD_HADLER_H
 #define QUERY_ONLINE_CMD_HADLER_H
 
+#include <memory>
+
 #include "common/IDataX.h"
 #include "server/command_handler.h"
 #include "server/event.h"
@@ -23,6 +25,8 @@ private:
 	bool decodeParam(IDataX* ptr, int& game_id);
 
 };
+
+typedef std::shared_ptr<QueryOnlineCmdHandler> QueryOnlineCmdHandlerPtr;
 
 #endif /*QUERY_ONLINE_CMD_HADLER_H*/
 

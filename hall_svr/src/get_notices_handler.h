@@ -25,4 +25,6 @@ private:
 
 };
 
+typedef shared_ptr<GetNoticesHandler> GetNoticesHandlerPtr;
+
 #endif /*GET_NOTICES_HANDLER_H*/

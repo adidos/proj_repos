@@ -42,11 +42,13 @@ void RespProcessor::doIt()
 		}
 
 		SessionBase* pSession = _sess_mgr_prt->getSession(resp.seqno);
+
 		if(NULL == pSession)
 		{
 			LOG4CPLUS_ERROR(FLogger, "can't find the session by " << resp.seqno);
-			delete resp.pCmd;
-			resp.pCmd = NULL;
+
+			Index::free(resp.idx);
+
 			continue;
 		}
 
@@ -56,18 +58,20 @@ void RespProcessor::doIt()
 		memset(buffer, '\0', 16 * 1024);
 		int length = resp.pCmd->header_length() + resp.pCmd->body_length();	
 		ret = resp.pCmd->encode((byte*)buffer, length);
-
-		resp.releaseCmd();
 	
 		if(!ret)
 		{
 			LOG4CPLUS_ERROR(FLogger, "command encode failed for " << name);
+
+			Index::free(resp.idx);
+			
 			continue;
 		}
 		
 		pSession->write2Send(string(buffer, length));
 		int iret = pSession->sendBuffer();
 		uint64_t data = U64(resp.seqno, pSession->getFd());
+
 		if(SOCKET_EAGAIN == iret)	//socket»º³åÇøÐ´Âú
 		{	
 			_epoll_svr_ptr->notify(pSession->getFd(), data, EVENT_WRITE);
@@ -81,6 +85,7 @@ void RespProcessor::doIt()
 		
 		LOG4CPLUS_INFO(FLogger, "TimeTace: request[" << resp.idx << "] to response["
 				<< name << "] spend time " << current_time_usec() - resp.timestamp);
+
 		Index::free(resp.idx);
 	}
 }
