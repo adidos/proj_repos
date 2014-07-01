@@ -54,8 +54,8 @@ int NoticeConfig::addNotice(vector<Notice> notice_list, bool bAppend)
 
 
 /**
-* brief:
-*
+* brief: 请求的渠道和版本在公告的渠道和版本列表中，
+*		或者公告的渠道和版本列表为空，返回该公告
 * @param channel
 * @param verid
 * @param out_list
@@ -70,17 +70,18 @@ int NoticeConfig::getNotices(const string& channel, short verid, vector<Notice>&
 	{
 		Notice & curr_n = notice_array_[i];
 
-		if ( curr_n.version == verid  )
+		vector<string>& chans = curr_n.channal_list;
+
+		vector<string>::iterator citer = find(chans.begin(), chans.end(),channel);
+
+		if(citer != chans.end() || chans.empty())	
 		{
-			vector<string> & channal_list = curr_n.channal_list;
-			for ( uint32_t j=0; j<channal_list.size(); ++j )
-			{
-				if ( channal_list[j] == channel )
-				{
-					out_list.push_back(curr_n);
-					break;
-				}
-			}
+			vector<int>& vers = curr_n.version;
+
+			vector<int>::iterator viter = find(vers.begin(), vers.end(), verid);
+
+			if(viter != vers.end() || vers.empty())
+				out_list.push_back(curr_n);
 		}
 	}
 

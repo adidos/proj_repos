@@ -34,17 +34,19 @@ PaymentReqHandler::PaymentReqHandler(const string& redis_host,
 
 	
 	m_redis = new RedisHandler(redis_host, redis_port);
-	int iret = m_redis->subscribe_channel("payment");
 
 	m_ofs.open("../log/payment_record.log");
 
-	LOG4CPLUS_DEBUG(CLogger::logger, "subscribe channel rst " << iret);
 }
 
 void PaymentReqHandler::doIt()
 {
 	int empty_time = 0;
 	LOG4CPLUS_DEBUG(CLogger::logger, "PaymentReqHandler thread start");
+
+	int iret = m_redis->subscribe_channel("payment");
+
+	LOG4CPLUS_DEBUG(CLogger::logger, "subscribe channel rst " << iret);
 
 	while(true)
 	{

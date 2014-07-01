@@ -28,6 +28,7 @@
 #include "checkin_handle.h"
 #include "user_proxy.h"
 #include "proxy_client.h"
+#include  "payment_req_thread.h"
 
 using namespace std;
 
@@ -55,6 +56,17 @@ void startNotice()
 	notice_worker->start();
 };
 
+void startPaymentThread()
+{
+	Configure* pConfig = g_pApp->getConfigure();
+	string host = pConfig->getString("redis_ip", "127.0.0.1");
+	int port = pConfig->getInt("redis_port", 6379);
+	
+	PaymentReqHandler* payment = new PaymentReqHandler(host, port);	
+	
+	payment->start();
+}
+
 int main(int argc, char** argv)
 {
 	if(argc < 3)
@@ -71,12 +83,14 @@ int main(int argc, char** argv)
 	CDebugLogger::init(argv[2]);
 
 	regHandler();
-	
 
 	g_pApp = new Application();
 	g_pApp->initialize(argv[1]);
 
 	startNotice();
+
+	startPaymentThread();
+
 	ProxyClient::Instance()->initialize();
 	
 	g_pApp->waitForShutdown();

@@ -22,7 +22,7 @@ public:
 		
 	string dump() const {
 		stringstream ss;
-		ss << " uid: " << uid 
+		ss << " uid: " << uid  << ", type:" << type
 		   << ", product_id: " << product_id
 		   << ", product_name: " << product_name
 		   << ", price: " << price

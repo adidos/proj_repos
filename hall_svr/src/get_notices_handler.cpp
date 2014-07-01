@@ -71,13 +71,13 @@ bool GetNoticesHandler::handle(CmdTask& task)
 		notice_data[idx]->PutUTF8String(DataID_NoticeTitle,(byte*)iter->title.c_str()
 				, iter->title.length());
 
-		notice_data[idx]->PutShort(DataID_NoticeVer, iter->version);
+		notice_data[idx]->PutShort(DataID_NoticeVer, version);
 		notice_data[idx]->PutUTF8String(DataID_Content,(byte*)iter->content.c_str()
 				, iter->content.length());
 
 		++idx;
 		LOG4CPLUS_INFO(CLogger::logger, "Notice info: { id :" << iter->id << ", type: " 
-				<< iter->type << ", version: " << iter->version << ", title: "
+				<< iter->type << ", version: " << version << ", title: "
 				<< iter->title << ", content: " << iter->content);
 	}
 	pParam->PutInt(DataID_GameId, 1);

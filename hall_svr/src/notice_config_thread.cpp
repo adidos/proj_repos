@@ -113,12 +113,29 @@ int NoticeConfigThread::parseConfig(const string& config, vector<Notice>& out_co
 		  	}
 
 			LOG4CPLUS_DEBUG(CLogger::logger, "channal_list: "<< notice.channal_list.size());
+			
+			string vers = root[i]["ver"].asString();					
+
+			if(! vers.empty())
+			{
+				pch = strtok((char*)vers.c_str(), ",");
+				while(NULL != pch)
+				{
+					int  version = atoi(pch);
+					notice.version.push_back(version);
+
+					pch = strtok (NULL, ",");
+
+					LOG4CPLUS_DEBUG(CLogger::logger, "add a version: "<< version);
+				}
+			}
+			
+			LOG4CPLUS_DEBUG(CLogger::logger, "version list size: "<< notice.version.size());
 						
 			notice.id = atoi(notice_id.c_str());	
 			notice.type = atoi(notice_type.c_str());
 			notice.title = root[i]["title"].asString();
 			notice.content = root[i]["content"].asString();
-			notice.version = atoi(root[i]["ver"].asString().c_str());					
 			notice.begin_date = root[i]["begin_date"].asString();
 			notice.end_date = root[i]["end_date"].asString();
 			
@@ -130,7 +147,7 @@ int NoticeConfigThread::parseConfig(const string& config, vector<Notice>& out_co
 						", type : " << notice.type << 
 						", title : " << notice.title << 
 						", content : " << notice.content << 
-						", ver:" << notice.version << 
+						", ver:" << vers << 
 						" channal: " << channal << 
 						", begin date: " << notice.begin_date << 
 						", end date: " << notice.end_date << 

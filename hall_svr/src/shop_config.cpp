@@ -42,6 +42,12 @@ bool shop_config::get_goods_by_type(char type, vector<goods_item> & goods_set)
 		if ( (iter->second).tooltype == type )
 		{
 			goods_set.push_back(iter->second);
+			continue;
+		}
+
+		if(-1 == type)
+		{
+			goods_set.push_back(iter->second);
 		}
 	}
 	

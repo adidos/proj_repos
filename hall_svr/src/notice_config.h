@@ -25,7 +25,7 @@ struct Notice
 	int type;
 	string title;
 	string content;
-	int version;
+	vector<int> version;
 	vector<string> channal_list;
 	string begin_date;
 	string end_date;
