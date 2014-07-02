@@ -31,7 +31,7 @@ void RespProcessor::doIt()
 	ResponseManager* pRespMgr = ResponseManager::getInstance();
 	assert(NULL != pRespMgr);
 	
-	while(true)
+	while(!_terminate)
 	{
 		CmdTask resp;
 		bool ret = pRespMgr->getRespTask(resp);
@@ -41,13 +41,13 @@ void RespProcessor::doIt()
 			continue;
 		}
 
-		SessionBase* pSession = _sess_mgr_prt->getSession(resp.seqno);
+		SessionBasePtr pSession = _sess_mgr_prt->getSession(resp.seqno);
 
-		if(NULL == pSession)
+		if(!pSession)
 		{
 			LOG4CPLUS_ERROR(FLogger, "can't find the session by " << resp.seqno);
 
-			Index::free(resp.idx);
+			_sess_mgr_prt->delSession(resp.seqno);
 
 			continue;
 		}
@@ -63,8 +63,6 @@ void RespProcessor::doIt()
 		{
 			LOG4CPLUS_ERROR(FLogger, "command encode failed for " << name);
 
-			Index::free(resp.idx);
-			
 			continue;
 		}
 		
@@ -79,13 +77,13 @@ void RespProcessor::doIt()
 		else if(SOCKET_ERR == iret) //socket ³ö´í
 		{
 			_epoll_svr_ptr->notify(pSession->getFd(), data, EVENT_ERROR);
-			_sess_mgr_prt->freeSession(pSession);
+
+			_sess_mgr_prt->delSession(pSession);
 			_client_mgr_prt->freeClient(uid, resp.seqno);
 		}
 		
 		LOG4CPLUS_INFO(FLogger, "TimeTace: request[" << resp.idx << "] to response["
 				<< name << "] spend time " << current_time_usec() - resp.timestamp);
 
-		Index::free(resp.idx);
 	}
 }

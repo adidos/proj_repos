@@ -102,3 +102,14 @@ int Application::waitForShutdown()
 	
 	return 0;
 }
+
+void Application::stop()
+{
+	_servant_ptr->stop();
+	
+	_req_processor_ptr->stop();
+
+	_worker_group_ptr->stopWorker();
+
+	_resp_processor_ptr->stop();
+}

@@ -34,6 +34,8 @@ public:
 
 	bool dispatch(CmdTask& task);
 
+	void stopWorker();
+
 private:
 	int getIndex();
 

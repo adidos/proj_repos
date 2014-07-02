@@ -52,7 +52,7 @@ void CmdWorker::doIt()
 {
 	LOG4CPLUS_DEBUG(FLogger, "command worker start work!");
 
-	while(true)
+	while(!_terminate)
 	{
 		CmdTask task;
 		bool bret = _task_queue.pop(task, 60*1000);

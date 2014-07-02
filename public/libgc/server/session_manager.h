@@ -28,21 +28,17 @@ public:
 	SessionManager();
 	~SessionManager();
 
-	SessionBase* getIdleSession();
-
-	SessionBase* getSession(int seqno);
-	bool addSession(SessionBase* pSession);
-	void freeSession(SessionBase* pSession);
+	SessionBasePtr getSession(int seqno);
+	bool addSession(SessionBasePtr pSession);
+	void delSession(SessionBasePtr pSession);
+	void delSession(int seqno);
 
 	int addFd(int fd, int seqno);
 	int getSeqno8Fd(int fd);
 	
-	typedef map<int, SessionBase*>::iterator Iterator;
+	typedef map<int, SessionBasePtr>::iterator Iterator;
 private:
-	list<SessionBase*> idle_array_; //session使用完后进行回收再利用
-	CMutex idle_mutex_;
-	
-	map<int, SessionBase*> session_array_;	//当前所有的有效session
+	map<int, SessionBasePtr> session_array_;	//当前所有的有效session
 	CMutex session_mutex_;
 
 	map<int, int> _fd_array;

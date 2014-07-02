@@ -17,7 +17,6 @@
 #include "common/function_trace.h"
 
 FDReactor::FDReactor()
-	:_terminate(false)
 {
 	_ep.create(1024);
 }

@@ -51,6 +51,14 @@ int WorkerGroup::startWorker()
 	return 0;
 }
 
+void WorkerGroup::stopWorker()
+{
+	for(int i = 0; i < _worker_num; ++i)
+	{
+		_worker_array[i]->stop();
+	}
+}
+
 int WorkerGroup::waitForStop()
 {
 	for(int i = 0; i < _worker_num; ++i)

@@ -21,7 +21,7 @@ using namespace std;
 class CThread
 {
 public:
-	CThread()
+	CThread() :_terminate(false)
 	{
 		ostringstream oss;
 		oss << showbase << hex << pthread_self();
@@ -32,6 +32,11 @@ public:
 
 	int start();
 
+	virtual void stop()
+	{
+		_terminate = true;
+	}
+
 	int waitForStop();
 
 protected:
@@ -39,6 +44,7 @@ protected:
 
 protected:
 	string _id;
+	bool _terminate;
 
 private:
 	static void* threadEntry(void* pParam);

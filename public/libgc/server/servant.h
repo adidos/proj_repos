@@ -28,6 +28,8 @@ public:
 	int startService();
 
 	int waitForStop();
+	
+	virtual void stop();
 
 	EpollServer* getEpollServer()
 	{

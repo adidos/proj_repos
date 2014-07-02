@@ -81,8 +81,6 @@ protected:
 	void handle(int fd, int events);
 
 private:
-	bool _terminate;
-
 	CEpoll _ep;
 
 	map<int, TransceiverHandle*> _handles;

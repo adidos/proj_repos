@@ -15,41 +15,26 @@
 
 SessionManager::SessionManager()
 {
-	idle_array_.clear();
 	session_array_.clear();
 }
 
 SessionManager::~SessionManager()
 {
-	list<SessionBase*>::iterator iter = idle_array_.begin();
-	for(; iter != idle_array_.end(); ++iter)
-	{
-		delete *iter;
-		*iter = NULL;
-	}
-	idle_array_.clear();
-
-	map<int, SessionBase*>::iterator iter1 = session_array_.begin();
-	for(; iter1 != session_array_.end(); ++iter1)
-	{
-		SessionBase* ptr = iter1->second;
-		delete ptr;
-		ptr = NULL;
-	}
 	session_array_.clear();
 }
 
 int SessionManager::addFd(int fd, int seqno)
 {
-	typedef map<int,int>::iterator fd2seqIter;
-	pair<fd2seqIter, bool> ret = _fd_array.insert(make_pair(fd, seqno));
+	CScopeGuard guard(_fd_mutex);
 
-	return ret.second ? 0 : -1;
+	_fd_array[fd] = seqno;
+
+	return 0;
 }
 
 int SessionManager::getSeqno8Fd(int fd)
 {
-	CScopeGuard gaurd(_fd_mutex);
+	CScopeGuard guard(_fd_mutex);
 	map<int, int>::iterator iter = _fd_array.find(fd);
 	if(iter != _fd_array.end())
 	{
@@ -60,59 +45,27 @@ int SessionManager::getSeqno8Fd(int fd)
 }
 
 /**
-* brief: get a idle session 
-*
-* @returns  no idle session return NULL, else a pointer to session 
-*/
-SessionBase* SessionManager::getIdleSession()
-{
-	SessionBase* ptr = NULL;
-
-	if(idle_array_.size() > 0)
-	{
-		CScopeGuard guard(idle_mutex_);
-		ptr = idle_array_.front();
-		idle_array_.pop_front();
-		LOG4CPLUS_TRACE(FLogger, "get a session from idle array, seqno = " 
-			<< ptr->getSeqno());
-	}
-	else
-	{
-		ptr = new SessionBase();
-		ptr->setSeqno(Index::get());
-		LOG4CPLUS_TRACE(FLogger, "idle array is empty, create a new session, "
-				<< "seqno = " << ptr->getSeqno());
-	}
-	
-	return ptr;
-}
-
-/**
 * brief: after using, put session back to idle session array
 *
 * @param pSession
 */
-void SessionManager::freeSession(SessionBase* pSession)
+void SessionManager::delSession(SessionBasePtr pSession)
 {
-	if(NULL == pSession)
+	if(!pSession)
 	{
 		LOG4CPLUS_ERROR(FLogger, "INVALID paramer...");
 		return;
 	}
 
-	{
-		LOG4CPLUS_DEBUG(FLogger, "begin session_mutex_...");
-		CScopeGuard guard(session_mutex_);
-		session_array_.erase(pSession->getSeqno());
-		LOG4CPLUS_DEBUG(FLogger, "end session_mutex_...");
-	}
-
-	pSession->close();
-
-	CScopeGuard guard(idle_mutex_);	
-	idle_array_.push_back(pSession);
+	CScopeGuard guard(session_mutex_);
+	session_array_.erase(pSession->getSeqno());
 }
 
+void SessionManager::delSession(int seqno)
+{
+	CScopeGuard guard(session_mutex_);
+	session_array_.erase(seqno);
+}
 /**
 * brief:
 *
@@ -120,14 +73,14 @@ void SessionManager::freeSession(SessionBase* pSession)
 *
 * @returns   
 */
-SessionBase* SessionManager::getSession(int seqno)
+SessionBasePtr SessionManager::getSession(int seqno)
 {
 	CScopeGuard guard(session_mutex_);	
 	Iterator iter = session_array_.find(seqno);
 	if(iter == session_array_.end())
 	{
 		LOG4CPLUS_ERROR(FLogger, "session[" << seqno << "] is not exist!");
-		return NULL;
+		return SessionBasePtr();
 	}
 
 	return iter->second;
@@ -140,9 +93,9 @@ SessionBase* SessionManager::getSession(int seqno)
 *
 * @returns   
 */
-bool SessionManager::addSession(SessionBase* pSession)
+bool SessionManager::addSession(SessionBasePtr pSession)
 {
-	if(NULL == pSession)
+	if(!pSession)
 	{
 		LOG4CPLUS_ERROR(FLogger, "INVALID paramer...");
 		return false;
@@ -150,11 +103,9 @@ bool SessionManager::addSession(SessionBase* pSession)
 	
 	int seqno = pSession->getSeqno();
 
-	LOG4CPLUS_DEBUG(FLogger, "begin session_mutex_...");
 	CScopeGuard guard(session_mutex_);	
 	pair<Iterator, bool> result = session_array_.insert(make_pair(seqno, pSession));
 		
-	LOG4CPLUS_DEBUG(FLogger, "end session_mutex_...");
 	return result.second;	
 }
 

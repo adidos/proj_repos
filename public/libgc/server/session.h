@@ -13,6 +13,8 @@
 #define SESSION_BASE_H
 
 #include <string>
+#include <memory>
+
 #include "common/thread_sync.h"
 #include "common/DataXCmd.h"
 
@@ -27,7 +29,10 @@ class SessionBase
 public:
 	SessionBase();
 	SessionBase(int fd, int seqno);
-	~SessionBase(){};
+	virtual ~SessionBase()
+	{
+		close();
+	};
 
 	int getFd(){return fd_;}
 
@@ -52,16 +57,6 @@ public:
 	int write2Send(const string& buffer_send);	
 
 	int parseProtocol(DataXCmdPtr &pCmd);
-
-private:
-	void cmdRelease(DataXCmd* pCmd)
-	{
-		if(NULL != pCmd)
-		{
-			delete pCmd;
-			pCmd = NULL;
-		}
-	}
 	
 protected:
 	int fd_;
@@ -73,5 +68,7 @@ protected:
 	CMutex recv_mutex_;
 	CMutex send_mutex_;
 };
+
+typedef shared_ptr<SessionBase> SessionBasePtr;
 
 #endif /*SESSION_BASE_H*/

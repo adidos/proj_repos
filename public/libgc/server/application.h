@@ -22,6 +22,8 @@ public:
 
 	void initialize(const string &file);
 
+	void stop();
+
 	int waitForShutdown();
 
 	Configure* getConfigure()

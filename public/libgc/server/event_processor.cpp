@@ -59,7 +59,7 @@ bool EventProcessor::addEvent(Event event)
 void EventProcessor::doIt()
 {
 	LOG4CPLUS_DEBUG(FLogger, "event processor start work!");
-	while(true)
+	while(!_terminate)
 	{
 		Event event;
 		bool bSucc = _event_queue.pop(event, 60*1000);
@@ -94,10 +94,13 @@ void EventProcessor::processRead(Event& event)
 {
 	int seqno = event.seqno;
 
-	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
-	if(NULL == pSession)
+	SessionBasePtr pSession = _sess_mgr_ptr->getSession(seqno);
+	if(!pSession)
 	{
 		LOG4CPLUS_WARN(FLogger, "session is null, seqno = "<<seqno);
+
+		_sess_mgr_ptr->delSession(seqno);
+
 		return ;
 	}
 	
@@ -132,7 +135,6 @@ void EventProcessor::processRead(Event& event)
 			{
 				LOG4CPLUS_ERROR(FLogger, "insert command to receive"
 						<< " queue failed.");
-				return ;
 			}
 		}
 	}
@@ -146,16 +148,21 @@ void EventProcessor::processRead(Event& event)
 void EventProcessor::processWrite(Event& event)
 {
 	int seqno = event.seqno;
-	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
-	if(NULL == pSession)
+	SessionBasePtr pSession = _sess_mgr_ptr->getSession(seqno);
+	if(!pSession)
 	{
 		LOG4CPLUS_WARN(FLogger, "session is null, seqno = "<<seqno);
+
+		_sess_mgr_ptr->delSession(seqno);
+		
 		return ;
 	}
 
 	int fd = pSession->getFd();
 	int64_t data = U64(seqno, fd);
+
 	_epoll_svr_ptr->notify(fd, data, EVENT_READ);
+
 	pSession->sendBuffer();
 }
 
@@ -173,10 +180,13 @@ void EventProcessor::processClose(Event& event)
 	notifyUserDrop(uid);
 	_client_mgr_ptr->freeClient(uid, seqno);
 	
-	SessionBase* pSession = _sess_mgr_ptr->getSession(seqno);
-	if(NULL == pSession)
+	SessionBasePtr pSession = _sess_mgr_ptr->getSession(seqno);
+	if(!pSession)
 	{
 		LOG4CPLUS_WARN(FLogger, "session is null, seqno = "<<seqno);
+	
+		_sess_mgr_ptr->delSession(seqno);
+
 		return ;
 	}
 
@@ -184,8 +194,9 @@ void EventProcessor::processClose(Event& event)
 	int64_t data = U64(seqno, fd);
 	_epoll_svr_ptr->notify(fd, data, EVENT_CLOSE);
 
-	_sess_mgr_ptr->freeSession(pSession);
+	_sess_mgr_ptr->delSession(pSession);
 	
+	pSession->close();
 }
 
 void EventProcessor::handleClient(uint64_t uid, int seqno)
@@ -237,6 +248,5 @@ void EventProcessor::notifyUserRelogin(int64_t uid, int seqno)
 	task.timestamp = current_time_usec();
 
 	_work_group_ptr->dispatch(task);
-
 }
 

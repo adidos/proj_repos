@@ -22,6 +22,7 @@
 #include "common/utility.h"
 #include "common/configure.h"
 #include "common/logger.h"
+#include "common/index.h"
 
 #include "event.h"
 #include "application.h"
@@ -92,7 +93,7 @@ void Servant::doIt()
 	sockaddr_in addr;
 	socklen_t addr_len = sizeof(addr);
 
-	while(true)
+	while(!_terminate)
 	{
 		int client = accept(_acceptor, (sockaddr*)&addr, &addr_len);
 		if(-1 == client)
@@ -109,6 +110,14 @@ void Servant::doIt()
 		
 		newConnection(client);
 	}
+}
+
+
+void Servant::stop()
+{
+	_epoll_svr_ptr->stop();
+	
+	_terminate = true;
 }
 
 /**
@@ -169,34 +178,37 @@ int Servant::initAcceptor()
 int Servant::newConnection(int client)
 {
 	int seqno =	_session_mgr_ptr->getSeqno8Fd(client);
-	if(-1 != seqno) //fd被重复使用了，说明前一个连接已经断开，需要释放掉session
+	if(-1 != seqno) //fd被重复使用了，说明前一个连接已经断开(断线消息还未处理)，需要释放掉session
 	{
 		LOG4CPLUS_DEBUG(FLogger, "socket " << client <<" reused, find the old session free it!");
-		SessionBase* ptr = _session_mgr_ptr->getSession(seqno);
-		_session_mgr_ptr->freeSession(ptr);
-	}
 
-	SessionBase* pSession = _session_mgr_ptr->getIdleSession();
-	if(NULL == pSession)
-	{
-		LOG4CPLUS_ERROR(FLogger, "get idle session failed!");
-		return -1;
+		SessionBasePtr ptr = _session_mgr_ptr->getSession(seqno);
+
+		if(!ptr)
+			ptr->close();
+
+		_session_mgr_ptr->delSession(seqno);
 	}
 
 	setNoBlock(client);
-	pSession->setFd(client);
 
-	_session_mgr_ptr->addFd(client, seqno);
+	seqno = Index::get();
+
+	SessionBasePtr pSession(new SessionBase(client, seqno));
+
+	LOG4CPLUS_DEBUG(FLogger, "create a new session(" << client << "," << seqno << ").");
+
 	bool bret = _session_mgr_ptr->addSession(pSession);
+
 	if(!bret)
 	{
 		LOG4CPLUS_ERROR(FLogger, "add session to manager failed!");
-
-		_session_mgr_ptr->freeSession(pSession);
+		
 		return -1;
 	}
+	//添加session成功后，在创建socket和seqno的关联
+	_session_mgr_ptr->addFd(client, seqno);
 
-	seqno = pSession->getSeqno();
 	uint64_t data = U64(seqno, client);
 
 	_epoll_svr_ptr->notify(client, data, EVENT_NEW);

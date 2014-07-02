@@ -84,7 +84,7 @@ void EpollServer::doIt()
 {
 	LOG4CPLUS_DEBUG(FLogger, "event processor start work!");
 
-	while(true)
+	while(!_terminate)
 	{
 		//block until event occure
 		int ret = _epoll.wait(-1);

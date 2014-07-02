@@ -65,7 +65,7 @@ void startPaymentThread()
 	PaymentReqHandler* payment = new PaymentReqHandler(host, port);	
 	
 	payment->start();
-}
+};
 
 int main(int argc, char** argv)
 {
