@@ -32,7 +32,7 @@ string createGetDir(uint64_t uid, int game_id)
 	bool ret = pCmd->encode((byte*)buffer.c_str(), length);
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "command encode error!");
+		LOG4CPLUS_ERROR(ALogger, "command encode error!");
 		return "";
 	}
 
@@ -55,7 +55,7 @@ string createGetItem(uint64_t uid, int game_id, int type)
 	bool ret = pCmd->encode((byte*)buffer.c_str(), length);
 	if(!ret)
 	{
-		LOG4CPLUS_ERROR(CLogger::logger, "command encode error!");
+		LOG4CPLUS_ERROR(ALogger, "command encode error!");
 		return "";
 	}
 

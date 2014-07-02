@@ -60,7 +60,7 @@ int WorkerThread::Connect()
 	sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(8900);
-	addr.sin_addr.s_addr = inet_addr("192.168.5.172");
+	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	int client = socket(AF_INET, SOCK_STREAM, 0);
 	int ret = connect(client, (sockaddr*)&addr, sizeof(addr));
@@ -70,7 +70,7 @@ int WorkerThread::Connect()
 		close(client);
 		return -1;
 	}
-	LOG4CPLUS_DEBUG(CLogger::logger,  client << " connecto to server success!");
+	LOG4CPLUS_DEBUG(ALogger,  client << " connecto to server success!");
 	return client;
 }
 
@@ -93,21 +93,6 @@ void WorkerThread::doIt()
 			send(*iter, buffer.c_str(), buffer.length(), 0);
 			usleep(10000);
 		}
-
-		int begin = index * _array.size() / 10;
-		int end = (index + 1) * _array.size() / 10;
-		for(int i = begin; i < end; ++i)
-		{
-			int fd = _array[i];
-			close(fd);
-			pEventSvr->delEvent(fd, EPOLLIN | EPOLLET, fd);
-
-			fd = Connect();
-			_array[i] = fd;
-			pEventSvr->addEvent(fd, EPOLLIN | EPOLLET, fd);
-		}
-
-		index = (index + 1) % 10;
 	}
 }
 
@@ -116,7 +101,7 @@ int main(int argc, char** argv)
 {
 	if(argc < 2)
 	{
-		cout << "Usage: " << argv[0] << " thread_num num_per_thread" <<endl;
+		cout << "Usage: " << argv[0] << " connection" <<endl;
 		return -1;
 	}
 
@@ -125,7 +110,6 @@ int main(int argc, char** argv)
 	signal(SIGHUP, SIG_IGN);
 
 	CLogger::init("log4cplus.properties");
-	CDebugLogger::init("log4cplus.properties");
 
 	int total = atoi(argv[1]);
 

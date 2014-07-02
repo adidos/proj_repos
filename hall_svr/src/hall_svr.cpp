@@ -37,11 +37,11 @@ Application* g_pApp = NULL;
 void regHandler()
 {
 	CmdRegistor::regCommand("GetNotices", GetNoticesHandlerPtr(new GetNoticesHandler()));
-	//CmdRegistor::regCommand("QueryOnline", new QueryOnlineCmdHandler());
-	//CmdRegistor::regCommand("GetDirReq", new QueryRoomHandler());
-	//CmdRegistor::regCommand("GetStoreConfig", new GoodsHandler());
-	//CmdRegistor::regCommand("UpdateUserInfoReq", new UpdateUserHandler());
-	//CmdRegistor::regCommand("CheckInReq", new CheckinHandle());
+	CmdRegistor::regCommand("QueryOnline", QueryOnlineCmdHandlerPtr(new QueryOnlineCmdHandler()));
+	CmdRegistor::regCommand("GetDirReq", QueryRoomHandlerPtr(new QueryRoomHandler()));
+	CmdRegistor::regCommand("GetStoreConfig", GoodsHandlerPtr(new GoodsHandler()));
+	CmdRegistor::regCommand("UpdateUserInfoReq", UpdateUserHandlerPtr(new UpdateUserHandler()));
+	CmdRegistor::regCommand("CheckInReq", CheckinHandlePtr(new CheckinHandle()));
 };
 
 void startNotice()
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGCHLD, SIG_IGN);
 	signal(SIGHUP, SIG_IGN);
-	//signal(SIGINT, SIG_IGN);
+	signal(SIGINT, SIG_IGN);
 	CLogger::init(argv[2]);
 
 	regHandler();

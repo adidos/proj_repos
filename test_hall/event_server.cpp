@@ -46,12 +46,12 @@ void EventServer::doIt()
 			if(EINTR == ret)
 				continue;	
 			
-			LOG4CPLUS_ERROR(CLogger::logger, "epoll_wait call error: " << strerror(errno));
+			LOG4CPLUS_ERROR(ALogger, "epoll_wait call error: " << strerror(errno));
 			return ;
 		}
 
 		
-		LOG4CPLUS_DEBUG(CLogger::logger, "epoll_wait result : " << ret);
+		LOG4CPLUS_DEBUG(ALogger, "epoll_wait result : " << ret);
 		for(int i = 0; i < ret; ++i)
 		{
 			struct epoll_event ev = _event_array[i];
@@ -62,7 +62,7 @@ void EventServer::doIt()
 					
 			if((EPOLLHUP | EPOLLERR) & event)
 			{
-				LOG4CPLUS_DEBUG(CLogger::logger, "fd " << fd << " trigger error event"
+				LOG4CPLUS_DEBUG(ALogger, "fd " << fd << " trigger error event"
 							<< ", error : " << strerror(errno));
 				this->delEvent(fd, EPOLLIN|EPOLLET, fd);
 				shutdown(fd, SHUT_RDWR);
@@ -74,12 +74,12 @@ void EventServer::doIt()
 				//pHandler->handleRead(fd);
 				char buffer[8192] = {'\0'};
 				size_t len = recv(fd, buffer, 8192, 0);
-				LOG4CPLUS_DEBUG(CLogger::logger, "fd " << fd << " recv " << len << " bytes");
+				LOG4CPLUS_DEBUG(ALogger, "fd " << fd << " recv " << len << " bytes");
 			}
 
 			if(EPOLLOUT & event)
 			{
-				LOG4CPLUS_DEBUG(CLogger::logger, "fd " << fd << " trigger write event");
+				LOG4CPLUS_DEBUG(ALogger, "fd " << fd << " trigger write event");
 				
 				//pHandler->handleWrite(fd);
 			}
