@@ -69,7 +69,7 @@ void EventProcessor::doIt()
 			continue;
 		}
 
-		LOG4CPLUS_DEBUG(FLogger, "Process Event" << event.dump());
+		LOG4CPLUS_DEBUG(FLogger, "Process Event " << event.dump());
 		if(EVENT_CLOSE == event.type)
 		{
 			processClose(event);
@@ -101,6 +101,8 @@ void EventProcessor::processRead(Event& event)
 
 		_sess_mgr_ptr->delSession(seqno);
 
+		_client_mgr_ptr->freeClient(seqno);
+
 		return ;
 	}
 	
@@ -116,7 +118,7 @@ void EventProcessor::processRead(Event& event)
 		{
 			DataXCmdPtr pCmd;
 			ret = pSession->parseProtocol(pCmd);
-			if(ret != 0) break;
+			if(ret != 0 || ! pCmd) break;
 
 			int64_t uid = pCmd->get_userid();
 			handleClient(uid, seqno);
@@ -154,7 +156,9 @@ void EventProcessor::processWrite(Event& event)
 		LOG4CPLUS_WARN(FLogger, "session is null, seqno = "<<seqno);
 
 		_sess_mgr_ptr->delSession(seqno);
-		
+
+		_client_mgr_ptr->freeClient(seqno);
+
 		return ;
 	}
 

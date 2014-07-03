@@ -153,6 +153,7 @@ public:
 			if(m_size > 0)
 			{
 				retVal = m_buffer[m_start];
+				m_buffer[m_start] = T();
 				ret_val = true;
 
 				if(++m_start >= m_capacity)

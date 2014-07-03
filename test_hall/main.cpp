@@ -47,7 +47,7 @@ int WorkerThread::init(int size)
 	{
 		int client = Connect();	
 		if(client == -1)
-			continue;
+			return -1;
 		
 		_array.push_back(client);	
 		pEventSvr->addEvent(client, EPOLLIN | EPOLLET, client);
@@ -66,7 +66,8 @@ int WorkerThread::Connect()
 	int ret = connect(client, (sockaddr*)&addr, sizeof(addr));
 	if(ret != 0)
 	{
-		perror("connect");
+		LOG4CPLUS_DEBUG(ALogger, " connecto to server failed, exit!");
+
 		close(client);
 		return -1;
 	}
@@ -76,7 +77,6 @@ int WorkerThread::Connect()
 
 void WorkerThread::doIt()
 {
-	cout << _id << " start work!" <<endl;
 	while(true)
 	{
 		vector<int>::iterator iter = _array.begin();
@@ -85,12 +85,12 @@ void WorkerThread::doIt()
 			string buffer = createGetDir(*iter, 1);
 			send(*iter, buffer.c_str(), buffer.length(), 0);
 			
-			usleep(100);
+			usleep(300);
 			buffer.clear();
 			
 			buffer = createGetItem(*iter, 1, 0);
 			send(*iter, buffer.c_str(), buffer.length(), 0);
-			usleep(100);
+			usleep(300);
 		}
 	}
 }
@@ -98,9 +98,9 @@ void WorkerThread::doIt()
 
 int main(int argc, char** argv)
 {
-	if(argc < 2)
+	if(argc < 3)
 	{
-		cout << "Usage: " << argv[0] << " connection" <<endl;
+		cout << "Usage: " << argv[0] << " thread connection" <<endl;
 		return -1;
 	}
 
@@ -110,22 +110,23 @@ int main(int argc, char** argv)
 
 	CLogger::init("log4cplus.properties");
 
-	int total = atoi(argv[1]);
+	int thread_num = atoi(argv[1]);
+	int total = atoi(argv[2]);
 
 	pEventSvr = new EventServer(20480);
 	pEventSvr->start();
 	
-	int per_thread = total / 5;
+	int per_thread = total / thread_num;
 
-	WorkerThread* workers[5];
-	for(int i = 0; i < 5; ++i)
+	WorkerThread** workers = new WorkerThread*[thread_num];
+	for(int i = 0; i < thread_num; ++i)
 	{
 		workers[i] = new WorkerThread();
 		workers[i]->init(per_thread);
 		workers[i]->start();
 	}
 
-	for(int i = 0; i < 5; ++i)
+	for(int i = 0; i < thread_num; ++i)
 	{
 		workers[i]->waitForStop();
 	}

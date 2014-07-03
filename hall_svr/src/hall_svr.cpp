@@ -67,6 +67,7 @@ void startPaymentThread()
 	payment->start();
 };
 
+
 int main(int argc, char** argv)
 {
 	if(argc < 3)
@@ -75,10 +76,12 @@ int main(int argc, char** argv)
 		_exit(0);
 	}
 
+
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGCHLD, SIG_IGN);
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
+
 	CLogger::init(argv[2]);
 
 	regHandler();
@@ -86,11 +89,11 @@ int main(int argc, char** argv)
 	g_pApp = new Application();
 	g_pApp->initialize(argv[1]);
 
+	ProxyClient::Instance()->initialize();
+
 	startNotice();
 
 	startPaymentThread();
-
-	ProxyClient::Instance()->initialize();
 	
 	g_pApp->waitForShutdown();
 

@@ -1,11 +1,12 @@
 #include "XLDataX.h"
 #include "logger.h"
-
 #include <sstream>
 #include <iterator>
 
 
 using namespace std;
+
+
 
 XLDataX::XLDataX(void)
 {
@@ -15,7 +16,6 @@ XLDataX::XLDataX(void)
 XLDataX::~XLDataX(void)
 {
     Clear();
-	LOG4CPLUS_DEBUG(FLogger, "XLDataX descontructor!");
 }
 
 

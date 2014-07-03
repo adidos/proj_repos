@@ -3,6 +3,7 @@
 
 #include <map>
 
+#include "common/logger.h"
 #include "common/thread_sync.h"
 
 #include "adapter_proxy.h"
@@ -20,10 +21,11 @@ public:
 		int event;
 		int fd;
 		TransceiverPtr trans;
-		AdapterProxyPtr adapter;
+		AdapterProxy* adapter;
 
 		ProxyInfo():event( -1), fd(-1),
 			trans(), adapter(){};
+		
 	};
 
 public:
@@ -44,12 +46,14 @@ public:
 
 	int handleExcept(int fd);
 
-	int regProxy(int fd, AdapterProxyPtr adapter, TransceiverPtr trans)
+	int regProxy(int fd, AdapterProxy* adapter, TransceiverPtr trans)
 	{
 		ProxyInfo info;
 		info.fd = fd;
 		info.adapter = adapter;
 		info.trans = trans;
+
+		LOG4CPLUS_WARN(FLogger, "adapter ptr is " << adapter);
 
 		_proxys[fd] = info;
 

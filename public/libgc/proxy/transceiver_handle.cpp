@@ -31,9 +31,11 @@ void TransceiverHandle::handle(int fd, int evs)
 		{
 			proxy = iter->second;
 		}
+		else
+			LOG4CPLUS_ERROR(FLogger, "didn't find fd " << fd << " proxy info");
 	}
 
-	if(! proxy.adapter)
+	if(NULL != proxy.adapter)
 	{
 		proxy.adapter->finishConnect(proxy.trans);
 		
@@ -52,6 +54,8 @@ void TransceiverHandle::handle(int fd, int evs)
 		if(! proxy.trans->isValid())
 			proxy.adapter->refreshTransceiver();
 	}
+	else
+		LOG4CPLUS_ERROR(FLogger, "fd " << fd << " adapter is NULL !");
 }
 
 
@@ -83,7 +87,7 @@ int TransceiverHandle::handleExcept(int fd)
 
 int TransceiverHandle::handleOutput(ProxyInfo& proxy)
 {
-	if(! proxy.adapter || ! proxy.trans)
+	if(NULL == proxy.adapter || ! proxy.trans)
 		return -1;
 
 	while(proxy.adapter->sendRequest(proxy.trans) > 0 && proxy.trans->doRequest() >= 0);
@@ -93,7 +97,7 @@ int TransceiverHandle::handleOutput(ProxyInfo& proxy)
 
 int TransceiverHandle::handleInput(ProxyInfo& proxy)
 {
-	if(! proxy.adapter || ! proxy.trans)
+	if(NULL == proxy.adapter || ! proxy.trans)
 	{
 		return -1;
 	}

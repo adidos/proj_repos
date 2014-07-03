@@ -195,8 +195,9 @@ int SessionBase::parseProtocol(DataXCmdPtr &pCmd)
 		return -1;
 	}
 
+	LOG4CPLUS_DEBUG(FLogger, "pcmd[" << ptr->get_cmd_name() << "] reference is " << ptr.use_count());
 	pCmd = ptr;
-	LOG4CPLUS_DEBUG(FLogger, "pcmd = " << pCmd << ", ptr = " << ptr);
+	LOG4CPLUS_DEBUG(FLogger, "pcmd[" << ptr->get_cmd_name() << "] reference is " << ptr.use_count());
 
 	//delete the decode buffer from recv buffer
 	recv_buff_.erase(0, body + header);

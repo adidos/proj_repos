@@ -245,19 +245,3 @@ int TcpTransceiver::recv(void* buf, uint32_t len, uint32_t flag)
     return ret;
 }
 
-int TcpTransceiver::reset()
-{
-	if(isValid()) close();
-
-	_fd = ::socket(AF_INET, SOCK_STREAM, 0);
-	
-	if(_fd < 0)
-	{
-		LOG4CPLUS_ERROR(FLogger, "socket error:" << strerror(errno));
-		return -1;
-	}
-
-	setNoBlock(_fd);
-
-	return 0;
-}

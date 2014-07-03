@@ -63,7 +63,7 @@ void FDReactor::doIt()
 				event = event | TransceiverHandle::W;				
 			}
 
-			LOG4CPLUS_DEBUG(FLogger, "occure event : " << event);
+			LOG4CPLUS_DEBUG(FLogger, "fd " << fd << " occure event : " << event);
 
 			handle(fd, event);
 		}
@@ -121,4 +121,5 @@ void FDReactor::unregHandle(int fd, uint32_t event, TransceiverHandle* pHandle)
 	
 	_handles.erase(_handles.find(fd));
 
+	LOG4CPLUS_DEBUG(FLogger, fd << " erase from reactor !");
 }

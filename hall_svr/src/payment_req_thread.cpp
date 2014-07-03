@@ -22,17 +22,9 @@
 
 using namespace std;
 
-extern Application* g_pApp;
-
 PaymentReqHandler::PaymentReqHandler(const string& redis_host,
 	                                          short redis_port)
 {
-	Configure* pConfig = g_pApp->getConfigure();
-	
-	m_usersvr_ip   = pConfig->getString("usersvr_ip");	
-	m_usersvr_port = pConfig->getInt("usersvr_port");
-
-	
 	m_redis = new RedisHandler(redis_host, redis_port);
 
 	m_ofs.open("../log/payment_record.log");

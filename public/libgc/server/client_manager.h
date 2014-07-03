@@ -35,9 +35,11 @@ public:
 	int64_t getUid8Sid(int seqno);
 
 	int freeClient(int64_t uid, int seqno);
+	int freeClient(int seqno);
 
 private:
 	typedef multimap<int64_t, int>::iterator Iterator;
+
 	multimap<int64_t, int> _client_session_array;
 
 	map<int, int64_t> _seq2uid_array;

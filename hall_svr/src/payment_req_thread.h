@@ -66,9 +66,6 @@ private:
 
 	RedisHandler* m_redis;
 
-	string 		  m_usersvr_ip;
-	int           m_usersvr_port;
-
 	ofstream      m_ofs;
 
 };

@@ -44,9 +44,12 @@ int AdapterProxy::initialize(const string& host, short port)
 	_host = host;
 	_port = port;
 
+	if(0 == _trans_num) _trans_num= 3;
+
 	//when init, create three connection
 	for(size_t i = 0; i < _trans_num; i++)
 	{
+		LOG4CPLUS_DEBUG(FLogger, "adapter proxy do " << i << " connect!");
 		TransceiverPtr trans = doReconnect();
 		
 		if(! trans)
@@ -108,18 +111,22 @@ int AdapterProxy::invoke(ReqMessagePtr req)
 		return -1;
 	}
 
-	TransceiverPtr trans = selectTransceiver();
-
-	//Transceiver is NULL or invalid return fail
-	if(! trans || ! trans->isValid())
-		return -1;
-
-	_reactor->notify(trans->fd());
-
 	{
 		CScopeGuard guard(_mutex);
 		_timeout_que[req->id] = req;
 	}
+
+	TransceiverPtr trans = selectTransceiver();
+
+	//Transceiver is NULL or invalid return fail
+	if(! trans || ! trans->isValid())
+	{
+		LOG4CPLUS_ERROR(FLogger, "all the transceiver is invalid, wait for "
+				<< " new connection !");
+		return -1;
+	}
+
+	_reactor->notify(trans->fd());
 
 	LOG4CPLUS_DEBUG(FLogger, "push request[" << req->id << "] to queue");
 
@@ -179,7 +186,7 @@ TransceiverPtr AdapterProxy::doReconnect()
 
 	_reactor->regHandle(fd , EPOLLIN|EPOLLOUT, _handle);
 
-	_handle->regProxy(fd, AdapterProxyPtr(this), trans);
+	_handle->regProxy(fd, this, trans);
 
 	{
 		CScopeGuard guard(_trans_mutex);
@@ -252,7 +259,12 @@ TransceiverPtr AdapterProxy::selectTransceiver()
 		if(ptr && ptr->isValid()) return ptr;
 
 		iter = _trans.erase(iter);
+		LOG4CPLUS_WARN(FLogger, index << "'st in transceiver arrayy "
+				<< " is invalid, erase it!");
 	}
+
+	LOG4CPLUS_DEBUG(FLogger, "all the transceiver in array is "
+		<< " valid, so create a new connection !");
 
 	//如果没有有效的,重新连接建立
 	return doReconnect();

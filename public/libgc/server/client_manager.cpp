@@ -67,6 +67,25 @@ int ClientManager::getSessID(int64_t uid, vector<int>& seqnos)
 /**
 * brief:
 *
+* @param seqno
+*
+* @returns   
+*/
+int ClientManager::freeClient(int seqno)
+{
+	CScopeGuard guard(_mutex);
+	int64_t uid = _seq2uid_array[seqno];
+
+	_seq2uid_array.erase(seqno);
+
+	_client_session_array.erase(uid);
+
+	return 0;
+}
+
+/**
+* brief:
+*
 * @param uid
 * @param seqno
 *

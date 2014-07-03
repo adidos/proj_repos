@@ -71,8 +71,6 @@ public:
 	virtual int send(const void* buf, uint32_t len, uint32_t flag);
 
     virtual int recv(void* buf, uint32_t len, uint32_t flag);
-
-	int reset();
 };
 
 typedef std::shared_ptr<Transceiver> TransceiverPtr;
