@@ -15,6 +15,7 @@
 #include <string>
 #include <memory>
 
+#include "common/logger.h"
 #include "common/thread_sync.h"
 #include "common/DataXCmd.h"
 
@@ -32,6 +33,8 @@ public:
 	virtual ~SessionBase()
 	{
 		close();
+
+		LOG4CPLUS_DEBUG(FLogger, "SessionBase descontructor");
 	};
 
 	int getFd(){return fd_;}

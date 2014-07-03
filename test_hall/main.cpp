@@ -76,7 +76,6 @@ int WorkerThread::Connect()
 
 void WorkerThread::doIt()
 {
-	int index = 0;
 	cout << _id << " start work!" <<endl;
 	while(true)
 	{
@@ -86,12 +85,12 @@ void WorkerThread::doIt()
 			string buffer = createGetDir(*iter, 1);
 			send(*iter, buffer.c_str(), buffer.length(), 0);
 			
-			usleep(10000);
+			usleep(100);
 			buffer.clear();
 			
 			buffer = createGetItem(*iter, 1, 0);
 			send(*iter, buffer.c_str(), buffer.length(), 0);
-			usleep(10000);
+			usleep(100);
 		}
 	}
 }
@@ -116,17 +115,17 @@ int main(int argc, char** argv)
 	pEventSvr = new EventServer(20480);
 	pEventSvr->start();
 	
-	int per_thread = total / 10;
+	int per_thread = total / 5;
 
-	WorkerThread* workers[10];
-	for(int i = 0; i < 10; ++i)
+	WorkerThread* workers[5];
+	for(int i = 0; i < 5; ++i)
 	{
 		workers[i] = new WorkerThread();
 		workers[i]->init(per_thread);
 		workers[i]->start();
 	}
 
-	for(int i = 0; i < 10; ++i)
+	for(int i = 0; i < 5; ++i)
 	{
 		workers[i]->waitForStop();
 	}

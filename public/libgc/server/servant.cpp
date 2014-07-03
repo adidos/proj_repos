@@ -184,8 +184,7 @@ int Servant::newConnection(int client)
 
 		SessionBasePtr ptr = _session_mgr_ptr->getSession(seqno);
 
-		if(!ptr)
-			ptr->close();
+		if(ptr)	ptr->close();
 
 		_session_mgr_ptr->delSession(seqno);
 	}

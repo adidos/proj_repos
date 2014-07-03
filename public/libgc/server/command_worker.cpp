@@ -82,6 +82,9 @@ void CmdWorker::doIt()
 
 		LOG4CPLUS_INFO(FLogger, _id << "TimeTrace:[" << task.pCmd->get_cmd_name() 
 				<< "] handle spend time " << current_time_usec() - task.timestamp);
+		
+		LOG4CPLUS_DEBUG(FLogger, task.pCmd->get_cmd_name() <<" references is "
+				<< task.pCmd.use_count());
 
 	}
 }

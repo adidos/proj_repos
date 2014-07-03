@@ -36,6 +36,9 @@ string createGetDir(uint64_t uid, int game_id)
 		return "";
 	}
 
+	delete pCmd;
+	pCmd = NULL;
+
 	return buffer;
 }
 
@@ -58,6 +61,9 @@ string createGetItem(uint64_t uid, int game_id, int type)
 		LOG4CPLUS_ERROR(ALogger, "command encode error!");
 		return "";
 	}
+
+	delete pCmd;
+	pCmd = NULL;
 
 	return buffer;
 }

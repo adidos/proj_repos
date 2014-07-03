@@ -100,7 +100,7 @@ bool QueryRoomHandler::handle(CmdTask& task)
 	}
 	pParam->PutDataXArray(DataID_Param1, (IDataX**)rooms_data, size, true);
 	
-	delete [] rooms_data;
+	delete[] rooms_data;
 	rooms_data = NULL;
 
 	DataXCmdPtr pResp(new DataXCmd("GetDirResp", pCmd->get_cipher_flag()));
