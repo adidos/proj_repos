@@ -24,8 +24,6 @@ public:
 	bool isValid() const;
 
 public:
-	virtual int doConnect(const string& host, short port) = 0;
-	
 	virtual int doRequest();
 
 	virtual int doResponse(list<DataXCmdPtr>& resps) = 0;
@@ -64,8 +62,6 @@ public:
 	~TcpTransceiver(){};
 
 public:
-	virtual int doConnect(const string& host, short port);
-	
 	virtual int doResponse(list<DataXCmdPtr>& resps);
 
 	virtual int send(const void* buf, uint32_t len, uint32_t flag);

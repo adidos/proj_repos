@@ -22,7 +22,8 @@ Transceiver::Transceiver(int fd, bool bConnect)
 
 Transceiver::~Transceiver()
 {
-	close();
+	if(-1 != _fd)
+		close();
 }
 
 int Transceiver::fd() const
@@ -95,44 +96,6 @@ void Transceiver::writeToSendBuffer(const  string & msg)
 TcpTransceiver::TcpTransceiver(int fd, bool bConnect)
 	:Transceiver(fd, bConnect)
 {
-}
-
-int TcpTransceiver::doConnect(const string& host, short port)
-{
-	_fd = ::socket(AF_INET, SOCK_STREAM, 0);
-	
-	if(_fd < 0)
-	{
-		LOG4CPLUS_ERROR(FLogger, "socket error:" << strerror(errno));
-	}
-
-	setNoBlock(_fd);
-
-	sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = inet_addr(host.c_str());
-
-	int ret = ::connect(_fd, (sockaddr*)&addr, (socklen_t)sizeof(addr));
-
-	int err_no = errno;
-
-	LOG4CPLUS_DEBUG(FLogger, "connect to server " << host 
-				<< ":" << port << " error: " << strerror(err_no));
-
-	if(0 == ret)
-	{
-		_connected = true;
-	}
-	else if(ret < 0 && EINPROGRESS != err_no)
-	{
-		LOG4CPLUS_ERROR(FLogger, "connect error:" << strerror(err_no));
-		::close(_fd);
-		return -1;
-	}
-
-	return 0;
-
 }
 
 int TcpTransceiver::doResponse(list<DataXCmdPtr>& resps)

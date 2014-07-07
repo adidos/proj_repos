@@ -199,19 +199,6 @@ TransceiverPtr AdapterProxy::doReconnect()
 	return trans;
 }
 
-
-/**
-* brief:
-*
-* @param fd
-*/
-void AdapterProxy::doClose(int fd)
-{
-	_reactor->unregHandle(fd, EPOLLIN | EPOLLOUT, _handle);
-	
-	refreshTransceiver();
-}
-
 /**
 * brief:
 *
@@ -274,9 +261,6 @@ TransceiverPtr AdapterProxy::selectTransceiver()
 
 		while(! _trans.empty())
 		{
-			LOG4CPLUS_TRACE(FLogger, "is empty() ? still run here ?");
-		
-
 			int index = rand() % _trans.size();
 
 			Iterator iter = _trans.begin() + index;

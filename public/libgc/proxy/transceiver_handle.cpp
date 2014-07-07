@@ -54,7 +54,7 @@ void TransceiverHandle::handle(int fd, int evs)
 		//transceiverÎŞĞ§(socket¹Ø±Õ),
 		if(! proxy.trans->isValid())
 		{
-			proxy.adapter->doClose(fd);
+			proxy.adapter->refreshTransceiver();
 
 			_proxys.erase(fd);
 		}
@@ -83,11 +83,8 @@ int TransceiverHandle::handleExcept(int fd)
 	if(proxy.trans)
 	{
 		proxy.trans->close();
-	}
 
-	if(NULL != proxy.adapter)
-	{
-		proxy.adapter->doClose(fd);
+		proxy.adapter->refreshTransceiver();
 	}
 
 	return 0;
