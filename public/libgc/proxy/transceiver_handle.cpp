@@ -39,7 +39,7 @@ void TransceiverHandle::handle(int fd, int evs)
 	{
 		proxy.adapter->finishConnect(proxy.trans);
 		
-		if(evs &  TransceiverHandle::W)
+		if(evs & TransceiverHandle::W)
 		{
 			LOG4CPLUS_DEBUG(FLogger, proxy.fd << " receive a epoll out event!");
 			handleOutput(proxy);
@@ -51,8 +51,13 @@ void TransceiverHandle::handle(int fd, int evs)
 			handleInput(proxy);
 		}
 		
+		//transceiverÎÞÐ§(socket¹Ø±Õ),
 		if(! proxy.trans->isValid())
-			proxy.adapter->refreshTransceiver();
+		{
+			proxy.adapter->doClose(fd);
+
+			_proxys.erase(fd);
+		}
 	}
 	else
 		LOG4CPLUS_ERROR(FLogger, "fd " << fd << " adapter is NULL !");
@@ -75,11 +80,14 @@ int TransceiverHandle::handleExcept(int fd)
 		}
 	}
 
-	if(! proxy.trans)
+	if(proxy.trans)
 	{
 		proxy.trans->close();
+	}
 
-		proxy.adapter->refreshTransceiver();	
+	if(NULL != proxy.adapter)
+	{
+		proxy.adapter->doClose(fd);
 	}
 
 	return 0;

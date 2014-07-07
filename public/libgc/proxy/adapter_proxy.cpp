@@ -130,8 +130,6 @@ int AdapterProxy::invoke(ReqMessagePtr req)
 
 	_reactor->notify(trans->fd());
 
-	LOG4CPLUS_DEBUG(FLogger, "push request[" << req->id << "] to queue");
-
 	return 0;
 }
 
@@ -188,9 +186,10 @@ TransceiverPtr AdapterProxy::doReconnect()
 
 	trans.reset(ptr);
 
-	_reactor->regHandle(fd , EPOLLIN|EPOLLOUT, _handle);
-
+	//handle注册proxy需要在reactor的注册之前，防止事件先于regProxy执行
 	_handle->regProxy(fd, this, trans);
+
+	_reactor->regHandle(fd , EPOLLIN|EPOLLOUT, _handle);
 
 	{
 		CScopeGuard guard(_trans_mutex);
@@ -198,6 +197,19 @@ TransceiverPtr AdapterProxy::doReconnect()
 	}
 	
 	return trans;
+}
+
+
+/**
+* brief:
+*
+* @param fd
+*/
+void AdapterProxy::doClose(int fd)
+{
+	_reactor->unregHandle(fd, EPOLLIN | EPOLLOUT, _handle);
+	
+	refreshTransceiver();
 }
 
 /**
@@ -252,27 +264,31 @@ TransceiverPtr AdapterProxy::selectTransceiver()
 {
 	LOG4CPLUS_TRACE(FLogger, __FUNCTION__);
 
-	CScopeGuard guard(_trans_mutex);
 
 	typedef vector<TransceiverPtr>::iterator Iterator;
 
 	LOG4CPLUS_TRACE(FLogger, "transceiver array size is " << _trans.size());
 
-	while(! _trans.empty())
 	{
-		LOG4CPLUS_TRACE(FLogger, "is empty() ? still run here ?");
-	
-		int index = rand() % _trans.size();
+		CScopeGuard guard(_trans_mutex);
 
-		Iterator iter = _trans.begin() + index;
-	
-		TransceiverPtr ptr = *iter;
+		while(! _trans.empty())
+		{
+			LOG4CPLUS_TRACE(FLogger, "is empty() ? still run here ?");
+		
 
-		if(ptr && ptr->isValid()) return ptr;
+			int index = rand() % _trans.size();
 
-		iter = _trans.erase(iter);
-		LOG4CPLUS_WARN(FLogger, index << "'st in transceiver arrayy "
-				<< " is invalid, erase it!");
+			Iterator iter = _trans.begin() + index;
+		
+			TransceiverPtr ptr = *iter;
+
+			if(ptr && ptr->isValid()) return ptr;
+
+			iter = _trans.erase(iter);
+			LOG4CPLUS_WARN(FLogger, index << "'st in transceiver arrayy "
+					<< " is invalid, erase it!");
+		}
 	}
 
 	LOG4CPLUS_DEBUG(FLogger, "all the transceiver in array is "

@@ -79,6 +79,11 @@ public:
 
 	/**
 	* brief:
+	*/
+	void doClose(int fd);
+
+	/**
+	* brief:
 	*
 	* @returns   
 	*/

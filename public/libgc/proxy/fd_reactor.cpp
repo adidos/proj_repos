@@ -73,7 +73,6 @@ void FDReactor::doIt()
 
 void FDReactor::handle(int fd, int events)
 {
-
 	TransceiverHandle* ptr = NULL;
 	
 	{
@@ -102,9 +101,11 @@ void FDReactor::handle(int fd, int events)
 
 void FDReactor::regHandle(int fd, uint32_t event, TransceiverHandle* pHandle)
 {
-	CScopeGuard guard(_mutex);
+	{
+		CScopeGuard guard(_mutex);
 
-	_handles[fd] = pHandle;
+		_handles[fd] = pHandle;
+	}
 	
 	_ep.del(fd, fd, 0);
 
@@ -115,11 +116,13 @@ void FDReactor::regHandle(int fd, uint32_t event, TransceiverHandle* pHandle)
 
 void FDReactor::unregHandle(int fd, uint32_t event, TransceiverHandle* pHandle)
 {
-	CScopeGuard guard(_mutex);
+	{
+		CScopeGuard guard(_mutex);
+		
+		_handles.erase(_handles.find(fd));
+	}
 
 	_ep.del(fd, fd, 0);
-	
-	_handles.erase(_handles.find(fd));
 
 	LOG4CPLUS_DEBUG(FLogger, fd << " erase from reactor !");
 }

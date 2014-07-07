@@ -48,6 +48,7 @@ public:
 
 	int regProxy(int fd, AdapterProxy* adapter, TransceiverPtr trans)
 	{
+		CScopeGuard guard(_mutex);
 		ProxyInfo info;
 		info.fd = fd;
 		info.adapter = adapter;
