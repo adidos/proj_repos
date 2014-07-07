@@ -34,11 +34,11 @@ PaymentReqHandler::PaymentReqHandler(const string& redis_host,
 void PaymentReqHandler::doIt()
 {
 	int empty_time = 0;
-	LOG4CPLUS_DEBUG(ALogger, "PaymentReqHandler thread start");
+	LOG4CPLUS_DEBUG(FLogger, "PaymentReqHandler thread start");
 
 	int iret = m_redis->subscribe_channel("payment");
 
-	LOG4CPLUS_DEBUG(ALogger, "subscribe channel rst " << iret);
+	LOG4CPLUS_DEBUG(FLogger, "subscribe channel rst " << iret);
 
 	while(true)
 	{
@@ -51,7 +51,7 @@ void PaymentReqHandler::doIt()
 			if(empty_time % 5000 == 0)
 			{
 				empty_time = 5000;
-				LOG4CPLUS_DEBUG(ALogger, "the subscribe msg is empty.");
+				LOG4CPLUS_DEBUG(FLogger, "the subscribe msg is empty.");
 			}
 
 			usleep(100*1000);
@@ -61,11 +61,11 @@ void PaymentReqHandler::doIt()
 		// error
 		else if(0 != rst)
 		{
-			LOG4CPLUS_ERROR(ALogger, "get_subscribe_msg error.");
+			LOG4CPLUS_ERROR(FLogger, "get_subscribe_msg error.");
 			continue;
 		}
 
-		LOG4CPLUS_DEBUG(ALogger,  " begin handle_payment_req");
+		LOG4CPLUS_DEBUG(FLogger,  " begin handle_payment_req");
 		if(!str_payment.empty())
 		{
 			PaymentRequest payment_req;
@@ -76,7 +76,7 @@ void PaymentReqHandler::doIt()
 			}			
 		}
 
-		LOG4CPLUS_DEBUG(ALogger, " end handle_payment_req");
+		LOG4CPLUS_DEBUG(FLogger, " end handle_payment_req");
 	}
 }
 
@@ -100,7 +100,7 @@ bool PaymentReqHandler::handleRequest(const PaymentRequest & payment_req)
 
 void PaymentReqHandler::handle_vip(const PaymentRequest &payment_req)
 {
-	LOG4CPLUS_DEBUG(ALogger, "handle_vip " << payment_req.dump() );
+	LOG4CPLUS_DEBUG(FLogger, "handle_vip " << payment_req.dump() );
 
 	m_ofs << "handle vip begin send to usersvr : " 
 		  <<  current_datetime() << payment_req.dump() << endl;
@@ -120,7 +120,7 @@ void PaymentReqHandler::handle_vip(const PaymentRequest &payment_req)
 	VIPInfoResp vip_resp;
 	int ret = proxy->updateVipInfo(uid, vip_level, valid_day, vip_resp);
 
-	LOG4CPLUS_DEBUG(ALogger, "User buy " << vip_level << " vip , valid day "
+	LOG4CPLUS_DEBUG(FLogger, "User buy " << vip_level << " vip , valid day "
 		<< valid_day << ", call result " << ret << ", response: " << vip_resp.dump());
 
 	//不论vip是否更新成功，购买vip的奖励还是要发放的
@@ -131,7 +131,7 @@ void PaymentReqHandler::handle_vip(const PaymentRequest &payment_req)
 	UpdateGameInfoResp game_resp;
 	ret = proxy->updateGameInfo(uid, req, game_resp);
 
-	LOG4CPLUS_DEBUG(ALogger, "updateGameInfo return :" << ret << ", do request: "
+	LOG4CPLUS_DEBUG(FLogger, "updateGameInfo return :" << ret << ", do request: "
 			<< req.dump() << ", response: " << game_resp.dump()) ;
 
 	//TODO notify user game information change 
@@ -142,7 +142,7 @@ void PaymentReqHandler::handle_vip(const PaymentRequest &payment_req)
 
 void PaymentReqHandler::handle_rewards(const PaymentRequest &payment_req)
 {
-	LOG4CPLUS_DEBUG(ALogger, "handle_reward" << payment_req.dump() );
+	LOG4CPLUS_DEBUG(FLogger, "handle_reward" << payment_req.dump() );
 
 	m_ofs << "handle_reward begin send to usersvr : " 
 		  <<  current_datetime() << payment_req.dump() << endl;
@@ -164,7 +164,7 @@ void PaymentReqHandler::handle_rewards(const PaymentRequest &payment_req)
 	UpdateGameInfoResp resp;
 	int ret = proxy->updateGameInfo(payment_req.uid, req, resp);
 
-	LOG4CPLUS_DEBUG(ALogger, "updateGameInfo return :" << ret << ", user " 
+	LOG4CPLUS_DEBUG(FLogger, "updateGameInfo return :" << ret << ", user " 
 			<< uid << " do request: "<< req.dump() << ", response: " << resp.dump()) ;
 
 
@@ -175,7 +175,7 @@ void PaymentReqHandler::handle_rewards(const PaymentRequest &payment_req)
 
 void PaymentReqHandler::handle_buy_bean(const PaymentRequest & payment_req)
 {
-	LOG4CPLUS_DEBUG(ALogger, "handle_payment_req " << payment_req.dump() );
+	LOG4CPLUS_DEBUG(FLogger, "handle_payment_req " << payment_req.dump() );
 
 	m_ofs << "handle_payment begin send to usersvr : " 
 		  <<  current_datetime() << payment_req.dump() << endl;
@@ -199,7 +199,7 @@ void PaymentReqHandler::handle_buy_bean(const PaymentRequest & payment_req)
 	UpdateGameInfoResp resp;
 	int ret = proxy->updateGameInfo(payment_req.uid, req, resp);
 
-	LOG4CPLUS_DEBUG(ALogger, "updateGameInfo return :" << ret << ", user " 
+	LOG4CPLUS_DEBUG(FLogger, "updateGameInfo return :" << ret << ", user " 
 			<< uid << " do request: "<< req.dump() << ", response: " << resp.dump()) ;
 	
 
@@ -211,13 +211,13 @@ void PaymentReqHandler::handle_buy_bean(const PaymentRequest & payment_req)
 bool PaymentReqHandler::parse_str_payment_req(const string& str_payment_req, 
 		                                               PaymentRequest & payment_req)
 {		
-	LOG4CPLUS_DEBUG(ALogger, "parse_str_payment_req " << str_payment_req);
+	LOG4CPLUS_DEBUG(FLogger, "parse_str_payment_req " << str_payment_req);
 	try {
 		Json::Reader reader;
 		Json::Value root;
 		
 		if(!reader.parse(str_payment_req, root, false)) {
-			LOG4CPLUS_ERROR(ALogger, "JSON parse " << str_payment_req << "failed." );
+			LOG4CPLUS_ERROR(FLogger, "JSON parse " << str_payment_req << "failed." );
 			return false; 
 		} 
 
@@ -231,10 +231,10 @@ bool PaymentReqHandler::parse_str_payment_req(const string& str_payment_req,
 		payment_req.price = (float)atof(root["price"].asString().c_str());
 		payment_req.count = atoi(root["count"].asString().c_str());
 				
-		LOG4CPLUS_DEBUG(ALogger, "Parse result: " << payment_req.dump());
+		LOG4CPLUS_DEBUG(FLogger, "Parse result: " << payment_req.dump());
 
 	} catch(exception& e){
-		LOG4CPLUS_DEBUG(ALogger, "Parse exception: " << e.what() );
+		LOG4CPLUS_DEBUG(FLogger, "Parse exception: " << e.what() );
 		return false;
 	}
 	

@@ -33,7 +33,7 @@ bool QueryRoomHandler::handle(CmdTask& task)
 
 	if(NULL == pCmd)
 	{
-		LOG4CPLUS_ERROR(ALogger, "convert command to dataxcmd failed.");
+		LOG4CPLUS_ERROR(FLogger, "convert command to dataxcmd failed.");
 
 		return false;
 	}
@@ -41,7 +41,7 @@ bool QueryRoomHandler::handle(CmdTask& task)
 	int rst = checkCmd(pCmd, string("GetDirReq")); 
 	if(0 != rst)
 	{
-		LOG4CPLUS_ERROR(ALogger, "ckeck command failed. user id = "
+		LOG4CPLUS_ERROR(FLogger, "ckeck command failed. user id = "
 			<< pCmd->get_userid() << ", cmd_name = " << pCmd->get_cmd_name());
 
 		return false;
@@ -51,7 +51,7 @@ bool QueryRoomHandler::handle(CmdTask& task)
 	bool bSuccess = decodeParam(pCmd->get_datax(), game_id);
 	if(!bSuccess)	
 	{
-		LOG4CPLUS_ERROR(ALogger, "get game id from datax failed...");
+		LOG4CPLUS_ERROR(FLogger, "get game id from datax failed...");
 		return false;
 	}
 

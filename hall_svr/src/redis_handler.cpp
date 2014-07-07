@@ -54,7 +54,7 @@ int RedisHandler::push_queue(const string& value) {
 */
 int RedisHandler::push_queue(const string& queue, const string& value) {
 	if(queue.empty() || value.empty()){
-		LOG4CPLUS_ERROR(ALogger, "PUSH QUEUE INVALID PARAM");
+		LOG4CPLUS_ERROR(FLogger, "PUSH QUEUE INVALID PARAM");
 		return -1;
 	}
 	redisReply* reply = (redisReply*)redisCommand(context_, "RPUSH %s %s", 
@@ -64,21 +64,21 @@ int RedisHandler::push_queue(const string& queue, const string& value) {
 		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
-		LOG4CPLUS_ERROR(ALogger, "net error occur, err: " << context_->errstr << ", reconnect...");
+		LOG4CPLUS_ERROR(FLogger, "net error occur, err: " << context_->errstr << ", reconnect...");
 		int rst = conn2Redis();
 		if(0 != rst) {
-			LOG4CPLUS_ERROR(ALogger, "Reconnect server failed, err: " << context_->errstr);
+			LOG4CPLUS_ERROR(FLogger, "Reconnect server failed, err: " << context_->errstr);
 			return -1;	
 		}
 
 		reply = (redisReply*)redisCommand(context_, "RPUSH %s %s",queue.c_str(), value.c_str());
 	} else if(REDIS_OK != context_->err) {
 		freeReply(reply);
-		LOG4CPLUS_ERROR(ALogger, "RPUSH: failed, err: " << context_->errstr);
+		LOG4CPLUS_ERROR(FLogger, "RPUSH: failed, err: " << context_->errstr);
 		return context_->err;
 	}
 
-	LOG4CPLUS_DEBUG(ALogger, "RPUSH: push " << value << " into queue[" << queue 
+	LOG4CPLUS_DEBUG(FLogger, "RPUSH: push " << value << " into queue[" << queue 
 					<< "], info: " << context_->errstr);
 
 	freeReply(reply);
@@ -106,7 +106,7 @@ int RedisHandler::pop_queue(string& value) {
 */
 int RedisHandler::pop_queue(const string& queue, string& value) {
 	if(queue.empty()) {
-		LOG4CPLUS_ERROR(ALogger, "POP QUEUE INVALID PARAM");
+		LOG4CPLUS_ERROR(FLogger, "POP QUEUE INVALID PARAM");
 		return -1;
 	}
 
@@ -115,16 +115,16 @@ int RedisHandler::pop_queue(const string& queue, string& value) {
 		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
-		LOG4CPLUS_ERROR(ALogger, "net error occur, err: " << context_->errstr << ", reconnect...");
+		LOG4CPLUS_ERROR(FLogger, "net error occur, err: " << context_->errstr << ", reconnect...");
 		int rst = conn2Redis();
 		if(0 != rst) {
-			LOG4CPLUS_ERROR(ALogger, "Reconnect server failed, err: " << context_->errstr);
+			LOG4CPLUS_ERROR(FLogger, "Reconnect server failed, err: " << context_->errstr);
 			return -1;	
 		}
 
 		reply = (redisReply*)redisCommand(context_, "LPOP %s",queue.c_str());
 	} else if(REDIS_OK != context_->err) {
-		LOG4CPLUS_ERROR(ALogger, "POP : failed, err: " << context_->errstr);
+		LOG4CPLUS_ERROR(FLogger, "POP : failed, err: " << context_->errstr);
 		freeReply(reply);
 		return context_->err;
 	}
@@ -141,7 +141,7 @@ int RedisHandler::pop_queue(const string& queue, string& value) {
 		}
 	}
 		
-	LOG4CPLUS_DEBUG(ALogger, "POP: pop " << value << " from queue[" << queue << "]");
+	LOG4CPLUS_DEBUG(FLogger, "POP: pop " << value << " from queue[" << queue << "]");
 	
 	freeReply(reply);
 	return context_->err;
@@ -150,7 +150,7 @@ int RedisHandler::pop_queue(const string& queue, string& value) {
 int RedisHandler::get_value(const string& key, string& value)
 {
 	if(key.empty()) {
-		LOG4CPLUS_ERROR(ALogger, "GET VALUE INVALID PARAM");
+		LOG4CPLUS_ERROR(FLogger, "GET VALUE INVALID PARAM");
 		return -1;
 	}
 
@@ -159,16 +159,16 @@ int RedisHandler::get_value(const string& key, string& value)
 		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
-		LOG4CPLUS_ERROR(ALogger, "net error occur, err: " << context_->errstr << ", reconnect...");
+		LOG4CPLUS_ERROR(FLogger, "net error occur, err: " << context_->errstr << ", reconnect...");
 		int rst = conn2Redis();
 		if(0 != rst) {
-			LOG4CPLUS_ERROR(ALogger, "Reconnect server failed, err: " << context_->errstr);
+			LOG4CPLUS_ERROR(FLogger, "Reconnect server failed, err: " << context_->errstr);
 			return -1;	
 		}
 
 		reply = (redisReply*)redisCommand(context_, "GET %s",key.c_str());
 	} else if(REDIS_OK != context_->err) {
-		LOG4CPLUS_ERROR(ALogger, "GET : failed, err: " << context_->errstr);
+		LOG4CPLUS_ERROR(FLogger, "GET : failed, err: " << context_->errstr);
 		freeReply(reply);
 		return context_->err;
 	}
@@ -182,7 +182,7 @@ int RedisHandler::get_value(const string& key, string& value)
 		}
 	}
 		
-	LOG4CPLUS_DEBUG(ALogger, "Get: get " << key << ", value " << value << "]");
+	LOG4CPLUS_DEBUG(FLogger, "Get: get " << key << ", value " << value << "]");
 	
 	freeReply(reply);
 	return context_->err;
@@ -197,22 +197,22 @@ int RedisHandler::set_value(const string& key, const string& value){
 		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
-		LOG4CPLUS_ERROR(ALogger, "net error occur, err: " << context_->errstr << ", reconnect...");
+		LOG4CPLUS_ERROR(FLogger, "net error occur, err: " << context_->errstr << ", reconnect...");
 		int rst = conn2Redis();
 		if(0 != rst) {
-			LOG4CPLUS_ERROR(ALogger, "Reconnect server failed, err: " << context_->errstr);
+			LOG4CPLUS_ERROR(FLogger, "Reconnect server failed, err: " << context_->errstr);
 			return -1;	
 		}
 
 		reply = (redisReply*)redisCommand(context_, "SET %s %s EX %d",
 				key.c_str(), value.c_str(), REDIS_VALUE_TIMEOUT);
 	} else if(REDIS_OK != context_->err) {
-		LOG4CPLUS_ERROR(ALogger, "SET: failed, err: " << context_->errstr);
+		LOG4CPLUS_ERROR(FLogger, "SET: failed, err: " << context_->errstr);
 		freeReply(reply);
 		return context_->err;
 	}
 		
-	LOG4CPLUS_DEBUG(ALogger, "SET: set " << key << " \t value " << value );
+	LOG4CPLUS_DEBUG(FLogger, "SET: set " << key << " \t value " << value );
 	
 	freeReply(reply);
 	return context_->err;
@@ -237,13 +237,13 @@ int RedisHandler::conn2Redis() {
 	{
 		if(NULL != context_)
 		{
-			LOG4CPLUS_ERROR(ALogger, "connect to redis server " << host_ << ":"
+			LOG4CPLUS_ERROR(FLogger, "connect to redis server " << host_ << ":"
 				<< port_ << " error, msg: " << context_->errstr);
 			redisFree(context_);
 			return -1;
 		}
 
-		LOG4CPLUS_ERROR(ALogger, "connect to redis server " << host_ << ":"
+		LOG4CPLUS_ERROR(FLogger, "connect to redis server " << host_ << ":"
 				<< port_ << " error, system error!");
 		return -1;
 	}
@@ -258,16 +258,16 @@ int RedisHandler::subscribe_channel( const string & channel_name )
 		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
-		LOG4CPLUS_ERROR(ALogger, "net error occur, err: " << context_->errstr << ", reconnect...");
+		LOG4CPLUS_ERROR(FLogger, "net error occur, err: " << context_->errstr << ", reconnect...");
 		int rst = conn2Redis();
 		if(0 != rst) {
-			LOG4CPLUS_ERROR(ALogger, "Reconnect server failed, err: " << context_->errstr);
+			LOG4CPLUS_ERROR(FLogger, "Reconnect server failed, err: " << context_->errstr);
 			return -1;	
 		}
 
 		reply = (redisReply*)redisCommand(context_, "SUBSCRIBE %s", channel_name.c_str());
 	} else if(REDIS_OK != context_->err) {
-		LOG4CPLUS_ERROR(ALogger, "subscribe : failed, err: " << context_->errstr);
+		LOG4CPLUS_ERROR(FLogger, "subscribe : failed, err: " << context_->errstr);
 		freeReply(reply);
 		return context_->err;
 	}				
@@ -279,7 +279,7 @@ int RedisHandler::subscribe_channel( const string & channel_name )
 int RedisHandler::unsubscribe_channel( const string & channel_name )
 {
 	if(channel_name.empty()){
-		LOG4CPLUS_ERROR(ALogger, "unsubscribe_channel INVALID PARAM");
+		LOG4CPLUS_ERROR(FLogger, "unsubscribe_channel INVALID PARAM");
 		return -1;
 	}
 
@@ -288,16 +288,16 @@ int RedisHandler::unsubscribe_channel( const string & channel_name )
 		freeReply(reply);
 
 		//如果是网络io错误，进行重新连接
-		LOG4CPLUS_ERROR(ALogger, "net error occur, err: " << context_->errstr << ", reconnect...");
+		LOG4CPLUS_ERROR(FLogger, "net error occur, err: " << context_->errstr << ", reconnect...");
 		int rst = conn2Redis();
 		if(0 != rst) {
-			LOG4CPLUS_ERROR(ALogger, "Reconnect server failed, err: " << context_->errstr);
+			LOG4CPLUS_ERROR(FLogger, "Reconnect server failed, err: " << context_->errstr);
 			return -1;	
 		}
 
 		reply = (redisReply*)redisCommand(context_, "UNSUBSCRIBE %s", channel_name.c_str());
 	} else if(REDIS_OK != context_->err) {
-		LOG4CPLUS_ERROR(ALogger, "subscribe : failed, err: " << context_->errstr);
+		LOG4CPLUS_ERROR(FLogger, "subscribe : failed, err: " << context_->errstr);
 		freeReply(reply);
 		return context_->err;
 	}

@@ -45,7 +45,7 @@ ProxyClient::~ProxyClient()
 
 int ProxyClient::initialize()
 {
-	LOG4CPLUS_DEBUG(ALogger, "run here?");
+	LOG4CPLUS_DEBUG(FLogger, "run here?");
 	//
 	_reactor = new FDReactor();
 	_reactor->start();
@@ -55,9 +55,10 @@ int ProxyClient::initialize()
 	//
 	string host = g_pConfig->getString("user.server.host");
     short port = (short)g_pConfig->getInt("user.server.port");
+	int size = g_pConfig->getInt("proxy.transceiver.num", 3);
 
 	_adapter = new AdapterProxy(_reactor, _trans_handle);
-	_adapter->initialize(host, port);
+	_adapter->initialize(host, port, size);
 
 	//
     string name = g_pConfig->getString("user.servant.name");
@@ -83,7 +84,7 @@ ServantProxy* ProxyClient::getServantPrxy(const string& name)
 
 	if(iter == _array.end())
 	{
-		LOG4CPLUS_ERROR(ALogger, "could't find " << name
+		LOG4CPLUS_ERROR(FLogger, "could't find " << name
 			<< " servant proxy!");	
 		
 		return NULL;

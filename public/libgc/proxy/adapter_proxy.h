@@ -50,7 +50,7 @@ public:
 	*
 	* @returns   
 	*/
-	int initialize(const string& host, short port);
+	int initialize(const string& host, short port, int size);
 
 public:
 
@@ -120,7 +120,7 @@ private:
 
 	CMutex _trans_mutex;
 
-	size_t _trans_num;
+	int _trans_num;
 
 	Queue<ReqMessagePtr> _reqs;		//发送消息队列
 

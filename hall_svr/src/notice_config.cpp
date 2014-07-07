@@ -22,7 +22,7 @@ int NoticeConfig::addNotice(Notice& notice)
 
 	if(iter == notice_array_.end())
 	{
-		LOG4CPLUS_DEBUG(ALogger, "addNotice()");
+		LOG4CPLUS_DEBUG(FLogger, "addNotice()");
 		notice_array_.push_back(notice);
 	}
 
@@ -39,7 +39,7 @@ int NoticeConfig::addNotice(Notice& notice)
 */
 int NoticeConfig::addNotice(vector<Notice> notice_list, bool bAppend)
 {
-	LOG4CPLUS_DEBUG(ALogger, "addNotice list " << notice_list.size());
+	LOG4CPLUS_DEBUG(FLogger, "addNotice list " << notice_list.size());
 	
 	if ( !bAppend )
 		notice_array_.clear();

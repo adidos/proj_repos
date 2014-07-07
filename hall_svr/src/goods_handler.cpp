@@ -7,14 +7,14 @@
 
 bool GoodsHandler::handle(CmdTask& task)
 {
-	LOG4CPLUS_DEBUG(ALogger, "REFERENCE: " << task.pCmd.use_count());
+	LOG4CPLUS_DEBUG(FLogger, "REFERENCE: " << task.pCmd.use_count());
 	DataXCmdPtr& pCmd = task.pCmd;	
-	LOG4CPLUS_DEBUG(ALogger, "REFERENCE: " << task.pCmd.use_count());
+	LOG4CPLUS_DEBUG(FLogger, "REFERENCE: " << task.pCmd.use_count());
 
 	int rst = checkCmd(pCmd, string("GetStoreConfig")); 
 	if(0 != rst)
 	{
-		LOG4CPLUS_ERROR(ALogger, "ckeck command failed. user id = "
+		LOG4CPLUS_ERROR(FLogger, "ckeck command failed. user id = "
 			<< pCmd->get_userid() << ", cmd_name = " << pCmd->get_cmd_name());
 
 		return false;
@@ -25,14 +25,14 @@ bool GoodsHandler::handle(CmdTask& task)
 	bool bSuccess = decodeParam(pCmd->get_datax(), game_id, tooltype);
 	if(!bSuccess)	
 	{
-		LOG4CPLUS_ERROR(ALogger, "decodeParam failed...");
+		LOG4CPLUS_ERROR(FLogger, "decodeParam failed...");
 		return false;
 	}
 
 	vector<goods_item> goods_set;
 
 	shop_config::instance()->get_goods_by_type(tooltype, goods_set);	
-	LOG4CPLUS_DEBUG(ALogger, "get_goods_by_type = " << goods_set.size());
+	LOG4CPLUS_DEBUG(FLogger, "get_goods_by_type = " << goods_set.size());
 
 	int idx = 0;
 	int size = goods_set.size();
@@ -89,7 +89,7 @@ bool GoodsHandler::decodeParam(IDataX * ptr, int& game_id, int & tooltype)
 
 	bool rst = ptr->GetInt(DataID_GameId, game_id);
 	rst = ptr->GetInt(DataID_ToolType, tooltype);
-	LOG4CPLUS_DEBUG(ALogger, "decodeParam GoodsHandler game_id = "<< game_id << " tooltype = " << tooltype);
+	LOG4CPLUS_DEBUG(FLogger, "decodeParam GoodsHandler game_id = "<< game_id << " tooltype = " << tooltype);
 	
 	return rst;
 }

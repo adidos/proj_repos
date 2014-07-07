@@ -25,7 +25,7 @@ bool CheckinHandle::handle(CmdTask& task)
 	DataXCmdPtr& pCmd = task.pCmd;
 	if(NULL == pCmd)
 	{
-		LOG4CPLUS_ERROR(ALogger, "convert command to dataxcmd failed.");
+		LOG4CPLUS_ERROR(FLogger, "convert command to dataxcmd failed.");
 
 		return false;
 	}
@@ -33,7 +33,7 @@ bool CheckinHandle::handle(CmdTask& task)
 	int ret = checkCmd(pCmd, string("CheckInReq")); 
 	if(0 != ret )
 	{
-		LOG4CPLUS_ERROR(ALogger, "ckeck command failed. user id = "
+		LOG4CPLUS_ERROR(FLogger, "ckeck command failed. user id = "
 			<< pCmd->get_userid() << ", cmd_name = " << pCmd->get_cmd_name());
 
 		return false;
@@ -48,7 +48,7 @@ bool CheckinHandle::handle(CmdTask& task)
 	bool rst = decodeParam(pCmd->get_datax(), game_id, chan_id, version);
 	if(!rst)
 	{
-		LOG4CPLUS_ERROR(ALogger, "decode param failed");
+		LOG4CPLUS_ERROR(FLogger, "decode param failed");
 		return false;
 	}
 
@@ -77,7 +77,7 @@ bool CheckinHandle::handle(CmdTask& task)
 		{
 			pParam->PutInt(DataID_Result, -2); //签到成功，增加金豆失败
 			
-			LOG4CPLUS_ERROR(ALogger, "Uesr " << uid << " checkin success, but"
+			LOG4CPLUS_ERROR(FLogger, "Uesr " << uid << " checkin success, but"
 				<< " update the reward failed!");
 		}
 	}
@@ -115,14 +115,14 @@ int CheckinHandle::doCheckin(int game_id ,int64_t uid, CheckinResult& ret)
 
 	if(NULL == proxy)
 	{
-		LOG4CPLUS_ERROR(ALogger, "User Proxy is NULL!");
+		LOG4CPLUS_ERROR(FLogger, "User Proxy is NULL!");
 
 		return -1;
 	}
 
 	int result = proxy->checkin(game_id, uid, ret);
 	
-	LOG4CPLUS_ERROR(ALogger, "user checkin call result is  " << result 
+	LOG4CPLUS_ERROR(FLogger, "user checkin call result is  " << result 
 		<< ", return " << ret.dump());
 
 	return result;
@@ -146,7 +146,7 @@ int CheckinHandle::handleCheckin(CheckinResult result, UpdateGameInfoResp& resp)
 
 	if(NULL == proxy)
 	{
-		LOG4CPLUS_ERROR(ALogger, "User Proxy is NULL!");
+		LOG4CPLUS_ERROR(FLogger, "User Proxy is NULL!");
 
 		return -1;
 	}
@@ -163,7 +163,7 @@ int CheckinHandle::handleCheckin(CheckinResult result, UpdateGameInfoResp& resp)
 
 	int ret = proxy->updateGameInfo(result.uid ,req, resp);
 
-	LOG4CPLUS_DEBUG(ALogger, result.dump() << " do check in request"
+	LOG4CPLUS_DEBUG(FLogger, result.dump() << " do check in request"
 		<< req.dump() << ", result is " << ret << ", response is" << resp.dump());	
 
 	return ret;
@@ -208,7 +208,7 @@ int CheckinHandle::initRewards()
 	_size = days.size();
 	_rewards = new XLDataX*[_size];
 
-	LOG4CPLUS_DEBUG(ALogger, "check reward configue: ");
+	LOG4CPLUS_DEBUG(FLogger, "check reward configue: ");
 	for(size_t i = 0; i < days.size(); ++i)
 	{
 		int value = atoi(trim_string(days[i]).c_str());
@@ -225,7 +225,7 @@ int CheckinHandle::initRewards()
 		
 		_rewards[i] = ptr;
 
-		LOG4CPLUS_DEBUG(ALogger, "{" << value << " : " << reward << "}");
+		LOG4CPLUS_DEBUG(FLogger, "{" << value << " : " << reward << "}");
 
 		vector<string> temp;
 	
@@ -240,7 +240,7 @@ int CheckinHandle::initRewards()
 		item.desc = temp[1];
 		item.num = atoi(temp[2].c_str());
 
-		LOG4CPLUS_DEBUG(ALogger, item.dump());	
+		LOG4CPLUS_DEBUG(FLogger, item.dump());	
 
 		_rewards_array[value] = item;
 	}

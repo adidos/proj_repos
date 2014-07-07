@@ -36,7 +36,7 @@ int GameRoomConfig::loadGameConfig(const string& file_name)
 	int rst = config_.loadFile(file_name.c_str());
 	if(0 != rst)
 	{
-		LOG4CPLUS_ERROR(ALogger, "load config file " << file_name << " failed...");
+		LOG4CPLUS_ERROR(FLogger, "load config file " << file_name << " failed...");
 		return -1;
 	}
 
@@ -123,7 +123,7 @@ int GameRoomConfig::room_list(vector<RoomIdent>& room_array)
 	string strGames = config_.getString("valid.game_id.list");
 	if(strGames.empty())
 	{
-		LOG4CPLUS_ERROR(ALogger, "game list is not config.");
+		LOG4CPLUS_ERROR(FLogger, "game list is not config.");
 		return -1;
 	}
 
@@ -140,7 +140,7 @@ int GameRoomConfig::room_list(vector<RoomIdent>& room_array)
 		string strRooms = config_.getString(rooms_key);
 		if(strRooms.empty())
 		{
-			LOG4CPLUS_ERROR(ALogger, "game "<< *game_iter<< " rooms list is null");
+			LOG4CPLUS_ERROR(FLogger, "game "<< *game_iter<< " rooms list is null");
 			continue;
 		}
 
@@ -180,38 +180,38 @@ int GameRoomConfig::room_config(vector<RoomIdent> room_array,
 		room_info.game_id = iter->game_id;
 		room_info.room_id = iter->room_id;
 
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: game_id = " << room_info.game_id
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: game_id = " << room_info.game_id
 			<< ", room_id = " << room_info.room_id);
 
 		char prefix[32] = {'\0'};
 		snprintf(prefix, 32, "game_%d.room_%d.", iter->game_id, iter->room_id);
 
 		room_info.room_name = config_.getString(string(prefix).append("name").c_str());
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: name = " << room_info.room_name );
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: name = " << room_info.room_name );
 
 		room_info.server_cu =config_.getString(string(prefix).append("server.cu").c_str());
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: server.cu= " << room_info.server_cu);
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: server.cu= " << room_info.server_cu);
 
 		room_info.server_ct =config_.getString(string(prefix).append("server.ct").c_str());
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: server.ct= " << room_info.server_ct);
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: server.ct= " << room_info.server_ct);
 
 		room_info.server_cm =config_.getString(string(prefix).append("server.cm").c_str());
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: server.cm= " << room_info.server_cm);
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: server.cm= " << room_info.server_cm);
 
 		room_info.min_limit=config_.getInt(string(prefix).append("min.bean.limit").c_str());
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: min.limit= "<<room_info.min_limit);
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: min.limit= "<<room_info.min_limit);
 
 		room_info.max_limit=config_.getInt(string(prefix).append("max.bean.limit").c_str());
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: max.limit= "<<room_info.max_limit);
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: max.limit= "<<room_info.max_limit);
 
 		room_info.room_ante = config_.getInt(string(prefix).append("ante").c_str());
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: ante = "<<room_info.room_ante);
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: ante = "<<room_info.room_ante);
 
 		room_info.min_quick=config_.getInt(string(prefix).append("quick_min").c_str());
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: quick_min = "<<room_info.min_quick);
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: quick_min = "<<room_info.min_quick);
 
 		room_info.max_quick=config_.getInt(string(prefix).append("quick_max").c_str());
-		LOG4CPLUS_INFO(ALogger, "RoomInfo: quick_max = "<<room_info.max_quick);
+		LOG4CPLUS_INFO(FLogger, "RoomInfo: quick_max = "<<room_info.max_quick);
 
 		room_info_array.push_back(room_info);
 	}

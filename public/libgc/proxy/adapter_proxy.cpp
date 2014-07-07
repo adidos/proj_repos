@@ -28,26 +28,26 @@
 #include <arpa/inet.h>
 #include <sys/epoll.h>
 
-
 AdapterProxy::AdapterProxy(FDReactor* actor, TransceiverHandle* handle)
 	:_host(""), _port(0), _reactor(actor), _handle(handle),_reqs(10240)
 {
-
 }
 
 AdapterProxy::~AdapterProxy()
 {
 }
 
-int AdapterProxy::initialize(const string& host, short port)
+int AdapterProxy::initialize(const string& host, short port, int size)
 {
+	LOG4CPLUS_TRACE(FLogger, __FUNCTION__);
+
 	_host = host;
 	_port = port;
 
-	if(0 == _trans_num) _trans_num= 3;
-
+	_trans_num = size;
+	LOG4CPLUS_DEBUG(FLogger, "connection number is " << _trans_num);
 	//when init, create three connection
-	for(size_t i = 0; i < _trans_num; i++)
+	for(int i = 0; i < _trans_num; ++i)
 	{
 		LOG4CPLUS_DEBUG(FLogger, "adapter proxy do " << i << " connect!");
 		TransceiverPtr trans = doReconnect();
@@ -103,7 +103,9 @@ int AdapterProxy::sendRequest(TransceiverPtr& trans)
 }
 
 int AdapterProxy::invoke(ReqMessagePtr req)
-{
+{	
+	LOG4CPLUS_TRACE(FLogger, __FUNCTION__);
+
 	//将消息加入到队列
 	if(! _reqs.push(req))
 	{
@@ -140,8 +142,10 @@ int AdapterProxy::invoke(ReqMessagePtr req)
 */
 TransceiverPtr AdapterProxy::doReconnect()
 {
+	LOG4CPLUS_TRACE(FLogger, __FUNCTION__);
+
 	//防止servant未启动,不断地增加连接
-	if(_trans.size() == _trans_num) return TransceiverPtr();
+	if(_trans.size() == (size_t)_trans_num) return TransceiverPtr();
 
 	TransceiverPtr trans;
 
@@ -203,6 +207,8 @@ TransceiverPtr AdapterProxy::doReconnect()
 */
 int AdapterProxy::finishConnect(TransceiverPtr& trans)
 {
+	LOG4CPLUS_TRACE(FLogger, __FUNCTION__);
+
 	if(trans->hasConnected())
 	{
 		LOG4CPLUS_DEBUG(FLogger, "transceiver is connect already!");
@@ -244,12 +250,18 @@ int AdapterProxy::finishConnect(TransceiverPtr& trans)
 */
 TransceiverPtr AdapterProxy::selectTransceiver()
 {
+	LOG4CPLUS_TRACE(FLogger, __FUNCTION__);
+
 	CScopeGuard guard(_trans_mutex);
 
 	typedef vector<TransceiverPtr>::iterator Iterator;
 
+	LOG4CPLUS_TRACE(FLogger, "transceiver array size is " << _trans.size());
+
 	while(! _trans.empty())
 	{
+		LOG4CPLUS_TRACE(FLogger, "is empty() ? still run here ?");
+	
 		int index = rand() % _trans.size();
 
 		Iterator iter = _trans.begin() + index;
@@ -275,6 +287,7 @@ TransceiverPtr AdapterProxy::selectTransceiver()
 */
 void AdapterProxy::refreshTransceiver()
 {
+	LOG4CPLUS_TRACE(FLogger, __FUNCTION__);
 	CScopeGuard guard(_trans_mutex);
 
 	vector<TransceiverPtr>::iterator iter = _trans.begin();
@@ -284,7 +297,10 @@ void AdapterProxy::refreshTransceiver()
 		if((*iter)->isValid())
 			++iter;
 		else //no problem ?
+		{
 			iter = _trans.erase(iter);
+			LOG4CPLUS_DEBUG(FLogger, "find a invalid transceiver, erase it!");
+		}
 	}
 }
 
