@@ -11,12 +11,19 @@
 #ifndef EPOLL_SERVER_H
 #define EPOLL_SERVER_H 
 
+#include <map>
+
 #include "epoll.h"
 #include "common/thread.h"
+#include "common/thread_sync.h"
 
 #define U64(high, low) ((uint64_t)high << 32 | low)
 #define H32(data) (int)((uint64_t)data >> 32)
 #define L32(data) (int)((uint64_t)data & 0xFFFFFFFF)
+
+#define EPOLL_WAIT_TIME  1000 * 30
+#define CHECK_INTERVAL 60
+#define INACTIVE_INTERVAL 5 * 60
 
 class SessionManager;
 class EventProcessor;
@@ -40,8 +47,16 @@ protected:
 	virtual void doIt();
 
 private:
+	void clean_inactive_fd();
+
+	bool is_inactive(pair<int64_t,time_t> value);
+
+private:
 	CEpoll _epoll;
 	EventProcessor* _event_processor_ptr;
+
+	CMutex _mutex;
+	map<int64_t, time_t> _fd_array;
 };
 
 #endif /*EPOLL_SERVER_H*/

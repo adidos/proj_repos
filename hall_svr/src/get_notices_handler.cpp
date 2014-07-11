@@ -19,7 +19,7 @@
 bool GetNoticesHandler::handle(CmdTask& task)
 {
 	DataXCmdPtr& pCmd = task.pCmd;
-	if(NULL == pCmd)
+	if(!pCmd)
 	{
 		LOG4CPLUS_ERROR(FLogger, "convert command to dataxcmd failed.");
 

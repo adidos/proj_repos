@@ -118,7 +118,7 @@ void FDReactor::unregHandle(int fd, uint32_t event, TransceiverHandle* pHandle)
 {
 	{
 		CScopeGuard guard(_mutex);
-	
+		
 		_handles.erase(_handles.find(fd));
 	}
 

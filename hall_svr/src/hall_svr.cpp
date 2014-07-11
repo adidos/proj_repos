@@ -29,6 +29,7 @@
 #include "user_proxy.h"
 #include "proxy_client.h"
 #include  "payment_req_thread.h"
+#include "ping_handle.h"
 
 using namespace std;
 
@@ -42,6 +43,7 @@ void regHandler()
 	CmdRegistor::regCommand("GetStoreConfig", GoodsHandlerPtr(new GoodsHandler()));
 	CmdRegistor::regCommand("UpdateUserInfoReq", UpdateUserHandlerPtr(new UpdateUserHandler()));
 	CmdRegistor::regCommand("CheckInReq", CheckinHandlePtr(new CheckinHandle()));
+	CmdRegistor::regCommand("HallPingReq", PingHandlePtr(new PingHandle()));
 };
 
 void startNotice()

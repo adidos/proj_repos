@@ -7,9 +7,7 @@
 
 bool GoodsHandler::handle(CmdTask& task)
 {
-	LOG4CPLUS_DEBUG(FLogger, "REFERENCE: " << task.pCmd.use_count());
 	DataXCmdPtr& pCmd = task.pCmd;	
-	LOG4CPLUS_DEBUG(FLogger, "REFERENCE: " << task.pCmd.use_count());
 
 	int rst = checkCmd(pCmd, string("GetStoreConfig")); 
 	if(0 != rst)

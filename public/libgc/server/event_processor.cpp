@@ -194,9 +194,9 @@ void EventProcessor::processClose(Event& event)
 		return ;
 	}
 
-	int fd = pSession->getFd();
-	int64_t data = U64(seqno, fd);
-	_epoll_svr_ptr->notify(fd, data, EVENT_CLOSE);
+	//int fd = pSession->getFd();
+	//int64_t data = U64(seqno, fd);
+	//_epoll_svr_ptr->notify(fd, data, EVENT_CLOSE);
 
 	_sess_mgr_ptr->delSession(pSession);
 	

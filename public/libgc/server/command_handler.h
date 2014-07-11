@@ -39,12 +39,6 @@ inline int ICmdHandler::checkCmd(DataXCmdPtr pCmd, const string& cmd_name)
 		return -1;
 	}
 
-	IDataX* ptr = pCmd->get_datax();
-	if(NULL == ptr)
-	{
-		return -1;
-	}
-
 	return 0;
 }
 

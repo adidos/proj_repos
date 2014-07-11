@@ -51,7 +51,7 @@ void TransceiverHandle::handle(int fd, int evs)
 			handleInput(proxy);
 		}
 		
-		//transceiverÎÞÐ§(socket¹Ø±Õ),
+		//transceiveræ— æ•ˆ(socketå…³é—­),
 		if(! proxy.trans->isValid())
 		{
 			proxy.adapter->refreshTransceiver();

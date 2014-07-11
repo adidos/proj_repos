@@ -84,7 +84,5 @@ void RespProcessor::doIt()
 		
 		LOG4CPLUS_INFO(FLogger, "TimeTace: request[" << resp.idx << "] to response["
 				<< name << "] spend time " << current_time_usec() - resp.timestamp);
-
-		LOG4CPLUS_DEBUG(FLogger, name << " command reference is " << resp.pCmd.use_count());
 	}
 }

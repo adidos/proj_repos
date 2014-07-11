@@ -33,8 +33,6 @@ public:
 	virtual ~SessionBase()
 	{
 		close();
-
-		LOG4CPLUS_DEBUG(FLogger, "SessionBase descontructor");
 	};
 
 	int getFd(){return fd_;}

@@ -23,7 +23,7 @@ Transceiver::Transceiver(int fd, bool bConnect)
 Transceiver::~Transceiver()
 {
 	if(-1 != _fd)
-		close();
+	close();
 }
 
 int Transceiver::fd() const

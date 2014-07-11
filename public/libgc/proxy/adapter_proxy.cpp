@@ -229,6 +229,11 @@ int AdapterProxy::finishConnect(TransceiverPtr& trans)
 		//where transceiver close ,need to refresh transceivers
 		refreshTransceiver();
 
+		if(_trans.size() == 0)
+		{
+			cerr << "connect to inner server failed!" <<endl;
+		}
+
         return -1;
     }
 
@@ -251,7 +256,6 @@ TransceiverPtr AdapterProxy::selectTransceiver()
 {
 	LOG4CPLUS_TRACE(FLogger, __FUNCTION__);
 
-
 	typedef vector<TransceiverPtr>::iterator Iterator;
 
 	LOG4CPLUS_TRACE(FLogger, "transceiver array size is " << _trans.size());
@@ -267,10 +271,11 @@ TransceiverPtr AdapterProxy::selectTransceiver()
 		
 			TransceiverPtr ptr = *iter;
 
-			if(ptr && ptr->isValid()) return ptr;
+			if(ptr && ptr->isValid()) 
+				return ptr;
 
 			iter = _trans.erase(iter);
-			LOG4CPLUS_WARN(FLogger, index << "'st in transceiver arrayy "
+			LOG4CPLUS_WARN(FLogger, (index + 1) << "'st in transceiver arrayy "
 					<< " is invalid, erase it!");
 		}
 	}
@@ -287,7 +292,6 @@ TransceiverPtr AdapterProxy::selectTransceiver()
 */
 void AdapterProxy::refreshTransceiver()
 {
-	LOG4CPLUS_TRACE(FLogger, __FUNCTION__);
 	CScopeGuard guard(_trans_mutex);
 
 	vector<TransceiverPtr>::iterator iter = _trans.begin();

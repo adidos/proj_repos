@@ -69,6 +69,7 @@ bool CheckinHandle::handle(CmdTask& task)
 		if(0 == ret && 0 == update_resp.result)
 		{
 			pParam->PutInt(DataID_Result, checkin_ret.result);
+
 			pParam->PutShort(DataID_CheckDay, checkin_ret.check_day);
 			pParam->PutInt(DataID_BeanNum, update_resp.bean_num);
 			pParam->PutDataXArray(DataID_Param1, (IDataX**)_rewards, _size);
@@ -122,7 +123,7 @@ int CheckinHandle::doCheckin(int game_id ,int64_t uid, CheckinResult& ret)
 
 	int result = proxy->checkin(game_id, uid, ret);
 	
-	LOG4CPLUS_ERROR(FLogger, "user checkin call result is  " << result 
+	LOG4CPLUS_DEBUG(FLogger, "user checkin call result is  " << result 
 		<< ", return " << ret.dump());
 
 	return result;
@@ -151,8 +152,10 @@ int CheckinHandle::handleCheckin(CheckinResult result, UpdateGameInfoResp& resp)
 		return -1;
 	}
 
-	//会员签到双倍
-	int bean = _rewards_array[result.check_day].num;
+	//会员签到双倍, 当大于配置的天数后，取最大天数配置
+	int check_day = result.check_day > _size ? _size : result.check_day;
+
+	int bean = _rewards_array[check_day].num;
 	if(result.vip_flag > 0)  bean *= 2;
 
 	UpdateGameInfoReq req;
