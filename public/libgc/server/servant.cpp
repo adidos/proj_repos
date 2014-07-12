@@ -177,22 +177,9 @@ int Servant::initAcceptor()
 */
 int Servant::newConnection(int client)
 {
-	int seqno =	_session_mgr_ptr->getSeqno8Fd(client);
-	if(-1 != seqno) //fd被重复使用了，说明前一个连接已经断开(断线消息还未处理)，需要释放掉session
-	{
-		LOG4CPLUS_DEBUG(FLogger, "socket " << client <<" reused, find the old session free it!");
-
-		SessionBasePtr ptr = _session_mgr_ptr->getSession(seqno);
-
-		if(ptr)	ptr->close();
-
-		_session_mgr_ptr->delSession(seqno);
-	}
-
 	setNoBlock(client);
 
-	seqno = Index::get();
-
+	int seqno = Index::get();
 	SessionBasePtr pSession(new SessionBase(client, seqno));
 
 	LOG4CPLUS_DEBUG(FLogger, "create a new session(" << client << "," << seqno << ").");
@@ -202,11 +189,21 @@ int Servant::newConnection(int client)
 	if(!bret)
 	{
 		LOG4CPLUS_ERROR(FLogger, "add session to manager failed!");
-		
+
 		return -1;
 	}
+
 	//添加session成功后，在创建socket和seqno的关联
-	_session_mgr_ptr->addFd(client, seqno);
+	int old_seq =_session_mgr_ptr->addFd(client, seqno);
+	if(0 != old_seq)
+	{
+		LOG4CPLUS_DEBUG(FLogger, "socket " << client <<" was used by " << old_seq
+				<< " , find the old session free it!");
+
+		//既然fd已经复用，那么久不能关闭，在session的析构中
+		//也不可以close,所以对于每个session直接调用close，不能依赖析构函数
+		_session_mgr_ptr->delSession(seqno);
+	}
 
 	uint64_t data = U64(seqno, client);
 

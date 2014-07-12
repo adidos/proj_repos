@@ -69,7 +69,6 @@ void EventProcessor::doIt()
 			continue;
 		}
 
-		LOG4CPLUS_DEBUG(FLogger, "Process Event " << event.dump());
 		if(EVENT_CLOSE == event.type)
 		{
 			processClose(event);
@@ -92,6 +91,8 @@ void EventProcessor::doIt()
 */
 void EventProcessor::processRead(Event& event)
 {
+	LOG4CPLUS_DEBUG(FLogger, "Process read Event " << event.dump());
+
 	int seqno = event.seqno;
 
 	SessionBasePtr pSession = _sess_mgr_ptr->getSession(seqno);
@@ -129,9 +130,6 @@ void EventProcessor::processRead(Event& event)
 			task.seqno = seqno;
 			task.timestamp = current_time_usec();
 
-			LOG4CPLUS_INFO(FLogger, "TimeTrace: event->task spend time " 
-				<< task.timestamp - event.timestamp);
-			
 			bool bSucc = _work_group_ptr->dispatch(task);
 			if(!bSucc)
 			{
@@ -148,7 +146,9 @@ void EventProcessor::processRead(Event& event)
 * @param event
 */
 void EventProcessor::processWrite(Event& event)
-{
+{	
+	LOG4CPLUS_DEBUG(FLogger, "Process write Event " << event.dump());
+
 	int seqno = event.seqno;
 	SessionBasePtr pSession = _sess_mgr_ptr->getSession(seqno);
 	if(!pSession)
@@ -177,30 +177,29 @@ void EventProcessor::processWrite(Event& event)
 */
 void EventProcessor::processClose(Event& event)
 {
+	LOG4CPLUS_DEBUG(FLogger, "Process close Event " << event.dump());
+
 	int seqno = event.seqno;
-	uint64_t uid = _client_mgr_ptr->getUid8Sid(seqno);
 
-	//notify drop first, fd will be reuse after fd close
-	notifyUserDrop(uid);
-	_client_mgr_ptr->freeClient(uid, seqno);
-	
-	SessionBasePtr pSession = _sess_mgr_ptr->getSession(seqno);
-	if(!pSession)
+	int64_t uid = _client_mgr_ptr->getUid8Sid(seqno);
+	if(uid > 0)
 	{
-		LOG4CPLUS_WARN(FLogger, "session is null, seqno = "<<seqno);
-	
-		_sess_mgr_ptr->delSession(seqno);
+		notifyUserDrop(uid);
+		_client_mgr_ptr->freeClient(uid, seqno);
 
-		return ;
 	}
+		
+	SessionBasePtr pSession = _sess_mgr_ptr->getSession(seqno);
+	if(pSession)
+	{
+		int fd = pSession->getFd();
+		_sess_mgr_ptr->delFd(fd);
 
-	//int fd = pSession->getFd();
-	//int64_t data = U64(seqno, fd);
-	//_epoll_svr_ptr->notify(fd, data, EVENT_CLOSE);
-
-	_sess_mgr_ptr->delSession(pSession);
+		pSession->close();
+	}
 	
-	pSession->close();
+	_sess_mgr_ptr->delSession(seqno);
+
 }
 
 void EventProcessor::handleClient(uint64_t uid, int seqno)

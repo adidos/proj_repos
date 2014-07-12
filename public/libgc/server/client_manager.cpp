@@ -127,7 +127,7 @@ int64_t ClientManager::getUid8Sid(int seqno)
 	std::map<int, int64_t>::iterator iter = _seq2uid_array.find(seqno);
 	if(iter == _seq2uid_array.end())
 	{
-		LOG4CPLUS_WARN(FLogger, "can't find user by seqno[" << seqno <<"].");
+		LOG4CPLUS_WARN(FLogger, "can't find userid by seqno[" << seqno <<"].");
 		return -1;
 	}
 	return iter->second;

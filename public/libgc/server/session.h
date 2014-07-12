@@ -19,6 +19,7 @@
 #include "common/thread_sync.h"
 #include "common/DataXCmd.h"
 
+#define INVALID_SOCKET -1
 #define SOCKET_CLOSE	-10
 #define SOCKET_ERR	-11
 #define SOCKET_EAGAIN -12
@@ -32,7 +33,6 @@ public:
 	SessionBase(int fd, int seqno);
 	virtual ~SessionBase()
 	{
-		close();
 	};
 
 	int getFd(){return fd_;}

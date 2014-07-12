@@ -48,7 +48,7 @@ int EpollServer::init(int size)
 
 int EpollServer::notify(int fd, uint64_t data, int iEvent)
 {
-	LOG4CPLUS_DEBUG(FLogger, "epoll notify: " << fd << "|" 
+	LOG4CPLUS_TRACE(FLogger, "epoll notify: " << fd << "|" 
 				<< data<< "|" << iEvent );
 	
 	CScopeGuard guard(_mutex);
@@ -175,7 +175,7 @@ void EpollServer::clean_inactive_fd()
 			continue;
 
 		_epoll.del(fd, 0, 0);
-		::close(fd);
+		//::close(fd);
 
 		Event event = {'\0'};
 		event.seqno = seqno;

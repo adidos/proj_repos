@@ -35,6 +35,7 @@ public:
 
 	int addFd(int fd, int seqno);
 	int getSeqno8Fd(int fd);
+	int delFd(int fd);
 	
 	typedef map<int, SessionBasePtr>::iterator Iterator;
 private:

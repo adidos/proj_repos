@@ -18,7 +18,7 @@
 #include <sys/types.h>
 
 SessionBase::SessionBase()
-	:fd_(-1), seq_no_(-1)
+	:fd_(INVALID_SOCKET), seq_no_(-1)
 {
 
 }
@@ -40,9 +40,10 @@ void SessionBase::clearBuffer()
 		send_buff_.clear();
 	}
 }
+
 int SessionBase::recvBuffer()
 {
-	if(-1 == fd_)
+	if(INVALID_SOCKET == fd_)
 	{
 		LOG4CPLUS_ERROR(FLogger, "socket is invalide, close it!");
 		return SOCKET_CLOSE;
@@ -94,9 +95,9 @@ int SessionBase::sendBuffer()
 	
 	while(1)
 	{
-		if(-1 == fd_ ) 
+		if(INVALID_SOCKET == fd_ ) 
 		{
-			LOG4CPLUS_ERROR(FLogger, "socket fd = -1!");
+			LOG4CPLUS_ERROR(FLogger, "socket fd is invalid!");
 			return SOCKET_ERR;
 		}
 		
@@ -136,8 +137,11 @@ int SessionBase::sendBuffer()
 
 int SessionBase::close()
 {
-	::close(fd_);
-	fd_ = -1;
+	if(INVALID_SOCKET != fd_ )
+	{
+		::close(fd_);
+		fd_ = INVALID_SOCKET;
+	}
 	
 	clearBuffer();
 	return 0;
@@ -195,9 +199,7 @@ int SessionBase::parseProtocol(DataXCmdPtr &pCmd)
 		return -1;
 	}
 
-	LOG4CPLUS_DEBUG(FLogger, "pcmd[" << ptr->get_cmd_name() << "] reference is " << ptr.use_count());
 	pCmd = ptr;
-	LOG4CPLUS_DEBUG(FLogger, "pcmd[" << ptr->get_cmd_name() << "] reference is " << ptr.use_count());
 
 	//delete the decode buffer from recv buffer
 	recv_buff_.erase(0, body + header);
